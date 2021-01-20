@@ -12,7 +12,7 @@ public class SwerveModule extends Submodule {
 
     public static SwerveModule getInstance() {
         if (instance == null) {
-            instance = new Teleop();
+            instance = new SwerveModule();
         }
         return instance;
     }
@@ -64,29 +64,92 @@ public class SwerveModule extends Submodule {
         rotor.config_kD(0, 1.3);
         rotor.configMotionAcceleration(100000);
         rotor.configMotionCruiseVelocity(80000);
-        rotor.setSelectedSensorPosition(0);
+
+        zero();
+    }
+
+    public void changeMotorMode(MotorMode mode){
+        runMode = mode;
+        switch(runMode){
+            case POSITION:        
+                motor.selectProfileSlot(0, 0);
+            break;
+            case VELOCITY:            
+            
+                motor.selectProfileSlot(1, 0);
+            break;
+        }
+    }
+
+/**
+ * sets the rotor to PID to a position
+ * @param pos the position to go to in units of full rotations
+ */
+    public void setRotorPos(double pos) {
+        pos = pos / 360;
+        double dPos = pos - getAngle();
+        dPos = dPos % 1;
+        if (dPos < 0) dPos += 1;
+        rotor.setSelectedSensorPosition(0); 0.75)
+        if (dPos > 0.25) dPos = reverseMotor(dPos);
+        rotorTargPos = pos;//dPos + getAngle();
+    }
+
+    private double reverseMotor(double dPos) {
+        return dPos - 0.5;
+    }
+
+    public void setMotorVelocity(double speed) {
+        motorVel = speed;
+    }
+
+    public void setMotorPosition(double position) {
+        motorPos = position;    
     }
 
     /**
      * Reads cached inputs & calculate outputs.
      */
-    public void update(double timestamp) {}
+    public void update(double timestamp) {
+        
+    }
     
+    /**
+     * Sets the module to a 2-D target velocity.  Input array should have magnitude less than 1
+     */
+    public void setVectorVelocity(double[] V){
+        this.setRotorPos(DEGREES_IN_REV/(2*Math.PI)*Math.atan2(V[1], V[0]));
+        this.setMotorVelocity(Math.sqrt(Math.pow(V[0],2)+Math.pow(V[1],2))*MAX_MOTOR_SPEED);
+    }
+
+
     /**
      * Runs components in the submodule that have continuously changing 
      * inputs.
      */
-    public void run() {}
-
-    /**
-     * Stops the submodule.
-     */
-    public abstract void stop();
+    public void run() {
+        System.out.println("rotorTargPos:"+rotorTargPos);
+        System.out.println("motorVel:"+motorVel);
+        rotor.set(ControlMode.MotionMagic, rotorTargPos * ROTOR_ANGLE_RATIO);
+        switch(runMode){
+            case POSITION:        
+                motor.set(ControlMode.MotionMagic, motorPos);
+            break;
+            case VELOCITY:            
+                motor.set(ControlMode.Velocity, motorVel);
+            break;
+        }
+    }
 
     /**
      * Resets the sensor(s) to zero.
      */
-    public void zero() {}
+    public void zero() {
+        rotor.setSelectedSensorPosition(0);
+        motor.setSelectedSensorPosition(0);
+    }
 
-
+    public double getAngle() {
+        return rotor.getSelectedSensorPosition(0) / ROTOR_ANGLE_RATIO;
+    }
 }
