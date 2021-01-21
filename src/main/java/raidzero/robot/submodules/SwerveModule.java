@@ -111,7 +111,8 @@ public class SwerveModule extends Submodule {
     }
 
     public void setMotorPosition(double position) {
-        motorPos = position * (angleAdjustmentMotorPolarity ? -1 : 1);    
+        // will have to sort out reversing later
+        motorPos = position;
     }
 
     /**
@@ -125,10 +126,13 @@ public class SwerveModule extends Submodule {
      * Sets the module to a 2-D target velocity.  Input array should have magnitude less than 1
      */
     public void setVectorVelocity(double[] v){
-        // set rotor to the theta of cartesian vector v
-        setRotorPos(DEGREES_IN_REV/(2*Math.PI)*Math.atan2(v[1], v[0]));
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
         setMotorVelocity(Math.sqrt(Math.pow(V[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
+        // set rotor to the theta of cartesian vector v if the magnitude of the vector is not too small
+        if (v[0] < 0.01 && v[1] < 0.01){
+            return;            
+        }
+        setRotorPos(DEGREES_IN_REV/(SwerveConstants.QUARTER_RADIANS)*Math.atan2(v[1], v[0]));
     }
 
 

@@ -1,50 +1,52 @@
 package raidzero.robot;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import java.lang.Math;
 
 public class Constants {
     /**
      * Swerve Constants
      */
     
-    public static final class SwerveModuleConstants {
+    public static final class SwerveConstants {
         // motor ids
         public static final int[] SWERVE_IDS = {
             0,1,2,3,4,5,6,7
         };
 
-        // unit conversions
-        private static final double FALCON_TICKS = 2048;
-        private static final double ROTOR_RATIO = 12;
-        private static final double ROTOR_REVOLUTION_RATIO = ROTOR_RATIO * FALCON_TICKS;
-        private static final double DEGREES_IN_REV = 360;
+        // unit conversions and constants
+        public static final double FALCON_TICKS = 2048;
+        public static final double ROTOR_RATIO = 12;
+        public static final double ROTOR_REVOLUTION_RATIO = ROTOR_RATIO * FALCON_TICKS;
+        public static final double DEGREES_IN_REV = 360;
+        public static final double QUARTER_RADIANS = Math.PI / 2;
 
         // motor speed limits
-        private static final double MAX_MOTOR_RPM = 6300;
-        private static final double SECONDS_IN_MINUTE = 60;
-        private static final double MAX_MOTOR_SPEED = FALCON_TICKS*MAX_MOTOR_RPM/(10*SECONDS_IN_MINUTE);
+        public static final double MAX_MOTOR_RPM = 6300;
+        public static final double SECONDS_IN_MINUTE = 60;
+        public static final double MAX_MOTOR_SPEED = FALCON_TICKS*MAX_MOTOR_RPM/(10*SECONDS_IN_MINUTE);
 
         // motor setup constants
-        private static final FeedbackDevice FEEDBACKDEVICE = FeedbackDevice.IntegratedSensor;
-        private static final int MOTOR_POSITION_SLOT = 0;
-        private static final int MOTOR_VELOCITY_SLOT = 1;
-        private static final int ROTOR_PID_SLOT = 0;
+        public static final FeedbackDevice FEEDBACKDEVICE = FeedbackDevice.IntegratedSensor;
+        public static final int MOTOR_POSITION_SLOT = 0;
+        public static final int MOTOR_VELOCITY_SLOT = 1;
+        public static final int ROTOR_PID_SLOT = 0;
         
         //PID constants
-        private static final int PID_PRIMARY_SLOT = 0;
-        private static final int PID_AUX_SLOT = 1;
+        public static final int PID_PRIMARY_SLOT = 0;
+        public static final int PID_AUX_SLOT = 1;
 
-        private static final double MOTOR_POSI_KP = 0;
-        private static final double MOTOR_POSI_KD = 0;
-        private static final double MOTOR_VELO_KP = 0.5;
-        private static final double MOTOR_VELO_KD = 0;
-        private static final double DEFAULT_TARG_ACCEL = 100000;
-        private static final double DEFAULT_TARG_VELO = 80000;
-    
-        private static final double ROTOR_KP= 0.8;
-        private static final double ROTOR_KD= 1.3;
-        private static final double ROTOR_TARG_ACCEL = 100000; 
-        private static final double ROTOR_TARG_VELO = 80000; 
+        public static final double MOTOR_POSI_KP = 0;
+        public static final double MOTOR_POSI_KD = 0;
+        public static final double MOTOR_VELO_KP = 0.5;
+        public static final double MOTOR_VELO_KD = 0;
+        public static final double DEFAULT_TARG_ACCEL = 100000;
+        public static final double DEFAULT_TARG_VELO = 80000;
+
+        public static final double ROTOR_KP= 0.8;
+        public static final double ROTOR_KD= 1.3;
+        public static final double ROTOR_TARG_ACCEL = 100000; 
+        public static final double ROTOR_TARG_VELO = 80000; 
     }
 
     /**
