@@ -1,10 +1,10 @@
 package raidzero.robot.submodules;
 
-import raidzero.robot.Constants.SwerveConstants;
-import raidzero.robot.submodules.Submodule;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import raidzero.robot.Constants.SwerveConstants;
+import raidzero.robot.utils.JoystickUtils;
 
 public class Swerve extends Submodule {
     private static Swerve instance = null;
@@ -19,23 +19,13 @@ public class Swerve extends Submodule {
     private Swerve() {
     }
 
-    private static enum ModuleLocation {
-        I(0), II(1), III(2), IV(3);
-
-        public int label;
-
-        private ModuleLocation(int label) {
-        this.label = label;
-        }
-    };
-
     private static int numMotors;
     private static SwerveModule d;
     private static SwerveModule[] modules = new SwerveModule[4];
 
     // buffer variables
     private static double[][] rotV = new double[4][2];
-    private static double[] totalV = new double[2];
+    private static double[] totalV = new double[] {0,0};
     private static double[] basesChangeBuffer = new double[2];
 
     // Makes an entire swerve drive with NUMMOTORS/2 modules
@@ -48,13 +38,13 @@ public class Swerve extends Submodule {
     public void onStart(double timestamp) {}
 
 
-    public void onInit(int[] motorarray) {
-        numMotors = motorarray.length;
+    public void onInit() {
+        numMotors = SwerveConstants.SWERVE_IDS.length;
 
         // init each module
         for (int i = 0; i < numMotors / 2; i++) {
-            modules[i] = new Module();
-            int[] motornums = new int[] { motorarray[2 * i], motorarray[2 * i + 1] };
+            modules[i] = new SwerveModule();
+            int[] motornums = new int[] { SwerveConstants.SWERVE_IDS[2 * i], SwerveConstants.SWERVE_IDS[2 * i + 1] };
             modules[i].onInit(motornums);
             
             /**
@@ -79,7 +69,7 @@ public class Swerve extends Submodule {
      * inputs.
      */
     public void run() {
-        for (SwerveModeule module : modules) {
+        for (SwerveModule module : modules) {
             module.run();
         }
     }
@@ -95,7 +85,9 @@ public class Swerve extends Submodule {
      * Resets the sensor(s) to zero.
      */
     public void zero() {
-        modules.forEach(SwerveModule (o -> o.zero()));
+        for(SwerveModule mod : modules) {
+            mod.zero();
+        }
     }
 
     public void Drive(double Vx, double Vy, double omega) {
@@ -138,10 +130,10 @@ public class Swerve extends Submodule {
         if (c.getYButtonPressed()) {
             d = modules[3];
         }
-        d.setMotorVelocity(c.getY(Hand.kRight) * 40000);
-        d.setRotorPos(c.getY(Hand.kLeft) / 4);
+        d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
+        d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
         if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
-            d.setRotorPos(0.25);
+            d.setRotorPos(90);
         }
     }
 

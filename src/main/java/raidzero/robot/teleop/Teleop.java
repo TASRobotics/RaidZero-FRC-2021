@@ -1,9 +1,11 @@
 package raidzero.robot.teleop;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 
 import raidzero.robot.submodules.Superstructure;
 import raidzero.robot.submodules.Swerve;
+import raidzero.robot.utils.JoystickUtils;
 
 public class Teleop {
 
@@ -19,6 +21,11 @@ public class Teleop {
         }
         return instance;
     }
+
+    public void onStart() {
+
+    }
+
     /**
      * Stops the submodule.
      */
@@ -49,7 +56,11 @@ public class Teleop {
     }
 
     private void p1Loop() {
-        swerve.Drive(p1.getX(Hand.kLeft), p1.getX(Hand.kLeft), p1,getX(Hand.kRight));
+        swerve.Drive(
+            JoystickUtils.deadband(p1.getX(Hand.kLeft)),
+            JoystickUtils.deadband(p1.getY(Hand.kLeft)), 
+            JoystickUtils.deadband(p1.getX(Hand.kRight))
+        );
     }
 
     private void p2Loop() {

@@ -8,17 +8,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 public class SwerveModule extends Submodule {
-    private static SwerveModule instance = null;
-
-    public static SwerveModule getInstance() {
-        if (instance == null) {
-            instance = new SwerveModule();
-        }
-        return instance;
-    }
-
-    private SwerveModule() {
-    }
 
     private static enum MotorMode {
         POSITION, VELOCITY
@@ -94,7 +83,7 @@ public class SwerveModule extends Submodule {
         double dPos = pos - getRotorPosition();
         // get the positive adjusted angle
         dPos = dPos % 1;
-        if (dPos < 0) dPos += 1;
+        if (dPos < -0.25) dPos += 1;
         
         if (dPos > 0.25) {
             dPos -= 0.5;
@@ -107,7 +96,8 @@ public class SwerveModule extends Submodule {
     }
 
     public void setMotorVelocity(double speed) {
-        motorVel = speedmy * (angleAdjustmentMotorPolarity ? -1 : 1);
+        System.out.println(angleAdjustmentMotorPolarity);
+        motorVel = speed * (angleAdjustmentMotorPolarity ? -1 : 1);
     }
 
     public void setMotorPosition(double position) {
@@ -127,12 +117,12 @@ public class SwerveModule extends Submodule {
      */
     public void setVectorVelocity(double[] v){
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
-        setMotorVelocity(Math.sqrt(Math.pow(V[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
+        setMotorVelocity(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
         // set rotor to the theta of cartesian vector v if the magnitude of the vector is not too small
-        if (v[0] < 0.01 && v[1] < 0.01){
-            return;            
+        if (motorVel < 0.01){
+            return;
         }
-        setRotorPos(DEGREES_IN_REV/(SwerveConstants.QUARTER_RADIANS)*Math.atan2(v[1], v[0]));
+        setRotorPos(SwerveConstants.DEGREES_IN_REV/(SwerveConstants.QUARTER_RADIANS)*Math.atan2(v[1], v[0]));
     }
 
 
@@ -141,7 +131,7 @@ public class SwerveModule extends Submodule {
      * inputs.
      */
     public void run() {
-        rotor.set(ControlMode.MotionMagic, rotorTargPos * ROTOR_ANGLE_RATIO);
+        rotor.set(ControlMode.MotionMagic, rotorTargPos * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         switch(runMode){
             case POSITION:        
                 motor.set(ControlMode.MotionMagic, motorPos);
@@ -159,6 +149,10 @@ public class SwerveModule extends Submodule {
         zeroMotor();
         zeroRotor();
     }
+
+    public void stop() {
+
+    }
     
     public void zeroRotor() {
         rotor.setSelectedSensorPosition(0);
@@ -170,6 +164,6 @@ public class SwerveModule extends Submodule {
     
 
     public double getRotorPosition() {
-        return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_ANGLE_RATIO;
+        return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_REVOLUTION_RATIO;
     }
 }
