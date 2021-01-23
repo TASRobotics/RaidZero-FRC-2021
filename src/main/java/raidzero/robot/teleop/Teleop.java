@@ -56,11 +56,16 @@ public class Teleop {
     }
 
     private void p1Loop() {
-        swerve.Drive(
+        if(p1.getBumper(Hand.kLeft)) {
+            swerve.test(p1);
+            return;
+        }
+        swerve.FieldOrientedDrive(
             JoystickUtils.deadband(p1.getX(Hand.kLeft)),
-            JoystickUtils.deadband(p1.getY(Hand.kLeft)), 
+            JoystickUtils.deadband(-p1.getY(Hand.kLeft)), 
             JoystickUtils.deadband(p1.getX(Hand.kRight))
         );
+        if(p1.getAButton()) swerve.zeroPigeon();
     }
 
     private void p2Loop() {
