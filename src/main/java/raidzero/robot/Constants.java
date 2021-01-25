@@ -41,8 +41,8 @@ public class Constants {
 
         public static final double MOTOR_POSI_KP = 0;
         public static final double MOTOR_POSI_KD = 0;
-        public static final double MOTOR_VELO_KF = 0.05;
-        public static final double MOTOR_VELO_KP = 0.16;
+        public static final double MOTOR_VELO_KF = 0;//0.05;
+        public static final double MOTOR_VELO_KP = 0.08;
         public static final double MOTOR_VELO_KD = 0.2;
         public static final double DEFAULT_TARG_ACCEL = 100000;
         public static final double DEFAULT_TARG_VELO = 22000;

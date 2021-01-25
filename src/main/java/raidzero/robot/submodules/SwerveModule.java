@@ -51,7 +51,7 @@ public class SwerveModule extends Submodule {
         motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,SwerveConstants.PID_PRIMARY_SLOT);
         motor.config_kP(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KP);
         motor.config_kD(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KD);
-        motor.config_kP(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KF);
+        //motor.config_kF(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KF);
         motor.config_kP(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KP);
         motor.config_kD(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KD);
         motor.configMotionAcceleration(SwerveConstants.DEFAULT_TARG_ACCEL);
@@ -127,7 +127,9 @@ public class SwerveModule extends Submodule {
      */
     public void setVectorVelocity(double[] v){
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
-        System.out.println(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
+        if(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2)) > 1) {
+            System.out.println("surpassed");
+        }
         setMotorVelocity(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
         // set rotor to the theta of cartesian vector v if the magnitude of the vector is not too small
         if (motorVel < 0.01){

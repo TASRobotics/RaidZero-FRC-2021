@@ -62,6 +62,9 @@ public class Swerve extends Submodule {
              */
             double moduleAngle = Math.PI / 4 + (Math.PI / 2) * i;
             rotV[i] = new double[] { -Math.sin(moduleAngle), Math.cos(moduleAngle)};
+            System.out.println("a");
+            System.out.println(rotV[i][0]);
+            System.out.println(rotV[i][1]);
         }
         d = modules[0];
         zero();
@@ -100,19 +103,26 @@ public class Swerve extends Submodule {
         pigey.setYaw(0);
     }
 
-    public void Drive(double Vx, double Vy, double omega) {
+    public void Drive(double vX, double vY, double omega) {
+        double mag = Math.sqrt(Math.pow(vX + omega * (1/Math.sqrt(2)), 
+            2) + Math.pow(vY + omega * (1/Math.sqrt(2)), 2));
+        if(mag > 1) {
+            mag = 1/mag;
+        } else {
+            mag = 1;
+        }
         for (int i = 0; i < modules.length; i++) {
-            totalV[0] = Vx - omega * rotV[i][0];
-            totalV[1] = Vy - omega * rotV[i][1];
+            totalV[0] = mag * (vX - omega * rotV[i][0]);
+            totalV[1] = mag * (vY - omega * rotV[i][1]);
             modules[i].setVectorVelocity(totalV);
         }
     }
 
-    public void FieldOrientedDrive(double Vx, double Vy, double omega) {
+    public void FieldOrientedDrive(double vX, double vY, double omega) {
         double rotangle = 2 * Math.PI / SwerveConstants.DEGREES_IN_REV * ypr[0];
-        double newVx = Vx * Math.cos(rotangle) + Vy * Math.sin(rotangle);
-        double newVy = -Vx * Math.sin(rotangle) + Vy * Math.cos(rotangle);
-        Drive(newVx, newVy, omega);
+        double newX = vX * Math.cos(rotangle) + vY * Math.sin(rotangle);
+        double newY = -vX * Math.sin(rotangle) + vY * Math.cos(rotangle);
+        Drive(newX, newY, omega);
     }
 
     private static void setHeading() {
@@ -134,7 +144,7 @@ public class Swerve extends Submodule {
         }
         d.setVectorVelocity(
             new double[] {JoystickUtils.deadband(-c.getY(Hand.kLeft)), JoystickUtils.deadband(c.getX(Hand.kLeft))}
-            );
+        );
         //d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
         //d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
         if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
