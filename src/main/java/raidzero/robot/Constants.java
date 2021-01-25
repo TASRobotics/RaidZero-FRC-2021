@@ -59,6 +59,7 @@ public class Constants {
     public static final double JOYSTICK_DEADBAND = 0.06;
 
     public static final int TIMEOUT_MS = 10;
+    public static final double SQRTTWO = 1.4142135623730950488016887242097;
 
     /**
      * Drivetrain Constants

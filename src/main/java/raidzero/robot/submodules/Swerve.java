@@ -2,7 +2,7 @@ package raidzero.robot.submodules;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-
+import raidzero.robot.Constants;
 import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.utils.JoystickUtils;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -62,9 +62,6 @@ public class Swerve extends Submodule {
              */
             double moduleAngle = Math.PI / 4 + (Math.PI / 2) * i;
             rotV[i] = new double[] { -Math.sin(moduleAngle), Math.cos(moduleAngle)};
-            System.out.println("a");
-            System.out.println(rotV[i][0]);
-            System.out.println(rotV[i][1]);
         }
         d = modules[0];
         zero();
@@ -104,16 +101,16 @@ public class Swerve extends Submodule {
     }
 
     public void Drive(double vX, double vY, double omega) {
-        double mag = Math.sqrt(Math.pow(vX + omega * (1/Math.sqrt(2)), 
-            2) + Math.pow(vY + omega * (1/Math.sqrt(2)), 2));
+        double mag = Math.sqrt(Math.pow(vX + (Constants.SQRTTWO * omega),2)
+            + Math.pow(vY + (Constants.SQRTTWO * omega), 2));
         if(mag > 1) {
-            mag = 1/mag;
+            mag = 1/(mag * Constants.SQRTTWO);
         } else {
             mag = 1;
         }
         for (int i = 0; i < modules.length; i++) {
-            totalV[0] = mag * (vX - omega * rotV[i][0]);
-            totalV[1] = mag * (vY - omega * rotV[i][1]);
+            totalV[0] =  mag * (vX - omega * rotV[i][0]);
+            totalV[1] =  mag * (vY - omega * rotV[i][1]);
             modules[i].setVectorVelocity(totalV);
         }
     }

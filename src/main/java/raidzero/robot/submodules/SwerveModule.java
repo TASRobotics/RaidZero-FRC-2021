@@ -127,9 +127,6 @@ public class SwerveModule extends Submodule {
      */
     public void setVectorVelocity(double[] v){
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
-        if(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2)) > 1) {
-            System.out.println("surpassed");
-        }
         setMotorVelocity(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
         // set rotor to the theta of cartesian vector v if the magnitude of the vector is not too small
         if (motorVel < 0.01){
