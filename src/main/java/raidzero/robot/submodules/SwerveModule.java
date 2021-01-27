@@ -20,6 +20,7 @@ public class SwerveModule extends Submodule {
     private TalonFX rotor;
     private TalonFX motor;
     private CANCoder angle;
+    private int quadrant;
 
     private double motorPos = 0;
     private double motorVel = 0;
@@ -43,6 +44,7 @@ public class SwerveModule extends Submodule {
         rotor = new TalonFX(ids[1]);
         angle = new CANCoder(quadrant);
         zeroAngle = initAngle;
+        this.quadrant = quadrant;
 
 
         motor.configFactoryDefault();
@@ -156,6 +158,7 @@ public class SwerveModule extends Submodule {
      * Resets the sensor(s) to zero.
      */
     public void zero() {
+        rotorTargPos = 0;
         zeroMotor();
         zeroRotor();
     }
@@ -165,7 +168,7 @@ public class SwerveModule extends Submodule {
     }
     
     public void zeroRotor() {
-        rotor.setSelectedSensorPosition((int)((angle.getAbsolutePosition()-zeroAngle)*SwerveConstants.ROTOR_REVOLUTION_RATIO/SwerveConstants.DEGREES_IN_REV));
+        rotor.setSelectedSensorPosition((int)((angle.getAbsolutePosition()-zeroAngle)*(SwerveConstants.ROTOR_REVOLUTION_RATIO/SwerveConstants.DEGREES_IN_REV)), 0, 10);
     }
     
     public void zeroMotor() {

@@ -13,7 +13,7 @@ public class Constants {
         public static final int[] SWERVE_IDS = {
             0,1,2,3,4,5,6,7
         };
-        public static final double[] INIT_MODULES_DEGREES = new double[] {30,-155,41,92};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {30,205,41,92};
 
         // unit conversions and constants
         public static final double FALCON_TICKS = 2048;
@@ -53,7 +53,7 @@ public class Constants {
         public static final double ROTOR_TARG_ACCEL = 100000; 
         public static final double ROTOR_TARG_VELO = 80000; 
 
-        public static final double HEADING_KP = 1.2;
+        public static final double HEADING_KP = 0.01;
         public static final double HEADING_KI = 0;
         public static final double HEADING_KD = 0;
     }

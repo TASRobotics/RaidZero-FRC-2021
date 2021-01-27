@@ -77,6 +77,7 @@ public class Swerve extends Submodule {
             SwerveConstants.HEADING_KI,
             SwerveConstants.HEADING_KD
         );
+        headingPID.setTolerance(5);
         
         zero();
     }
@@ -138,7 +139,6 @@ public class Swerve extends Submodule {
         if(Math.abs(rX+rY) > 0.01) {
             double targetAngle = Math.atan2(rY, rX) * SwerveConstants.RAD_TO_DEG;
             double headingError = targetAngle - ypr[0];
-            System.out.println(headingError);
             omega = headingPID.calculate(headingError);
         }
 
