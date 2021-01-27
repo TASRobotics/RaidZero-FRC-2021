@@ -28,6 +28,8 @@ public class Swerve extends Submodule {
     private static PigeonIMU pigey = new PigeonIMU(0);
     private static double[] ypr = new double[3];
     private static double omega = 0;
+    private static double targetAngle;
+    private static double headingError;
     private static PIDController headingPID;
 
     // buffer variables
@@ -137,13 +139,15 @@ public class Swerve extends Submodule {
         double newY = -vX * Math.sin(rotangle) + vY * Math.cos(rotangle);
         // rotational adjustment to PID to the directed heading
         if(Math.abs(rX+rY) > 0.01) {
-            double targetAngle = Math.atan2(rY, rX) * SwerveConstants.RAD_TO_DEG;
-            double headingError = targetAngle - ypr[0];
-            omega = headingPID.calculate(headingError);
+            targetAngle = Math.atan2(-rX, rY) * SwerveConstants.RAD_TO_DEG;
         }
-
+        headingError = targetAngle - ypr[0];
+        omega = headingPID.calculate(headingError);
+        if(omega > 1) omega=1;
+        if(omega < -1) omega=-1;
         // send new directions to drive
         Drive(newX, newY, omega);
+
     }
 
     private static void setHeading() {
