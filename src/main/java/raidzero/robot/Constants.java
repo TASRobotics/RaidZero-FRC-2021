@@ -13,7 +13,7 @@ public class Constants {
         public static final int[] SWERVE_IDS = {
             0,1,2,3,4,5,6,7
         };
-        public static final double[] INIT_MODULES_DEGREES = new double[] {30,205,41,92};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {30,-155,41,92};
 
         // unit conversions and constants
         public static final double FALCON_TICKS = 2048;
