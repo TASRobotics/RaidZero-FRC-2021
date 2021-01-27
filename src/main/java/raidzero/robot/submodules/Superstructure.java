@@ -1,8 +1,5 @@
 package raidzero.robot.submodules;
 
-import java.util.Arrays;
-
-
 public class Superstructure extends Submodule {
 
     private static Superstructure instance = null;

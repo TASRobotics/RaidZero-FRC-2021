@@ -63,9 +63,10 @@ public class Teleop {
         swerve.FieldOrientedDrive(
             JoystickUtils.deadband(p1.getX(Hand.kLeft)),
             JoystickUtils.deadband(-p1.getY(Hand.kLeft)), 
-            JoystickUtils.deadband(p1.getX(Hand.kRight))
+            JoystickUtils.deadband(p1.getX(Hand.kRight)), 
+            JoystickUtils.deadband(-p1.getY(Hand.kRight))
         );
-        if(p1.getAButton()) swerve.zeroPigeon();
+        if(p1.getAButton()) swerve.zero();
     }
 
     private void p2Loop() {

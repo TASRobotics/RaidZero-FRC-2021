@@ -20,7 +20,8 @@ public class Constants {
         public static final double ROTOR_RATIO = 12;
         public static final double ROTOR_REVOLUTION_RATIO = ROTOR_RATIO * FALCON_TICKS;
         public static final double DEGREES_IN_REV = 360;
-        public static final double REVOLUTION_RADIANS = 2*Math.PI;
+        public static final double RADIANS_IN_REV = 2*Math.PI;
+        public static final double RAD_TO_DEG = DEGREES_IN_REV / RADIANS_IN_REV;
 
         // motor speed limits
         public static final double MAX_MOTOR_RPM = 6300;
@@ -51,6 +52,10 @@ public class Constants {
         public static final double ROTOR_KD= 1.3;
         public static final double ROTOR_TARG_ACCEL = 100000; 
         public static final double ROTOR_TARG_VELO = 80000; 
+
+        public static final double HEADING_KP = 1.2;
+        public static final double HEADING_KI = 0;
+        public static final double HEADING_KD = 0;
     }
 
     /**
