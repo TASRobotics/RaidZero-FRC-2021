@@ -5,7 +5,12 @@ import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
+import raidzero.pathgen.PathGenerator;
+import raidzero.pathgen.Point;
+import raidzero.pathgen.PathPoint;
 import raidzero.robot.Constants.PathConstants;
+import raidzero.robot.Constants.SwerveConstants;
+import raidzero.robot.utils.EncoderUtils;
 import edu.wpi.first.wpilibj.Notifier;
 
 public class ProfileFollower {
@@ -21,7 +26,6 @@ public class ProfileFollower {
 
     private boolean reversed;
 
-    boolean inHighGear = false;
     private boolean initRun;
     private State state;
     private MotionProfileStatus status;
@@ -87,7 +91,7 @@ public class ProfileFollower {
                 break;
             case WaitPoints:
                 leaderTalon.getMotionProfileStatus(status);
-                if (status.btmBufferCnt > DriveConstants.MIN_POINTS_IN_TALON) {
+                if (status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
                     setValue = SetValueMotionProfile.Enable;
                     state = State.Run;
                 }
@@ -162,15 +166,15 @@ public class ProfileFollower {
     
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
-            tp.position = reverse * EncoderUtils.inchesToTicks(waypoints[i].position, inHighGear);
-            tp.velocity = reverse * EncoderUtils.inchesToTicks(waypoints[i].velocity, inHighGear);
+            tp.position = reverse * EncoderUtils.inchesToTicks(waypoints[i].position);
+            tp.velocity = reverse * EncoderUtils.inchesToTicks(waypoints[i].velocity);
             // timeDur takes ms, but Pathpoint::time is in 100 ms
             tp.timeDur = (int) (waypoints[i].time * 100);
             // auxiliaryPos takes in units of 3600 ticks, but angle is in 360 degress
             tp.auxiliaryPos = waypoints[i].angle * 10;
             tp.useAuxPID = true;
-            tp.profileSlotSelect0 = DriveConstants.PID_PRIMARY_SLOT;
-            tp.profileSlotSelect1 = DriveConstants.PID_AUX_SLOT;
+            tp.profileSlotSelect0 = SwerveConstants.PID_PRIMARY_SLOT;
+            tp.profileSlotSelect1 = SwerveConstants.PID_AUX_SLOT;
             tp.zeroPos = false;
         
             if (i == 0) {
