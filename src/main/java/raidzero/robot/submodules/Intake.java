@@ -30,11 +30,11 @@ public class Intake extends Submodule {
 
     private double outputOpenLoop = 0.0;
 
-    private NetworkTableEntry intakePositionEntry = Shuffleboard.getTab(Tab.MAIN)
-        .add("Intake Position", position.toString())
-        .withPosition(4, 2)
-        .withSize(1,1)
-        .getEntry();
+    //private NetworkTableEntry intakePositionEntry = Shuffleboard.getTab(Tab.MAIN)
+        //.add("Intake Position", position.toString())
+        //.withPosition(4, 2)
+        //.withSize(1,1)
+        //.getEntry();
 
     @Override
     public void onInit(){
@@ -74,7 +74,7 @@ public class Intake extends Submodule {
 
      public void setPosition(Position pos){
          position = pos;
-         intakePositionEntry.setString(position.toString());
+         //intakePositionEntry.setString(position.toString());
          if (position == Position.DOWN){
              solenoid.set(Value.kForward);
          } else {
@@ -86,7 +86,7 @@ public class Intake extends Submodule {
       * Moves intake out or in depending on what state it's in
       */
       
-      public void invertStraw(){
+      public void flipIntake(){
           invertPos();
           setPosition(position);
       }
