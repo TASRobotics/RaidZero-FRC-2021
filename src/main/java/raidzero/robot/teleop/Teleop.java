@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import raidzero.robot.submodules.Superstructure;
 import raidzero.robot.submodules.Swerve;
+import raidzero.robot.submodules.Intake;
+import raidzero.robot.utils.JoystickUtils;
 
 public class Teleop {
 
@@ -12,6 +14,7 @@ public class Teleop {
     private static XboxController p2 = new XboxController(1);
 
     private static Swerve swerve = Swerve.getInstance();
+    private static Intake intake = Intake.getInstance();
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -50,6 +53,16 @@ public class Teleop {
 
     private void p1Loop() {
         swerve.Drive(p1.getX(Hand.kLeft), p1.getX(Hand.kLeft), p1,getX(Hand.kRight));
+        
+        if (!p1.getBumper(Hand.kRight)){
+            intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR * (p1.getTriggerAxis(Hand.kLeft))));
+            return;
+        }
+
+        intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR * (-p1.getTriggerAxis(Hand.kLeft))));
+        if (p1.getBumperPressed(Hand.kLeft)){
+            intake.flipIntake();
+        }
     }
 
     private void p2Loop() {
