@@ -1,6 +1,10 @@
 package raidzero.robot;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import java.lang.Math;
 
 public class Constants {
@@ -56,6 +60,42 @@ public class Constants {
         public static final double HEADING_KP = 0.01;
         public static final double HEADING_KI = 0;
         public static final double HEADING_KD = 0;
+    }
+
+    /**
+     * Intake Constants
+     */
+    public static final class IntakeConstants {
+        public static final int TOP_MOTOR_ID = 2;
+        public static final int BOTTOM_MOTOR_ID = 3;
+
+        public static final IdleMode TOP_NEUTRAL_MODE = IdleMode.kCoast;
+        public static final boolean TOP_MOTOR_INVERSION = false;
+
+        public static final IdleMode BOTTOM_NEUTRAL_MODE = IdleMode.kCoast;
+        public static final boolean BOTTOM_MOTOR_INVERSION = false;
+
+        public static final double CONTROL_SCALING_FACTOR = 1.0;
+    }
+
+    /**
+     * Conveyor Constants
+     */
+    public static final class ConveyorConstants {
+        public static final int MOTOR_ID = 1;
+
+        public static final IdleMode NEUTRAL_MODE = IdleMode.kCoast;
+        public static final boolean MOTOR_INVERSION = false;
+    }
+
+    /**
+     * Spindexer Constants
+     */
+    public static final class SpindexerConstants {
+        public static final int MOTOR_ID = 15;
+
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
+        public static final InvertType MOTOR_INVERSION = InvertType.None;
     }
 
     /**
