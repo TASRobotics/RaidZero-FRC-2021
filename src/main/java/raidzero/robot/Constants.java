@@ -13,13 +13,15 @@ public class Constants {
         public static final int[] SWERVE_IDS = {
             0,1,2,3,4,5,6,7
         };
+        public static final double[] INIT_MODULES_DEGREES = new double[] {30,205,41,92};
 
         // unit conversions and constants
         public static final double FALCON_TICKS = 2048;
         public static final double ROTOR_RATIO = 12;
         public static final double ROTOR_REVOLUTION_RATIO = ROTOR_RATIO * FALCON_TICKS;
         public static final double DEGREES_IN_REV = 360;
-        public static final double QUARTER_RADIANS = Math.PI / 2;
+        public static final double RADIANS_IN_REV = 2*Math.PI;
+        public static final double RAD_TO_DEG = DEGREES_IN_REV / RADIANS_IN_REV;
 
         // motor speed limits
         public static final double MAX_MOTOR_RPM = 6300;
@@ -31,6 +33,8 @@ public class Constants {
         public static final int MOTOR_POSITION_SLOT = 0;
         public static final int MOTOR_VELOCITY_SLOT = 1;
         public static final int ROTOR_PID_SLOT = 0;
+        public static final boolean DEFAULT_MOTOR_INVERSION = false;
+        public static final boolean ROTOR_INVERSION = true;
         
         //PID constants
         public static final int PID_PRIMARY_SLOT = 0;
@@ -38,15 +42,20 @@ public class Constants {
 
         public static final double MOTOR_POSI_KP = 0;
         public static final double MOTOR_POSI_KD = 0;
-        public static final double MOTOR_VELO_KP = 0.5;
-        public static final double MOTOR_VELO_KD = 0;
+        public static final double MOTOR_VELO_KF = 0;//0.05;
+        public static final double MOTOR_VELO_KP = 0.08;
+        public static final double MOTOR_VELO_KD = 0.2;
         public static final double DEFAULT_TARG_ACCEL = 100000;
-        public static final double DEFAULT_TARG_VELO = 80000;
+        public static final double DEFAULT_TARG_VELO = 22000;
 
         public static final double ROTOR_KP= 0.8;
         public static final double ROTOR_KD= 1.3;
         public static final double ROTOR_TARG_ACCEL = 100000; 
         public static final double ROTOR_TARG_VELO = 80000; 
+
+        public static final double HEADING_KP = 0.01;
+        public static final double HEADING_KI = 0;
+        public static final double HEADING_KD = 0;
     }
 
     /**
@@ -55,6 +64,7 @@ public class Constants {
     public static final double JOYSTICK_DEADBAND = 0.06;
 
     public static final int TIMEOUT_MS = 10;
+    public static final double SQRTTWO = 1.4142135623730950488016887242097;
 
     /**
      * Drivetrain Constants

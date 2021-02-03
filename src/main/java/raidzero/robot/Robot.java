@@ -7,7 +7,7 @@ import raidzero.robot.auto.AutoRunner;
 import raidzero.robot.teleop.Teleop;
 import raidzero.robot.submodules.SubmoduleManager;
 import raidzero.robot.submodules.Swerve;
-import raidzero.robot.submodules.OperationsManager;
+import raidzero.robot.submodules.Superstructure;
 
 /**
  * The main robot class.
@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         // Stop autonomous
-        autoRunner.stop();
+//        autoRunner.stop();
         submoduleManager.onStop(Timer.getFPGATimestamp());
     }
 
@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
         submoduleManager.onStart(Timer.getFPGATimestamp());
 
         autoRunner.readSendableSequence();
-        autoRunner.start();
+//        autoRunner.start();
     }
 
     /**
@@ -75,7 +75,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         // Stop the autonomous
-        autoRunner.stop();
+//        autoRunner.stop();
 
         // Start the teleop handler
         teleop.onStart();

@@ -1,33 +1,26 @@
 package raidzero.robot.submodules;
 
 import raidzero.robot.Constants.SwerveConstants;
-import raidzero.robot.submodules.Submodule;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.sensors.CANCoder;
+
 
 public class SwerveModule extends Submodule {
-    private static SwerveModule instance = null;
-
-    public static SwerveModule getInstance() {
-        if (instance == null) {
-            instance = new SwerveModule();
-        }
-        return instance;
-    }
-
-    private SwerveModule() {
-    }
 
     private static enum MotorMode {
         POSITION, VELOCITY
     };
 
+    private double zeroAngle;
     private MotorMode runMode = MotorMode.VELOCITY;
 
     private TalonFX rotor;
     private TalonFX motor;
+    private CANCoder angle;
+    private int quadrant;
 
     private double motorPos = 0;
     private double motorVel = 0;
@@ -46,21 +39,28 @@ public class SwerveModule extends Submodule {
     /**
      * Called once when the submodule is initialized.
      */
-    public void onInit(int ids[]) {
+    public void onInit(int ids[],double initAngle,int quadrant) {
         motor = new TalonFX(ids[0]);
         rotor = new TalonFX(ids[1]);
-        
+        angle = new CANCoder(quadrant);
+        zeroAngle = initAngle;
+        this.quadrant = quadrant;
+
+
         motor.configFactoryDefault();
+        rotor.setInverted(SwerveConstants.DEFAULT_MOTOR_INVERSION);
         motor.configSelectedFeedbackSensor(SwerveConstants.FEEDBACKDEVICE);
         motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,SwerveConstants.PID_PRIMARY_SLOT);
         motor.config_kP(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KP);
         motor.config_kD(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KD);
+        //motor.config_kF(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KF);
         motor.config_kP(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KP);
         motor.config_kD(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KD);
         motor.configMotionAcceleration(SwerveConstants.DEFAULT_TARG_ACCEL);
         motor.configMotionCruiseVelocity(SwerveConstants.DEFAULT_TARG_VELO);
 
         rotor.configFactoryDefault();
+        rotor.setInverted(SwerveConstants.ROTOR_INVERSION);
         rotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         rotor.selectProfileSlot(SwerveConstants.ROTOR_PID_SLOT,SwerveConstants.PID_PRIMARY_SLOT);
         rotor.config_kP(SwerveConstants.ROTOR_PID_SLOT, SwerveConstants.ROTOR_KP);
@@ -94,7 +94,8 @@ public class SwerveModule extends Submodule {
         double dPos = pos - getRotorPosition();
         // get the positive adjusted angle
         dPos = dPos % 1;
-        if (dPos < 0) dPos += 1;
+        dPos += (dPos < -0.25 ? 1 : 0);
+        dPos -= (dPos > 0.75 ? 1 : 0);
         
         if (dPos > 0.25) {
             dPos -= 0.5;
@@ -107,7 +108,8 @@ public class SwerveModule extends Submodule {
     }
 
     public void setMotorVelocity(double speed) {
-        motorVel = speedmy * (angleAdjustmentMotorPolarity ? -1 : 1);
+        motor.setInverted(angleAdjustmentMotorPolarity);
+        motorVel = speed;
     }
 
     public void setMotorPosition(double position) {
@@ -127,12 +129,12 @@ public class SwerveModule extends Submodule {
      */
     public void setVectorVelocity(double[] v){
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
-        setMotorVelocity(Math.sqrt(Math.pow(V[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
+        setMotorVelocity(Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2))*SwerveConstants.MAX_MOTOR_SPEED);
         // set rotor to the theta of cartesian vector v if the magnitude of the vector is not too small
-        if (v[0] < 0.01 && v[1] < 0.01){
-            return;            
+        if (motorVel < 0.01){
+            return;
         }
-        setRotorPos(DEGREES_IN_REV/(SwerveConstants.QUARTER_RADIANS)*Math.atan2(v[1], v[0]));
+        setRotorPos(SwerveConstants.DEGREES_IN_REV/(2*Math.PI)*Math.atan2(v[1], v[0]));
     }
 
 
@@ -141,7 +143,7 @@ public class SwerveModule extends Submodule {
      * inputs.
      */
     public void run() {
-        rotor.set(ControlMode.MotionMagic, rotorTargPos * ROTOR_ANGLE_RATIO);
+        rotor.set(ControlMode.MotionMagic, rotorTargPos * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         switch(runMode){
             case POSITION:        
                 motor.set(ControlMode.MotionMagic, motorPos);
@@ -156,12 +158,17 @@ public class SwerveModule extends Submodule {
      * Resets the sensor(s) to zero.
      */
     public void zero() {
+        rotorTargPos = 0;
         zeroMotor();
         zeroRotor();
     }
+
+    public void stop() {
+
+    }
     
     public void zeroRotor() {
-        rotor.setSelectedSensorPosition(0);
+        rotor.setSelectedSensorPosition((int)((angle.getAbsolutePosition()-zeroAngle)*(SwerveConstants.ROTOR_REVOLUTION_RATIO/SwerveConstants.DEGREES_IN_REV)), 0, 10);
     }
     
     public void zeroMotor() {
@@ -170,6 +177,6 @@ public class SwerveModule extends Submodule {
     
 
     public double getRotorPosition() {
-        return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_ANGLE_RATIO;
+        return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_REVOLUTION_RATIO;
     }
 }

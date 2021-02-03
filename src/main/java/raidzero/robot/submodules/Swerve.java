@@ -1,10 +1,13 @@
 package raidzero.robot.submodules;
 
-import raidzero.robot.Constants.SwerveConstants;
-import raidzero.robot.submodules.Submodule;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.controller.PIDController;
 
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import raidzero.robot.Constants;
+import raidzero.robot.Constants.SwerveConstants;
+import raidzero.robot.utils.JoystickUtils;
+import com.ctre.phoenix.sensors.PigeonIMU;
 
 public class Swerve extends Submodule {
     private static Swerve instance = null;
@@ -19,24 +22,19 @@ public class Swerve extends Submodule {
     private Swerve() {
     }
 
-    private static enum ModuleLocation {
-        I(0), II(1), III(2), IV(3);
-
-        public int label;
-
-        private ModuleLocation(int label) {
-        this.label = label;
-        }
-    };
-
     private static int numMotors;
     private static SwerveModule d;
     private static SwerveModule[] modules = new SwerveModule[4];
+    private static PigeonIMU pigey = new PigeonIMU(0);
+    private static double[] ypr = new double[3];
+    private static double omega = 0;
+    private static double targetAngle;
+    private static double headingError;
+    private static PIDController headingPID;
 
     // buffer variables
     private static double[][] rotV = new double[4][2];
-    private static double[] totalV = new double[2];
-    private static double[] basesChangeBuffer = new double[2];
+    private static double[] totalV = new double[] {0,0};
 
     // Makes an entire swerve drive with NUMMOTORS/2 modules
 
@@ -45,17 +43,21 @@ public class Swerve extends Submodule {
      * 
      * @param timestamp
      */
-    public void onStart(double timestamp) {}
+    public void onStart(double timestamp) {
+        headingPID.reset();
+        headingPID.setSetpoint(0.0);
+    
+    }
 
 
-    public void onInit(int[] motorarray) {
-        numMotors = motorarray.length;
+    public void onInit() {
+        numMotors = SwerveConstants.SWERVE_IDS.length;
 
         // init each module
         for (int i = 0; i < numMotors / 2; i++) {
-            modules[i] = new Module();
-            int[] motornums = new int[] { motorarray[2 * i], motorarray[2 * i + 1] };
-            modules[i].onInit(motornums);
+            modules[i] = new SwerveModule();
+            int[] motornums = new int[] { SwerveConstants.SWERVE_IDS[2 * i], SwerveConstants.SWERVE_IDS[2 * i + 1] };
+            modules[i].onInit(motornums,SwerveConstants.INIT_MODULES_DEGREES[i],i+1);
             
             /**
              * moduleAngle: the direction of the vector that is +90deg offset from each modules radius vector
@@ -67,10 +69,19 @@ public class Swerve extends Submodule {
              *      IV: j, -k
              *  }
              */
-            double moduleAngle = Math.PI / 4 + SwerveConstants.QUARTER_RADIANS * i;
-            rotV[i] = new double[] { Math.cos(moduleAngle), Math.sin(moduleAngle)};
+            double moduleAngle = Math.PI / 4 + (Math.PI / 2) * i;
+            rotV[i] = new double[] { -Math.sin(moduleAngle), Math.cos(moduleAngle)};
         }
         d = modules[0];
+
+        headingPID = new PIDController(
+            SwerveConstants.HEADING_KP,
+            SwerveConstants.HEADING_KI,
+            SwerveConstants.HEADING_KD
+        );
+        headingPID.setTolerance(5);
+        
+        zero();
     }
 
 
@@ -79,7 +90,8 @@ public class Swerve extends Submodule {
      * inputs.
      */
     public void run() {
-        for (SwerveModeule module : modules) {
+        setHeading();
+        for (SwerveModule module : modules) {
             module.run();
         }
     }
@@ -95,34 +107,51 @@ public class Swerve extends Submodule {
      * Resets the sensor(s) to zero.
      */
     public void zero() {
-        modules.forEach(SwerveModule (o -> o.zero()));
-    }
-
-    public void Drive(double Vx, double Vy, double omega) {
-        for (int i = 0; i < modules.length; i++) {
-            totalV[0] = Vx - omega * rotV[i][0];
-            totalV[1] = Vy - omega * rotV[i][1];
-            modules[i].setVectorVelocity(robotToModuleVector(totalV));
+        zeroPigeon();
+        for(SwerveModule mod : modules) {
+            mod.zero();
         }
     }
 
-    public void Drive(double Vx, double Vy, double omega, double heading) {
-        double rotangle = 2 * Math.PI / SwerveConstants.DEGREES_IN_REV * heading;
-        double newVx = Vx * Math.cos(rotangle) + Vy * Math.sin(rotangle);
-        double newVy = Vx * Math.sin(rotangle) + Vy * Math.cos(rotangle);
-        Drive((double) newVx, (double) newVy, omega);
+    public void zeroPigeon() {
+        pigey.setYaw(0);
     }
 
-    public double[] robotToModuleVector(double[] v) {
-        basesChangeBuffer[0] = v[1];
-        basesChangeBuffer[1] = -v[0];
-        return basesChangeBuffer;
+    public void Drive(double vX, double vY, double omegaR) {
+        double mag = Math.sqrt(Math.pow(vX + (Constants.SQRTTWO * omegaR),2)
+            + Math.pow(vY + (Constants.SQRTTWO * omegaR), 2));
+        if(mag > 1) {
+            mag = 1/(Constants.SQRTTWO);
+        } else {
+            mag = 1;
+        }
+        for (int i = 0; i < modules.length; i++) {
+            totalV[0] =  mag * (vX - omegaR * rotV[i][0]);
+            totalV[1] =  mag * (vY - omegaR * rotV[i][1]);
+            modules[i].setVectorVelocity(totalV);
+        }
     }
 
-    public double[] moduleToRobotVector(double[] v) {
-        basesChangeBuffer[0] = -v[1];
-        basesChangeBuffer[1] = v[0];
-        return basesChangeBuffer;
+    public void FieldOrientedDrive(double vX, double vY, double rX, double rY) {
+        // translational adjustment to move w/ respect to the field
+        double rotangle = 2 * Math.PI / SwerveConstants.DEGREES_IN_REV * ypr[0];
+        double newX = vX * Math.cos(rotangle) + vY * Math.sin(rotangle);
+        double newY = -vX * Math.sin(rotangle) + vY * Math.cos(rotangle);
+        // rotational adjustment to PID to the directed heading
+        if(Math.abs(rX+rY) > 0.01) {
+            targetAngle = Math.atan2(-rX, rY) * SwerveConstants.RAD_TO_DEG;
+        }
+        headingError = targetAngle - ypr[0];
+        omega = headingPID.calculate(headingError);
+        if(omega > 1) omega=1;
+        if(omega < -1) omega=-1;
+        // send new directions to drive
+        Drive(newX, newY, omega);
+
+    }
+
+    private static void setHeading() {
+        pigey.getYawPitchRoll(ypr);
     }
 
     public void test(XboxController c) {
@@ -138,10 +167,13 @@ public class Swerve extends Submodule {
         if (c.getYButtonPressed()) {
             d = modules[3];
         }
-        d.setMotorVelocity(c.getY(Hand.kRight) * 40000);
-        d.setRotorPos(c.getY(Hand.kLeft) / 4);
+        d.setVectorVelocity(
+            new double[] {JoystickUtils.deadband(-c.getY(Hand.kLeft)), JoystickUtils.deadband(c.getX(Hand.kLeft))}
+        );
+        //d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
+        //d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
         if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
-            d.setRotorPos(0.25);
+            d.setRotorPos(90);
         }
     }
 
