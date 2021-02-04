@@ -26,7 +26,7 @@ deploy {
             // Debug can be overridden by command line, for use with VSCode
             debug = frc.getDebugOrDefault(false)
         }
-    compile 'org.apache.commons:commons-math3:3.6.1'o deploy arbitrary files to the roboRIO.
+        // Built in artifact to deploy arbitrary files to the roboRIO.
         fileTreeArtifact('frcStaticFileDeploy') {
             // The directory below is the local directory to deploy
             files = fileTree(dir: 'src/main/deploy')
@@ -40,13 +40,33 @@ deploy {
 // Set this to true to enable desktop support.
 def includeDesktopSupport = false
 
+// Maven central needed for JUnit
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
 dependencies {
     implementation wpi.deps.wpilib()
     nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
-    nativeDesktopZip wpi.deps.
-    compile 'org.apache.commons:commons-math3:3.6.1'
+    nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
+
+    implementation wpi.deps.vendor.java()
+    nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
+
+    implementation project(':pathgen')
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.2.4'
+
+    // Enable simulation gui support. Must check the box in vscode to enable support
+    // upon debugging
+    simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
+    simulation wpi.deps.sim.driverstation(wpi.platforms.desktop, false)
+
     // Websocket extensions require additional configuration.
     // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, false)
     // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)

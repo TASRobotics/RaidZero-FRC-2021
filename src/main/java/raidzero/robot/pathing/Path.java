@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.Timer;
 import raidzero.pathgen.PathGenerator;
 import raidzero.pathgen.PathPoint;
 import raidzero.pathgen.Point;
-import raidzero.robot.Constants.DriveConstants;
 
 public class Path {
 
@@ -24,8 +23,7 @@ public class Path {
      * @param reversed whether to follow the path reversed
      */
     public Path(Point[] points, boolean reversed) {
-        this(points, reversed, DriveConstants.DEFAULT_CRUISE_VELOCITY,
-                DriveConstants.DEFAULT_TARGET_ACCELERATION);
+        this(points, reversed, 1.0, 1.0);
     }
 
     /**
@@ -36,19 +34,14 @@ public class Path {
      * @param points      waypoints in the path
      * @param reversed    whether to follow the path reversed
      * @param cruiseVel   the target cruise velocity in in/100ms
-     * @param targetAccel the target acceleration in in/100ms/s cr
-ner
-he 
-low
-an 
-ons
-T_T
-cru
-ner
-n t
-fol
-cru
-acc
+     * @param targetAccel the target acceleration in in/100ms/s
+     */
+    public Path(Point[] points, boolean reversed, double cruiseVel, double targetAccel) {
+        this.points = points;
+        this.reversed = reversed;
+        this.cruiseVel = cruiseVel;
+        this.targetAccel = targetAccel;
+
         double startTime = Timer.getFPGATimestamp();
         pathPoints = PathGenerator.generatePath(points, cruiseVel, targetAccel);
         System.out.println("PathGenerator: It took " + (Timer.getFPGATimestamp() - startTime)
