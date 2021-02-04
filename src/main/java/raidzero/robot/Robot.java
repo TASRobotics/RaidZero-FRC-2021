@@ -5,11 +5,14 @@ import edu.wpi.first.wpilibj.Timer;
 
 import raidzero.robot.auto.AutoRunner;
 import raidzero.robot.teleop.Teleop;
+import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.Intake;
+import raidzero.robot.submodules.Shooter;
 import raidzero.robot.submodules.Spindexer;
 import raidzero.robot.submodules.SubmoduleManager;
 import raidzero.robot.submodules.Swerve;
+import raidzero.robot.submodules.Turret;
 import raidzero.robot.submodules.Superstructure;
 
 /**
@@ -24,6 +27,9 @@ public class Robot extends TimedRobot {
     private static final Intake intake = Intake.getInstance();
     private static final Conveyor conveyor = Conveyor.getInstance();
     private static final Spindexer spindexer = Spindexer.getInstance();
+    private static final AdjustableHood hood = AdjustableHood.getInstance();
+    private static final Shooter shooter = Shooter.getInstance();
+    private static final Turret turret = Turret.getInstance();
 
     private static final Superstructure superstructure = Superstructure.getInstance();
 
@@ -40,7 +46,10 @@ public class Robot extends TimedRobot {
             swerve,
             intake,
             conveyor,
-            spindexer
+            spindexer, 
+            hood,
+            shooter,
+            turret
         );
         submoduleManager.onInit();
 
