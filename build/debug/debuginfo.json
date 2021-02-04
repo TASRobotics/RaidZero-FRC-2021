@@ -1,9 +1,0 @@
-[
-  {
-    "artifact": "frcJava (in project RaidZero-FRC-2021)",
-    "target": "roborio",
-    "debugfile": "frcJava_roborio.debugconfig",
-    "project": "RaidZero-FRC-2021",
-    "language": "java"
-  }
-]

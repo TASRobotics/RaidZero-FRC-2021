@@ -1,6 +1,10 @@
 package raidzero.robot;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import java.lang.Math;
 
 public class Constants {
@@ -56,6 +60,139 @@ public class Constants {
         public static final double HEADING_KP = 0.01;
         public static final double HEADING_KI = 0;
         public static final double HEADING_KD = 0;
+    }
+
+    /**
+     * Intake Constants
+     */
+    public static final class IntakeConstants {
+        public static final int TOP_MOTOR_ID = 2;
+        public static final int BOTTOM_MOTOR_ID = 3;
+
+        public static final IdleMode TOP_NEUTRAL_MODE = IdleMode.kCoast;
+        public static final boolean TOP_MOTOR_INVERSION = false;
+
+        public static final IdleMode BOTTOM_NEUTRAL_MODE = IdleMode.kCoast;
+        public static final boolean BOTTOM_MOTOR_INVERSION = false;
+
+        public static final double CONTROL_SCALING_FACTOR = 1.0;
+    }
+
+    /**
+     * Conveyor Constants
+     */
+    public static final class ConveyorConstants {
+        public static final int MOTOR_ID = 1;
+
+        public static final IdleMode NEUTRAL_MODE = IdleMode.kCoast;
+        public static final boolean MOTOR_INVERSION = false;
+    }
+
+    public static final class TurretConstants {
+        public static final int MOTOR_ID = 12;
+
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Brake;
+        public static final InvertType INVERSION = InvertType.InvertMotorOutput;
+        public static final boolean INVERT_PHASE = false;
+
+        public static final double TICKS_PER_DEGREE = 10732 / 90;
+
+        public static final double MAX_INPUT_PERCENTAGE = 0.4;
+
+        public static final double K_F = 0.0;
+        public static final double K_P = 0.07;
+        public static final double K_I = 0.0;
+        public static final double K_D = 0.001;
+        public static final int K_INTEGRAL_ZONE = 0;
+
+        public static final int TOLERANCE = 1000;
+        public static final double AT_SETPOINT_DURATION = 0.05;
+    }
+
+    public static final class HoodConstants {
+        public static final int MOTOR_ID = 20;
+
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Brake;
+        public static final InvertType INVERSION = InvertType.InvertMotorOutput;
+        public static final boolean INVERT_SENSOR_PHASE = true;
+
+        public static final double GEAR_RATIO = 45.0;
+
+        public static final int FULLY_EXTENDED_TICKS = 6200;
+
+        // The names refer to the angle of ball release
+        public static enum HoodAngle {
+            // +-500 for extra tolerance, limit switches should do its thing
+            RETRACTED(-500),
+            HIGH(FULLY_EXTENDED_TICKS / 3), 
+            MEDIUM(2 * FULLY_EXTENDED_TICKS / 3), 
+            LOW(FULLY_EXTENDED_TICKS + 500);
+
+            public final int ticks;
+
+            private HoodAngle(int ticks) {
+                this.ticks = ticks;
+            }
+        }
+        public static final double K_F = 0;
+        public static final double K_P = 0.6;
+        public static final double K_I = 0;
+        public static final double K_D = 0.001;
+        public static final int K_INTEGRAL_ZONE = 0;
+
+        public static final int TOLERANCE = 400;
+        public static final double AT_SETPOINT_DURATION = 0.2;
+
+        // distance to hood angle regression
+        public static final double ATAN_COEFFICIENT = -600670000;//6.0067*10^8
+        public static final double DISTANCE_COEFFICIENT = -624343.7;
+        public static final double ANGLE_CONSTANT = -943521338;
+    }
+
+    public static final class ShooterConstants {
+        public static final int MOTOR_ID = 30;
+
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
+        public static final InvertType INVERSION = InvertType.None;
+
+        public static final double MAX_SPEED = 20000; // in ticks per 100ms
+        public static final double FAKE_MAX_SPEED = 17000; // in ticks per 100ms
+        public static final double ERROR_TOLERANCE = 250;
+        public static final double UP_TO_SPEED_DURATION = 0.5; // in seconds
+
+        public static final double K_F = 1023.0 / MAX_SPEED;
+        public static final double K_P = 0.6;
+        public static final double K_I = 0; // Shouldn't be touched
+        public static final double K_D = 5.0; // Shouldn't be touched
+        public static final int K_INTEGRAL_ZONE = 0; // Shouldn't be touched
+    }
+
+    /**
+     * Limelight Constants
+     */
+    public static final class LimelightConstants {
+        public static final String NAME = "limelight";
+
+        public static final double MOUNTING_ANGLE = 31.4; // in degrees
+        public static final double MOUNTING_HEIGHT = 0.56; // in meters
+
+        // TODO: Improve the constants
+        public static final double AIM_KP = 0.035;
+        public static final double AIM_KI = 0.004;
+        public static final double AIM_KD = 0.001;
+        public static final double ANGLE_ADJUST_THRESHOLD = 2.0;
+
+        public static final double AIM_ON_TARGET_DURATION = 0.2;
+    }
+
+    /**
+     * Spindexer Constants
+     */
+    public static final class SpindexerConstants {
+        public static final int MOTOR_ID = 15;
+
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
+        public static final InvertType MOTOR_INVERSION = InvertType.None;
     }
 
     /**
