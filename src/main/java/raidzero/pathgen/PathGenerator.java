@@ -99,15 +99,29 @@ public class PathGenerator {
         return splinePair;
     }
 
-    public static void calculatePathPoints(PathPoint[] path, double cruiseVelocity,
-    double targetAcceleration, SplinePair splines, QueryData queryData) {
 
-        // Convert the target acceleration to in/(100ms)^2 for consistent unit of time
-        targetAcceleration /= 10;
 
-        var dxQueries = query(splines.x.getPolynomials()[0].derivative()::value, queryData);
-        var dyQueries = query(splines.y.getPolynomials()[0].derivative()::value, queryData);
+    public static PathPoint[] calculatePathPoints(HolonomicPathPoint[] pathPoints, double angleOffset, double radius){
+        PathPoint[] shiftedPathPoints = new PathPoint[pathPoints.length];
 
+        double[] dx = new double[pathPoints.length];
+        double[] dy = new double[pathPoints.length];
+        dx[0] = 0; dy[0] = 0;
+        shiftedPathPoints[0].velocity = 0;
+
+        for(int i = 1;i<pathPoints.length;i++){
+            dx[i] = (pathPoints[i].x+Math.cos(pathPoints[i].orientation + angleOffset)) - (pathPoints[i-1].x+Math.cos(pathPoints[i-1].orientation+angleOffset));            
+            dy[i] = (pathPoints[i].y+Math.sin(pathPoints[i].orientation + angleOffset)) - (pathPoints[i-1].y+Math.sin(pathPoints[i-1].orientation+angleOffset));
+            shiftedPathPoints[i].time = pathPoints[i].time;
+            shiftedPathPoints[i].velocity = Math.hypot(dx[i],dy[i])/(pathPoints[i].time-pathPoints[i-1].time);
+        }
+
+        calculateAngles(dx, dy, pathPoints);
+        cumulativeDistances(dx, dy, pathPoints);
+        return shiftedPathPoints;
+    }
+
+    private static void calculateAngles(double[] dx, double[] dy, PathPoint[] path){
         // The angle for each point is calculated using arctan of the ratio between dy and dx.
         // Since atan2 wraps the angle to be within -180 to 180 (because it has no way of knowing
         // the actual angle of the robot), we estimate the real unwrapped angle by looking at if the
@@ -115,7 +129,7 @@ public class PathGenerator {
         // is fine because the robot can't turn more than 180 degrees in between two data points on
         // the path. The angle for the first point should be given.
         for (var i = 0; i < path.length; i++) {
-            path[i].angle = Math.toDegrees(Math.atan2(dyQueries[i], dxQueries[i]));
+            path[i].angle = Math.toDegrees(Math.atan2(dy[i], dx[i]));
             if (i > 0) {
                 while (path[i].angle - path[i - 1].angle > 180) {
                     path[i].angle -= 360;
@@ -125,6 +139,25 @@ public class PathGenerator {
                 }
             }
         }
+    }
+
+    private static void cumulativeDistances(double[] dx, double[] dy, PathPoint[] path){
+        path[0].position = 0;
+        for(int i = 1;i<path.length; i++){
+            path[i].position = Math.hypot(dx[i],dy[i])+path[i-1].position;
+        }
+    }
+
+    public static void calculatePathPoints(PathPoint[] path, double cruiseVelocity,
+    double targetAcceleration, SplinePair splines, QueryData queryData) {
+
+        // Convert the target acceleration to in/(100ms)^2 for consistent unit of time
+        targetAcceleration /= 10;
+
+        var dxQueries = query(splines.x.getPolynomials()[0].derivative()::value, queryData);
+        var dyQueries = query(splines.y.getPolynomials()[0].derivative()::value, queryData);
+
+        calculateAngles(dxQueries, dyQueries, path);
 
         // Position is calculated with a running total of arc lengths with Riemann sum. Arclength
         // formula integrate(hypot(dy/dt, dx/dt)*dt) where dt is QUERY_INTERVAL. Rectangles are

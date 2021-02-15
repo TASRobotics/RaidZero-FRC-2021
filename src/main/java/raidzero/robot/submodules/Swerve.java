@@ -3,10 +3,12 @@ package raidzero.robot.submodules;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.PIDController;
-
+import raidzero.pathgen.PathGenerator;
 import raidzero.robot.Constants;
 import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.utils.JoystickUtils;
+import raidzero.robot.pathing.HolonomicPath;
+import raidzero.robot.pathing.Path;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 public class Swerve extends Submodule {
@@ -176,5 +178,14 @@ public class Swerve extends Submodule {
             d.setRotorPos(90);
         }
     }
+
+
+    public void LoadHolonomicPath(HolonomicPath path){
+        //Paths for the different modules are now generated based on the holonomic path.
+        for(int i=0;i<modules.length;i++){
+            modules[i].loadPath(new Path(PathGenerator.calculatePathPoints(path.getPathPoints(),Constants.SwerveConstants.MODULE_ANGLES[i],Constants.SwerveConstants.ROBOT_RADIUS)));
+        }
+    }
+
 
 }

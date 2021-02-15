@@ -19,6 +19,13 @@ public class Constants {
         };
         public static final double[] INIT_MODULES_DEGREES = new double[] {30,205,41,92};
 
+        //Robot Radius
+        public static final double ROBOT_RADIUS = 30./Math.sqrt(2);
+
+        //Module Angles
+        public static final double[] MODULE_ANGLES = {Math.PI/4, Math.PI/4+Math.PI/2, Math.PI/4+Math.PI, Math.PI/4+3*Math.PI/2};
+        
+
         // unit conversions and constants
         public static final double FALCON_TICKS = 2048;
         public static final double ROTOR_RATIO = 12;

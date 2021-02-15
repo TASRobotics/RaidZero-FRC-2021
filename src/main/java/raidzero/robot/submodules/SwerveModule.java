@@ -1,6 +1,7 @@
 package raidzero.robot.submodules;
 
 import raidzero.robot.Constants.SwerveConstants;
+import raidzero.robot.pathing.Path;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -28,6 +29,8 @@ public class SwerveModule extends Submodule {
     // whether or not to reverse the motor becuase of constant
     // angle adjustments
     private boolean angleAdjustmentMotorPolarity = false;
+
+    private Path path;
 
     /**
      * Called at the start of autonomous or teleop.
@@ -178,5 +181,10 @@ public class SwerveModule extends Submodule {
 
     public double getRotorPosition() {
         return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_REVOLUTION_RATIO;
+    }
+
+
+    public void loadPath(Path path){
+        this.path = path;
     }
 }
