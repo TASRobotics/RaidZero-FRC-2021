@@ -1,7 +1,6 @@
 package raidzero.robot.pathing;
 
 import edu.wpi.first.wpilibj.Timer;
-import raidzero.pathgen.HolonomicPathPoint;
 import raidzero.pathgen.PathGenerator;
 import raidzero.pathgen.PathPoint;
 import raidzero.pathgen.Point;
@@ -56,12 +55,6 @@ public class Path {
         this.pathPoints = pathPoints;
     }
 
-    public Path(HolonomicPathPoint[] holoPathPoints, double angleOffset, double radius){
-        double startTime = Timer.getFPGATimestamp();
-        pathPoints = PathGenerator.generatePath(points, cruiseVel, targetAccel);
-        System.out.println("PathGenerator: It took " + (Timer.getFPGATimestamp() - startTime)
-                + "s to generate a path!");
-    }
 
     /**
      * Returns the waypoints of the path.

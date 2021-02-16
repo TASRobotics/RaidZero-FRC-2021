@@ -1,7 +1,9 @@
 package raidzero.robot.submodules;
 
 import raidzero.robot.Constants.SwerveConstants;
+import raidzero.robot.pathing.HolonomicProfileFollower;
 import raidzero.robot.pathing.Path;
+import raidzero.robot.pathing.ProfileFollower;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -20,6 +22,8 @@ public class SwerveModule extends Submodule {
 
     private TalonFX rotor;
     private TalonFX motor;
+    private HolonomicProfileFollower moduleProfile;
+
     private CANCoder angle;
     private int quadrant;
 
@@ -46,6 +50,7 @@ public class SwerveModule extends Submodule {
         motor = new TalonFX(ids[0]);
         rotor = new TalonFX(ids[1]);
         angle = new CANCoder(quadrant);
+        moduleProfile = new HolonomicProfileFollower(motor, rotor);
         zeroAngle = initAngle;
         this.quadrant = quadrant;
 
@@ -184,7 +189,8 @@ public class SwerveModule extends Submodule {
     }
 
 
-    public void loadPath(Path path){
-        this.path = path;
+    public void runPath(Path path){
+        moduleProfile.start(path.getPathPoints());
     }
+
 }

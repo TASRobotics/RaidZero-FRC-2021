@@ -70,9 +70,13 @@ public class ProfileFollower {
      * @param cruiseVel the cruise velocity desired in in/100ms
      * @param tarAccel  the target acceleration desired in in/100ms/s
      */
-    public void start(PathPoint[] pathPoints) {
-        startFilling(pathPoints);
+    public void start(PathPoint[] pathPoints, boolean useAux) {
+        startFilling(pathPoints,useAux);
         initRun = true;
+    }
+
+    public void start(PathPoint[] pathPoints){
+        start(pathPoints,true);
     }
 
     /**
@@ -149,12 +153,16 @@ public class ProfileFollower {
         initRun = false;
     }
 
+
+    private void startFilling(PathPoint[] waypoints){
+        startFilling(waypoints, true);
+    }
     /**
      * Starts filling the buffer with trajectory points.
      *
      * @param waypoints the array of points created by the path generator
      */
-    private void startFilling(PathPoint[] waypoints) {
+    private void startFilling(PathPoint[] waypoints, boolean useAux) {
         int reverse = reversed ? -1 : 1;
         // Clear under run error
         if (status.hasUnderrun) {
@@ -172,7 +180,7 @@ public class ProfileFollower {
             tp.timeDur = (int) (waypoints[i].time * 100);
             // auxiliaryPos takes in units of 3600 ticks, but angle is in 360 degress
             tp.auxiliaryPos = waypoints[i].angle * 10;
-            tp.useAuxPID = true;
+            tp.useAuxPID = useAux;
             tp.profileSlotSelect0 = SwerveConstants.PID_PRIMARY_SLOT;
             tp.profileSlotSelect1 = SwerveConstants.PID_AUX_SLOT;
             tp.zeroPos = false;
