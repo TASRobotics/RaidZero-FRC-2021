@@ -58,7 +58,9 @@ dependencies {
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
 
-    implementation project(':pathgen')
+    compile 'org.apache.commons:commons-math3:3.6.1'
+
+    // implementation project(':pathgen')
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.2.4'
 
