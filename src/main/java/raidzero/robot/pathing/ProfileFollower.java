@@ -1,5 +1,7 @@
 package raidzero.robot.pathing;
 
+import java.util.function.DoubleFunction;
+
 import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
@@ -31,6 +33,8 @@ public class ProfileFollower {
     private MotionProfileStatus status;
     private SetValueMotionProfile setValue;
 
+    private DoubleFunction<Double> positionUnitConverter;
+
     /**
      * Runs periodically to push the trajectory points into the controller.
      */
@@ -41,8 +45,9 @@ public class ProfileFollower {
     /**
      * Creates the profile follower.
      */
-    public ProfileFollower(BaseTalon leader) {
+    public ProfileFollower(BaseTalon leader, DoubleFunction<Double> positionUnitConverter) {
         leaderTalon = leader;
+        this.positionUnitConverter = positionUnitConverter;
 
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
@@ -180,8 +185,8 @@ public class ProfileFollower {
 
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
-            tp.position = reverse * EncoderUtils.inchesToTicks(waypoints[i].position);
-            tp.velocity = reverse * EncoderUtils.inchesToTicks(waypoints[i].velocity);
+            tp.position = reverse * positionUnitConverter.apply(waypoints[i].position);
+            tp.velocity = reverse * positionUnitConverter.apply(waypoints[i].velocity);
             // timeDur takes ms, but Pathpoint::time is in 100 ms
             tp.timeDur = (int) (waypoints[i].time * 100);
             // auxiliaryPos takes in units of 3600 ticks, but angle is in 360 degress

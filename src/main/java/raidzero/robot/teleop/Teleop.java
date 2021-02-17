@@ -71,7 +71,7 @@ public class Teleop {
     }
 
     private void p1Loop() {
-        swerve.Drive(p1.getX(Hand.kLeft), p1.getX(Hand.kLeft), p1.getX(Hand.kRight));
+        swerve.drive(p1.getX(Hand.kLeft), p1.getX(Hand.kLeft), p1.getX(Hand.kRight));
         
         int intakeDirection = 1;
         if (p1.getBumper(Hand.kRight)){
@@ -108,7 +108,7 @@ public class Teleop {
         //     swerve.test(p1);
         //     return;
         // }
-        swerve.FieldOrientedDrive(
+        swerve.fieldOrientedDrive(
             JoystickUtils.deadband(p1.getX(Hand.kLeft)),
             JoystickUtils.deadband(-p1.getY(Hand.kLeft)), 
             JoystickUtils.deadband(p1.getX(Hand.kRight)), 

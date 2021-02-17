@@ -1,17 +1,20 @@
 package raidzero.robot.pathing;
 
+import java.util.function.DoubleFunction;
+
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import raidzero.pathgen.PathPoint;
+import raidzero.robot.utils.EncoderUtils;
 
 public class HolonomicProfileFollower extends ProfileFollower {
 
     BaseTalon rotor;
     ProfileFollower rotorProfile;
 
-    public HolonomicProfileFollower(BaseTalon motor, BaseTalon rotor) {
-        super(motor);
-        rotorProfile = new ProfileFollower(rotor);
+    public HolonomicProfileFollower(BaseTalon motor, BaseTalon rotor, DoubleFunction<Double> positionUnitConverter) {
+        super(motor, positionUnitConverter);
+        rotorProfile = new ProfileFollower(rotor, EncoderUtils::rotorDegreesToTicks);
     }
 
     public void start(PathPoint[] path) {

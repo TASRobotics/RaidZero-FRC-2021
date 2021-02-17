@@ -4,6 +4,7 @@ import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.pathing.HolonomicProfileFollower;
 import raidzero.robot.pathing.Path;
 import raidzero.robot.pathing.ProfileFollower;
+import raidzero.robot.utils.EncoderUtils;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -50,7 +51,7 @@ public class SwerveModule extends Submodule {
         motor = new TalonFX(ids[0]);
         rotor = new TalonFX(ids[1]);
         angle = new CANCoder(quadrant);
-        moduleProfile = new HolonomicProfileFollower(motor, rotor);
+        moduleProfile = new HolonomicProfileFollower(motor, rotor, EncoderUtils::inchesToTicks);
         zeroAngle = initAngle;
         this.quadrant = quadrant;
 

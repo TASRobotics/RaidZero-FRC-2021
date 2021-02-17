@@ -11,4 +11,8 @@ public class EncoderUtils {
     public static double inchesToTicks(double inches) {
         return inches * SwerveConstants.SENSOR_UNITS_PER_INCH;
     }
+
+    public static double rotorDegreesToTicks(double degrees) {
+        return (degrees / 360.0) * SwerveConstants.ROTOR_REVOLUTION_RATIO;
+    }
 }
