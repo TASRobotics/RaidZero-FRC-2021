@@ -59,6 +59,6 @@ public class Intake extends Submodule {
      * @param percentOutput the percent output is [-1, 1]
      */
     public void intakeBalls(double percentOutput){
-        outputOpenLoop = percentOutput;
+        outputOpenLoop = percentOutput * 0.5;
     }
 }

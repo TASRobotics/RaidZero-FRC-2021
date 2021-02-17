@@ -86,7 +86,7 @@ public class Teleop {
             spindexerDirection = -1;
         }
         spindexer.rotate(JoystickUtils.deadband(
-            spindexerDirection * p1.getTriggerAxis(Hand.kLeft)
+            spindexerDirection * p1.getTriggerAxis(Hand.kLeft) * 0.4 * (p1.getYButton() ? 0.25 : 1)
         ));
 
         if (p1.getStartButton()) {
@@ -95,13 +95,12 @@ public class Teleop {
             spindexer.rampDown();
         }
 
-        if (p1.getBButtonPressed()) {
+        if (p1.getBButton()) {
             conveyor.moveBalls(1.0);
         } else if (p1.getXButton()) {
-            //conveyor.moveBalls(-1.0);
-            conveyor.moveBalls(0.0);
+            conveyor.moveBalls(-1.0);
         } else {
-            //conveyor.moveBalls(0.0);
+            conveyor.moveBalls(0.0);
         }
 
         // if(p1.getBumper(Hand.kLeft)) {

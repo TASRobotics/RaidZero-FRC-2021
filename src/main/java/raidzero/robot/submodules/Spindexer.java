@@ -20,10 +20,17 @@ public class Spindexer extends Submodule {
 
     private Spindexer() {}
 
+    private enum RunMode {
+        PERCOUT, PID
+    };
+
+    private RunMode runmode = RunMode.PID;
+
     private LazyTalonSRX spindexerMotor;
     private PWM rampServo;
 
     private double outputOpenLoop = 0.0;
+    private double outputClosedLoop = 0.0;
     private double outputServoPosition = 0.15;
 
     @Override
@@ -45,21 +52,40 @@ public class Spindexer extends Submodule {
     @Override
     public void run(){
         rampServo.setPosition(outputServoPosition);
-        spindexerMotor.set(ControlMode.PercentOutput, outputOpenLoop);
+        switch(runmode) {
+            case PERCOUT:
+                spindexerMotor.set(ControlMode.PercentOutput, outputOpenLoop);
+                break;
+            case PID:
+                spindexerMotor.set(ControlMode.Velocity, outputOpenLoop);
+                break;
+        }
+
     }
 
     @Override
     public void stop(){
         outputOpenLoop = 0.0;
+        switchToMode(RunMode.PERCOUT);
+        rotate(0);
         spindexerMotor.set(ControlMode.PercentOutput, 0.0);
+        outputClosedLoop = 0;
+        outputOpenLoop = 0;
     }
 
     /**
      * Spins the Spindexer using open-loop control
      * @param percentOutput the percent output is [-1, 1]
      */
-    public void rotate(double percentOutput){
-        outputOpenLoop = percentOutput;
+    public void rotate(double output){
+        switch(runmode) {
+            case PERCOUT:
+                outputOpenLoop = output;
+                break;
+            case PID:
+                outputClosedLoop = output;
+                break;
+        }
     }
 
     public void rampUp() {
@@ -68,5 +94,9 @@ public class Spindexer extends Submodule {
 
     public void rampDown() {
         outputServoPosition = 0.15;
+    }
+
+    public void switchToMode(RunMode mode) {
+        runmode = mode;
     }
 }
