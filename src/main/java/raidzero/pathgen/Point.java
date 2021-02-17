@@ -25,8 +25,10 @@ public class Point {
     /**
      * Constructs a Point object.
      *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
+     * @param x
+     *              the x-coordinate
+     * @param y
+     *              the y-coordinate
      */
     public Point(double x, double y) {
         this.x = x;
@@ -37,9 +39,12 @@ public class Point {
     /**
      * Constructs a Point object.
      *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @param a the angle in degrees
+     * @param x
+     *              the x-coordinate
+     * @param y
+     *              the y-coordinate
+     * @param a
+     *              the angle in degrees
      */
     public Point(double x, double y, double a) {
         this.x = x;

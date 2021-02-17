@@ -1,5 +1,5 @@
 package raidzero.robot.pathing;
-    
+
 import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
@@ -43,21 +43,24 @@ public class ProfileFollower {
      */
     public ProfileFollower(BaseTalon leader) {
         leaderTalon = leader;
-    
+
         setValue = SetValueMotionProfile.Disable;
         status = new MotionProfileStatus();
         notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
         state = State.FillPoints;
-    
+
         reversed = false;
     }
 
     /**
      * Starts the motion profile by generating & filling the points.
      *
-     * @param points    the points to put in the path generator
-     * @param cruiseVel the cruise velocity desired in in/100ms
-     * @param tarAccel  the target acceleration desired in in/100ms/s
+     * @param points
+     *                      the points to put in the path generator
+     * @param cruiseVel
+     *                      the cruise velocity desired in in/100ms
+     * @param tarAccel
+     *                      the target acceleration desired in in/100ms/s
      */
     public void start(Point[] points, double cruiseVel, double tarAccel) {
         start(PathGenerator.generatePath(points, cruiseVel, tarAccel));
@@ -66,17 +69,20 @@ public class ProfileFollower {
     /**
      * Starts the motion profile by filling the points.
      *
-     * @param points    the points to put in the path generator
-     * @param cruiseVel the cruise velocity desired in in/100ms
-     * @param tarAccel  the target acceleration desired in in/100ms/s
+     * @param points
+     *                      the points to put in the path generator
+     * @param cruiseVel
+     *                      the cruise velocity desired in in/100ms
+     * @param tarAccel
+     *                      the target acceleration desired in in/100ms/s
      */
     public void start(PathPoint[] pathPoints, boolean useAux) {
-        startFilling(pathPoints,useAux);
+        startFilling(pathPoints, useAux);
         initRun = true;
     }
 
-    public void start(PathPoint[] pathPoints){
-        start(pathPoints,true);
+    public void start(PathPoint[] pathPoints) {
+        start(pathPoints, true);
     }
 
     /**
@@ -86,30 +92,29 @@ public class ProfileFollower {
      */
     public void update() {
         switch (state) {
-            case FillPoints:
-                if (initRun) {
-                    initRun = false;
-                    setValue = SetValueMotionProfile.Disable;
-                    state = State.WaitPoints;
-                }
-                break;
-            case WaitPoints:
-                leaderTalon.getMotionProfileStatus(status);
-                if (status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
-                    setValue = SetValueMotionProfile.Enable;
-                    state = State.Run;
-                }
-                break;
-            case Run:
-                leaderTalon.getMotionProfileStatus(status);
-                if (status.activePointValid && status.isLast) {
-                    setValue = SetValueMotionProfile.Hold;
-                    state = State.FillPoints;
-                }
-                break;
+        case FillPoints:
+            if (initRun) {
+                initRun = false;
+                setValue = SetValueMotionProfile.Disable;
+                state = State.WaitPoints;
+            }
+            break;
+        case WaitPoints:
+            leaderTalon.getMotionProfileStatus(status);
+            if (status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
+                setValue = SetValueMotionProfile.Enable;
+                state = State.Run;
+            }
+            break;
+        case Run:
+            leaderTalon.getMotionProfileStatus(status);
+            if (status.activePointValid && status.isLast) {
+                setValue = SetValueMotionProfile.Hold;
+                state = State.FillPoints;
+            }
+            break;
         }
     }
-
 
     /**
      * Returns the output of the current set value. Should be passed to the set
@@ -133,15 +138,15 @@ public class ProfileFollower {
     }
 
     /**
-     * Changes whether the path should be reversed or not. Must be called
-     * before {@link #start(PathPoint[])}.
+     * Changes whether the path should be reversed or not. Must be called before
+     * {@link #start(PathPoint[])}.
      *
-     * @param reversed if the robot should move backwards
+     * @param reversed
+     *                     if the robot should move backwards
      */
     public void setReverse(boolean reversed) {
         this.reversed = reversed;
     }
-
 
     /**
      * Clears the Motion profile buffer and resets state info.
@@ -153,14 +158,15 @@ public class ProfileFollower {
         initRun = false;
     }
 
-
-    private void startFilling(PathPoint[] waypoints){
+    private void startFilling(PathPoint[] waypoints) {
         startFilling(waypoints, true);
     }
+
     /**
      * Starts filling the buffer with trajectory points.
      *
-     * @param waypoints the array of points created by the path generator
+     * @param waypoints
+     *                      the array of points created by the path generator
      */
     private void startFilling(PathPoint[] waypoints, boolean useAux) {
         int reverse = reversed ? -1 : 1;
@@ -168,10 +174,10 @@ public class ProfileFollower {
         if (status.hasUnderrun) {
             leaderTalon.clearMotionProfileHasUnderrun();
         }
-    
+
         // Clear the buffer just in case the robot is still running some points
         leaderTalon.clearMotionProfileTrajectories();
-    
+
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
             tp.position = reverse * EncoderUtils.inchesToTicks(waypoints[i].position);
@@ -184,15 +190,15 @@ public class ProfileFollower {
             tp.profileSlotSelect0 = SwerveConstants.PID_PRIMARY_SLOT;
             tp.profileSlotSelect1 = SwerveConstants.PID_AUX_SLOT;
             tp.zeroPos = false;
-        
+
             if (i == 0) {
                 tp.zeroPos = true;
             }
-        
+
             if (i == waypoints.length - 1) {
                 tp.isLastPoint = true;
             }
-        
+
             leaderTalon.pushMotionProfileTrajectory(tp);
         }
     }

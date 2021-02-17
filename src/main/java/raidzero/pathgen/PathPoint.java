@@ -11,9 +11,8 @@ public class PathPoint {
     /**
      * Position of the robot in inches.
      *
-     * Note: position means the distance the robot has traveled by the time 
-     * it reaches this point, not the 2-dimensional x and y coordinates of
-     * the robot.
+     * Note: position means the distance the robot has traveled by the time it
+     * reaches this point, not the 2-dimensional x and y coordinates of the robot.
      */
     public double position;
 
@@ -23,8 +22,8 @@ public class PathPoint {
     public double velocity;
 
     /**
-     * Time it takes for the robot to go from the previous point to the 
-     * current point in units of 100ms.
+     * Time it takes for the robot to go from the previous point to the current
+     * point in units of 100ms.
      *
      * This is 0 for the first point in the path.
      */
@@ -35,5 +34,4 @@ public class PathPoint {
      */
     public double angle;
 
-    
 }

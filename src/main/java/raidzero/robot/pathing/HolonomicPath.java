@@ -6,26 +6,26 @@ import raidzero.pathgen.HolonomicPathGenerator;
 import raidzero.pathgen.HolonomicPathPoint;
 import raidzero.pathgen.Point;
 
-public class HolonomicPath{
+public class HolonomicPath {
 
     private HolonomicPathPoint[] pathPoints;
     private Point[] points;
     private double cruiseVel;
     private double targetAccel;
 
-    
-    HolonomicPath(Point[] points, double cruiseVel, double targetAccel, double[] endPointAngles, double targetAngularAccel){
+    HolonomicPath(Point[] points, double cruiseVel, double targetAccel, double[] endPointAngles,
+            double targetAngularAccel) {
         this.points = points;
         this.cruiseVel = cruiseVel;
         this.targetAccel = targetAccel;
 
         double startTime = Timer.getFPGATimestamp();
-        pathPoints = HolonomicPathGenerator.generateHolonomicPath(points, cruiseVel, targetAccel, endPointAngles,targetAngularAccel);
-        System.out.println("PathGenerator: It took " + (Timer.getFPGATimestamp() - startTime)
-                + "s to generate a path!");
+        pathPoints = HolonomicPathGenerator.generateHolonomicPath(points, cruiseVel, targetAccel, endPointAngles,
+                targetAngularAccel);
+        System.out.println("PathGenerator: " + (Timer.getFPGATimestamp() - startTime) + "s to generate a path!");
     }
 
-        /**
+    /**
      * Returns the waypoints of the path.
      * 
      * @return array of waypoints

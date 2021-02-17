@@ -18,8 +18,10 @@ public class Path {
      * 
      * Note: The motion profile is generated in the constructor.
      * 
-     * @param points   waypoints in the path
-     * @param reversed whether to follow the path reversed
+     * @param points
+     *                     waypoints in the path
+     * @param reversed
+     *                     whether to follow the path reversed
      */
     public Path(Point[] points, boolean reversed) {
         this(points, reversed, 1.0, 1.0);
@@ -30,10 +32,14 @@ public class Path {
      * 
      * Note: The motion profile is generated in the constructor.
      * 
-     * @param points      waypoints in the path
-     * @param reversed    whether to follow the path reversed
-     * @param cruiseVel   the target cruise velocity in in/100ms
-     * @param targetAccel the target acceleration in in/100ms/s
+     * @param points
+     *                        waypoints in the path
+     * @param reversed
+     *                        whether to follow the path reversed
+     * @param cruiseVel
+     *                        the target cruise velocity in in/100ms
+     * @param targetAccel
+     *                        the target acceleration in in/100ms/s
      */
     public Path(Point[] points, boolean reversed, double cruiseVel, double targetAccel) {
         this.points = points;
@@ -43,18 +49,16 @@ public class Path {
 
         double startTime = Timer.getFPGATimestamp();
         pathPoints = PathGenerator.generatePath(points, cruiseVel, targetAccel);
-        System.out.println("PathGenerator: It took " + (Timer.getFPGATimestamp() - startTime)
-                + "s to generate a path!");
+        System.out.println("PathGenerator: " + (Timer.getFPGATimestamp() - startTime) + "s to generate a path!");
     }
 
-    public Path(PathPoint[] pathPoints){
+    public Path(PathPoint[] pathPoints) {
         this.points = null;
         this.reversed = false;
         this.cruiseVel = 0;
         this.targetAccel = 0;
         this.pathPoints = pathPoints;
     }
-
 
     /**
      * Returns the waypoints of the path.
