@@ -1,7 +1,9 @@
 package raidzero.robot.submodules;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.revrobotics.CANSensor;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import raidzero.robot.Constants.ConveyorConstants;
@@ -23,6 +25,7 @@ public class Conveyor extends Submodule {
     private CANSparkMax conveyorMotor;
 
     private double outputOpenLoop = 0.0;
+    private final double constantthingweshouldsetlater = 10;
 
     @Override
     public void onInit(){
@@ -30,6 +33,17 @@ public class Conveyor extends Submodule {
         conveyorMotor.restoreFactoryDefaults();
         conveyorMotor.setIdleMode(ConveyorConstants.NEUTRAL_MODE);
         conveyorMotor.setInverted(ConveyorConstants.MOTOR_INVERSION);
+
+        //set Constants later
+        conveyorMotor.getPIDController().setReference(0, ControlType.kVelocity);
+        conveyorMotor.pidWrite(outputOpenLoop * constantthingweshouldsetlater);
+        conveyorMotor.getPIDController().setP(0.14);
+        conveyorMotor.getPIDController().setIZone(0);
+        conveyorMotor.getPIDController().setD(0.01);
+        conveyorMotor.getPIDController().setI(0);
+        conveyorMotor.getPIDController().setFF(0);
+        conveyorMotor.getPIDController().setOutputRange(-1,1);
+        conveyorMotor.getPIDController().setFeedbackDevice(conveyorMotor.getEncoder());
     }
 
     @Override
@@ -39,6 +53,7 @@ public class Conveyor extends Submodule {
 
     @Override
     public void run(){
+        //conveyorMotor.getPIDController().setReference(outputOpenLoop * constantthingweshouldsetlater, ControlType.kVelocity);
         conveyorMotor.set(outputOpenLoop);
     }
 
@@ -52,7 +67,7 @@ public class Conveyor extends Submodule {
      * Spins the Conveyor using open-loop control
      * @param percentOutput the percent output is [-1, 1]
      */
-    public void moveBalls(double percentOutput){
-        outputOpenLoop = percentOutput;
+    public void moveBalls(double output){
+        outputOpenLoop = output;
     }
 }

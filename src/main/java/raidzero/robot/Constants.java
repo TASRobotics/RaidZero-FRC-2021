@@ -55,14 +55,14 @@ public class Constants {
 
         public static final double MOTOR_POSI_KP = 0;
         public static final double MOTOR_POSI_KD = 0;
-        public static final double MOTOR_VELO_KF = 0;//0.05;
+        public static final double MOTOR_VELO_KF = 0.05;
         public static final double MOTOR_VELO_KP = 0.08;
         public static final double MOTOR_VELO_KD = 0.2;
         public static final double DEFAULT_TARG_ACCEL = 100000;
         public static final double DEFAULT_TARG_VELO = 22000;
 
-        public static final double ROTOR_KP= 0.8;
-        public static final double ROTOR_KD= 1.3;
+        public static final double ROTOR_KP = 1.8;
+        public static final double ROTOR_KD = 1.2;
         public static final double ROTOR_TARG_ACCEL = 100000; 
         public static final double ROTOR_TARG_VELO = 80000; 
 

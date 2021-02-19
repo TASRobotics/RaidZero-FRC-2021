@@ -143,6 +143,10 @@ public class Swerve extends Submodule {
             omega = 1;
         if (omega < -1)
             omega = -1;
+        
+        // for relative control
+        omega = rX;
+
         // send new directions to drive
         drive(newX, newY, omega);
 
