@@ -96,6 +96,7 @@ public class ProfileFollower {
      * Note: Should be called periodically.
      */
     public void update() {
+        //System.out.println(state);
         switch (state) {
         case FillPoints:
             if (initRun) {
@@ -109,6 +110,7 @@ public class ProfileFollower {
             if (status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
                 setValue = SetValueMotionProfile.Enable;
                 state = State.Run;
+                System.out.println("Executing profile...");
             }
             break;
         case Run:
@@ -174,6 +176,7 @@ public class ProfileFollower {
      *                      the array of points created by the path generator
      */
     private void startFilling(PathPoint[] waypoints, boolean useAux) {
+        //System.out.println("Started filling");
         int reverse = reversed ? -1 : 1;
         // Clear under run error
         if (status.hasUnderrun) {

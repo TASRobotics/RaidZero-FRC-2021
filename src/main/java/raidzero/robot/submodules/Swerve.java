@@ -82,6 +82,13 @@ public class Swerve extends Submodule {
         zero();
     }
 
+    @Override
+    public void update(double timestamp) {
+        for (SwerveModule module : modules) {
+            module.update(timestamp);
+        }
+    }
+
     /**
      * Runs components in the submodule that have continuously changing inputs.
      */

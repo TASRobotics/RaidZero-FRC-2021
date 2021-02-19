@@ -13,7 +13,7 @@ public class HolonomicPath {
     private double cruiseVel;
     private double targetAccel;
 
-    HolonomicPath(Point[] points, double cruiseVel, double targetAccel, double[] endPointAngles,
+    public HolonomicPath(Point[] points, double cruiseVel, double targetAccel, double[] endPointAngles,
             double targetAngularAccel) {
         this.points = points;
         this.cruiseVel = cruiseVel;

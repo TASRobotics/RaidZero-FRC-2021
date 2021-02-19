@@ -2,7 +2,7 @@ package raidzero.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-
+import raidzero.pathgen.Point;
 import raidzero.robot.auto.AutoRunner;
 import raidzero.robot.teleop.Teleop;
 import raidzero.robot.submodules.AdjustableHood;
@@ -14,6 +14,8 @@ import raidzero.robot.submodules.SubmoduleManager;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.submodules.Turret;
 import raidzero.robot.submodules.Superstructure;
+import raidzero.robot.submodules.Swerve;
+import raidzero.robot.pathing.HolonomicPath;
 
 /**
  * The main robot class.
@@ -74,6 +76,14 @@ public class Robot extends TimedRobot {
         submoduleManager.onStart(Timer.getFPGATimestamp());
 
         autoRunner.readSendableSequence();
+
+        swerve.zero();
+        swerve.loadHolonomicPath(new HolonomicPath(
+            new Point[]{
+                new Point(0, 0, 0),
+                new Point(50, 0, 0)
+            }, 10, 10, new double[]{0, 0}, 100)
+        );
 //        autoRunner.start();
     }
 

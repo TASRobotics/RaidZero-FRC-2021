@@ -104,6 +104,9 @@ public class PathGenerator {
 
     public static PathPoint[] calculatePathPoints(HolonomicPathPoint[] pathPoints, double angleOffset, double radius) {
         PathPoint[] shiftedPathPoints = new PathPoint[pathPoints.length];
+        for (int i = 0; i < pathPoints.length; ++i) {
+            shiftedPathPoints[i] = new PathPoint();
+        }
 
         double[] dx = new double[pathPoints.length];
         double[] dy = new double[pathPoints.length];

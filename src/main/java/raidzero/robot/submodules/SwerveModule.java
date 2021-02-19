@@ -130,7 +130,7 @@ public class SwerveModule extends Submodule {
      * Reads cached inputs & calculate outputs.
      */
     public void update(double timestamp) {
-        
+        moduleProfile.update();
     }
     
     /**
