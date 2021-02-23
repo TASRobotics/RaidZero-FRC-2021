@@ -121,17 +121,18 @@ public class Swerve extends Submodule {
     }
 
     public void drive(double vX, double vY, double omegaR) {
-        double mag = Math
-                .sqrt(Math.pow(vX + (Constants.SQRTTWO * omegaR), 2) + Math.pow(vY + (Constants.SQRTTWO * omegaR), 2));
+        double mag = Math.sqrt(
+            Math.pow(vX + (Constants.SQRTTWO * omegaR / 2), 2) 
+            + Math.pow(vY + (Constants.SQRTTWO * omegaR / 2), 2));
+        double coef = 1;
         if (mag > 1) {
-            mag = 1 / (Constants.SQRTTWO);
-        } else {
-            mag = 1;
+            coef = 1 / mag;
         }
+        System.out.println(mag * coef);
         for (int i = 0; i < modules.length; i++) {
-            totalV[0] = mag * (vX - omegaR * rotV[i][0]);
-            totalV[1] = mag * (vY - omegaR * rotV[i][1]);
-            modules[i].setVectorVelocity(totalV);
+            totalV[0] = (vX - omegaR * rotV[i][0]);
+            totalV[1] = (vY - omegaR * rotV[i][1]);
+            modules[i].setVectorVelocity(totalV, coef);
         }
     }
 
@@ -177,7 +178,7 @@ public class Swerve extends Submodule {
             d = modules[3];
         }
         d.setVectorVelocity(new double[] { JoystickUtils.deadband(-c.getY(Hand.kLeft)),
-                JoystickUtils.deadband(c.getX(Hand.kLeft)) });
+                JoystickUtils.deadband(c.getX(Hand.kLeft)) }, 1);
         // d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
         // d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
         if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
