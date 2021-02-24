@@ -70,9 +70,7 @@ public class Teleop {
         p2Loop();
     }
 
-    private void p1Loop() {
-        swerve.drive(p1.getX(Hand.kLeft), p1.getX(Hand.kLeft), p1.getX(Hand.kRight));
-        
+    private void p1Loop() {        
         int intakeDirection = 1;
         if (p1.getBumper(Hand.kRight)){
             intakeDirection = -1;

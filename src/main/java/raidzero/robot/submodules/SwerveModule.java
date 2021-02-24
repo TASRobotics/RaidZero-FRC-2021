@@ -121,29 +121,26 @@ public class SwerveModule extends Submodule {
         // convert to revolutions
         pos = pos / SwerveConstants.DEGREES_IN_REV;
         // get the difference in angle
-        double dPos = pos - getRotorPosition();
+        double cpos = getRotorPosition();
+        double dPos = pos - cpos;
         // get the positive adjusted angle
-        dPos = dPos % 1;
-        dPos += (dPos < -0.25 ? 1 : 0);
-        dPos -= (dPos > 0.75 ? 1 : 0);
+        dPos = dPos % 1; // |dpos| <= 1
+        dPos += (dPos < -0.25 ? 1 : 0); // dPos >= -0.25
+        dPos -= (dPos >= 0.75 ? 1 : 0); // dPos < 0.75
 
         if (dPos > 0.25) {
             dPos -= 0.5;
             angleAdjustmentMotorPolarity = true;
-            rotorTargPos = dPos + getRotorPosition();
+            rotorTargPos = dPos + cpos;
             return;
         }
         
         angleAdjustmentMotorPolarity = false;
-        rotorTargPos = dPos + getRotorPosition();
+        rotorTargPos = dPos + cpos;
     }
 
     public void setMotorVelocity(double speed) {
         motor.setInverted(angleAdjustmentMotorPolarity);
-        if(speed > 10 && quadrant == 4) {
-            System.out.println(quadrant);
-            System.out.println(speed / SwerveConstants.MAX_MOTOR_SPEED);
-        }
         motorVel = speed;
     }
 

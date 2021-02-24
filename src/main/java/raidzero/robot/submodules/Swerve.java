@@ -110,6 +110,11 @@ public class Swerve extends Submodule {
      * Resets the sensor(s) to zero.
      */
     public void zero() {
+        targetAngle = 0;
+        totalV = new double[] {
+            0,0
+        };
+
         zeroPigeon();
         for (SwerveModule mod : modules) {
             mod.zero();
@@ -121,6 +126,8 @@ public class Swerve extends Submodule {
     }
 
     public void drive(double vX, double vY, double omegaR) {
+        System.out.println(vX + " " + vY);
+        // backslash fix note: problem is above this method
         double mag = Math.sqrt(
             Math.pow(vX + (Constants.SQRTTWO * omegaR / 2), 2) 
             + Math.pow(vY + (Constants.SQRTTWO * omegaR / 2), 2));
@@ -128,7 +135,6 @@ public class Swerve extends Submodule {
         if (mag > 1) {
             coef = 1 / mag;
         }
-        System.out.println(mag * coef);
         for (int i = 0; i < modules.length; i++) {
             totalV[0] = (vX - omegaR * rotV[i][0]);
             totalV[1] = (vY - omegaR * rotV[i][1]);
