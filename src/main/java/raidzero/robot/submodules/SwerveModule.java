@@ -36,6 +36,7 @@ public class SwerveModule extends Submodule {
     private double motorPos = 0;
     private double motorVel = 0;
     private double rotorTargPos = 0;
+    private double dPos = 0;
     // whether or not to reverse the motor becuase of constant
     // angle adjustments
     private boolean angleAdjustmentMotorPolarity = false;
@@ -83,6 +84,8 @@ public class SwerveModule extends Submodule {
         rotor.selectProfileSlot(SwerveConstants.ROTOR_PID_SLOT, SwerveConstants.PID_PRIMARY_SLOT);
         rotor.config_kP(SwerveConstants.ROTOR_PID_SLOT, SwerveConstants.ROTOR_KP);
         rotor.config_kD(SwerveConstants.ROTOR_PID_SLOT, SwerveConstants.ROTOR_KD);
+        rotor.config_kI(SwerveConstants.ROTOR_PID_SLOT, SwerveConstants.ROTOR_KI);
+        rotor.config_IntegralZone(SwerveConstants.ROTOR_PID_SLOT, SwerveConstants.ROTOR_IZONE);
         rotor.configMotionAcceleration(SwerveConstants.ROTOR_TARG_ACCEL);
         rotor.configMotionCruiseVelocity(SwerveConstants.ROTOR_TARG_VELO);
 
@@ -122,7 +125,7 @@ public class SwerveModule extends Submodule {
         pos = pos / SwerveConstants.DEGREES_IN_REV;
         // get the difference in angle
         double cpos = getRotorPosition();
-        double dPos = pos - cpos;
+        dPos = pos - cpos;
         // get the positive adjusted angle
         dPos = dPos % 1; // |dpos| <= 1
         dPos += (dPos < -0.25 ? 1 : 0); // dPos >= -0.25
@@ -141,7 +144,7 @@ public class SwerveModule extends Submodule {
 
     public void setMotorVelocity(double speed) {
         motor.setInverted(angleAdjustmentMotorPolarity);
-        motorVel = speed;
+        motorVel = speed * Math.pow(1-Math.abs(dPos), 4);
     }
 
     public void setMotorPosition(double position) {
@@ -183,7 +186,9 @@ public class SwerveModule extends Submodule {
                 motor.set(ControlMode.MotionMagic, motorPos);
                 break;
             case VELOCITY:
-                motor.set(ControlMode.Velocity, motorVel);
+                //motor.set(ControlMode.Velocity, motorVel);
+                
+                motor.set(ControlMode.Velocity, 0);
                 break;
         }
     }

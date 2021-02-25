@@ -70,7 +70,19 @@ public class Teleop {
         p2Loop();
     }
 
-    private void p1Loop() {        
+    private void p1Loop() {     
+    
+        /** DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION
+        * its not that bad but the absolute encoders
+        * are not good to PID off of so a quick setting
+        * of the relative encoder is better
+        */
+        if(p1.getAButtonPressed()) {
+
+            swerve.zero();
+            return;
+        }
+
         int intakeDirection = 1;
         if (p1.getBumper(Hand.kRight)){
             intakeDirection = -1;
@@ -111,7 +123,6 @@ public class Teleop {
             JoystickUtils.deadband(p1.getX(Hand.kRight)), 
             JoystickUtils.deadband(-p1.getY(Hand.kRight))
         );
-        if(p1.getAButton()) swerve.zero();
     }
 
     private void p2Loop() {

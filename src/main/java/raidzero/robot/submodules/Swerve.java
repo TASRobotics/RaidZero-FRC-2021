@@ -112,7 +112,7 @@ public class Swerve extends Submodule {
     public void zero() {
         targetAngle = 0;
         totalV = new double[] {
-            0,0
+            0.1,0
         };
 
         zeroPigeon();
@@ -126,7 +126,6 @@ public class Swerve extends Submodule {
     }
 
     public void drive(double vX, double vY, double omegaR) {
-        System.out.println(vX + " " + vY);
         // backslash fix note: problem is above this method
         double mag = Math.sqrt(
             Math.pow(vX + (Constants.SQRTTWO * omegaR / 2), 2) 
