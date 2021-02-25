@@ -207,7 +207,7 @@ public class SwerveModule extends Submodule {
     }
 
     public void zeroRotor() {
-        rotor.setSelectedSensorPosition((int) ((angle.getAbsolutePosition() - zeroAngle)
+        rotor.setSelectedSensorPosition((int) Math.abs((angle.getAbsolutePosition() - zeroAngle)
                 * (SwerveConstants.ROTOR_REVOLUTION_RATIO / SwerveConstants.DEGREES_IN_REV)), 0,
                 10);
     }
