@@ -62,12 +62,12 @@ public class Constants {
         public static final double DEFAULT_TARG_ACCEL = 100000;
         public static final double DEFAULT_TARG_VELO = 22000;
 
-        public static final double ROTOR_KP = 1.0;
-        public static final double ROTOR_KD = 0.0;
-        public static final double ROTOR_KI = 0.0;
-        public static final double ROTOR_IZONE = 400;
+        public static final double ROTOR_KP = 0.8;
+        public static final double ROTOR_KD = 0.1;
+        public static final double ROTOR_KI = 0.005;
+        public static final double ROTOR_IZONE = 6000;
         public static final double ROTOR_TARG_ACCEL = 100000; 
-        public static final double ROTOR_TARG_VELO = 3000; 
+        public static final double ROTOR_TARG_VELO = 10000; 
 
         public static final double HEADING_KP = 0.01;
         public static final double HEADING_KI = 0;

@@ -186,9 +186,7 @@ public class SwerveModule extends Submodule {
                 motor.set(ControlMode.MotionMagic, motorPos);
                 break;
             case VELOCITY:
-                //motor.set(ControlMode.Velocity, motorVel);
-                
-                motor.set(ControlMode.Velocity, 0);
+                motor.set(ControlMode.Velocity, motorVel);
                 break;
         }
     }
