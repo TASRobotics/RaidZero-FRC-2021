@@ -102,7 +102,7 @@ public class PathGenerator {
         return splinePair;
     }
 
-    public static PathPoint[] calculatePathPoints(HolonomicPathPoint[] pathPoints, double angleOffset, double radius) {
+    public static PathPoint[] generatePath(HolonomicPathPoint[] pathPoints, double angleOffset, double radius) {
         PathPoint[] shiftedPathPoints = new PathPoint[pathPoints.length];
         for (int i = 0; i < pathPoints.length; ++i) {
             shiftedPathPoints[i] = new PathPoint();
@@ -115,16 +115,23 @@ public class PathGenerator {
         shiftedPathPoints[0].velocity = 0;
 
         for (int i = 1; i < pathPoints.length; i++) {
-            dx[i] = (pathPoints[i].x + Math.cos(pathPoints[i].orientation + angleOffset))
-                    - (pathPoints[i - 1].x + Math.cos(pathPoints[i - 1].orientation + angleOffset));
-            dy[i] = (pathPoints[i].y + Math.sin(pathPoints[i].orientation + angleOffset))
-                    - (pathPoints[i - 1].y + Math.sin(pathPoints[i - 1].orientation + angleOffset));
-            shiftedPathPoints[i].time = pathPoints[i].time;
-            shiftedPathPoints[i].velocity = Math.hypot(dx[i], dy[i]) / (pathPoints[i].time - pathPoints[i - 1].time);
+            dx[i] = (pathPoints[i].x + radius * Math.cos(Math.toRadians(pathPoints[i].orientation) + angleOffset))
+                    - (pathPoints[i - 1].x + radius * Math.cos(Math.toRadians(pathPoints[i - 1].orientation) + angleOffset));
+            dy[i] = (pathPoints[i].y + radius * Math.sin(Math.toRadians(pathPoints[i].orientation) + angleOffset))
+                    - (pathPoints[i - 1].y + radius * Math.sin(Math.toRadians(pathPoints[i - 1].orientation) + angleOffset));
+            shiftedPathPoints[i].time = Math.max(pathPoints[i].time, 0.01);
+            shiftedPathPoints[i].velocity = Math.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
+            // System.out.println("Shifted vel: " + shiftedPathPoints[i].velocity + " dx: " + dx[i] + " dy: " + dy[i]);
         }
 
-        calculateAngles(dx, dy, pathPoints);
-        cumulativeDistances(dx, dy, pathPoints);
+        calculateAngles(dx, dy, shiftedPathPoints);
+        cumulativeDistances(dx, dy, shiftedPathPoints);
+
+        for (var pp : shiftedPathPoints) {
+            System.out.println(
+                (pp.time / 10.0) + "s " + pp.position + " in " + pp.velocity + " in/100ms " + pp.angle + " deg"
+            );
+        }
         return shiftedPathPoints;
     }
 

@@ -30,11 +30,12 @@ public class Constants {
         public static final double FALCON_TICKS = 2048;
         public static final double ROTOR_RATIO = 12;
         public static final double ROTOR_REVOLUTION_RATIO = ROTOR_RATIO * FALCON_TICKS;
-        public static final double MOTOR_RATIO = 10;
+        public static final double MOTOR_RATIO = 7.2;
         public static final double DEGREES_IN_REV = 360;
         public static final double RADIANS_IN_REV = 2*Math.PI;
         public static final double RAD_TO_DEG = DEGREES_IN_REV / RADIANS_IN_REV;
-        public static final double SENSOR_UNITS_PER_INCH = 7.2;
+        public static final double WHEEL_DIAMETER_INCHES = 4.0;
+        public static final double SENSOR_UNITS_PER_INCH_MOTOR = FALCON_TICKS * MOTOR_RATIO / (WHEEL_DIAMETER_INCHES * Math.PI);
 
         // motor speed limits
         public static final double MAX_MOTOR_RPM = 6300;
@@ -54,8 +55,9 @@ public class Constants {
         public static final int PID_PRIMARY_SLOT = 0;
         public static final int PID_AUX_SLOT = 1;
 
-        public static final double MOTOR_POSI_KP = 0;
+        public static final double MOTOR_POSI_KP = 0.1;
         public static final double MOTOR_POSI_KD = 0;
+        public static final double MOTOR_POSI_KF = 0.8 * 1023.0 / 13480;
         public static final double MOTOR_VELO_KF = 0.05;
         public static final double MOTOR_VELO_KP = 0.08;
         public static final double MOTOR_VELO_KD = 0.2;

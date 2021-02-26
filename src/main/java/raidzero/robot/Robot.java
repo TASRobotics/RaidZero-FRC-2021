@@ -81,8 +81,8 @@ public class Robot extends TimedRobot {
         swerve.loadHolonomicPath(new HolonomicPath(
             new Point[]{
                 new Point(0, 0, 0),
-                new Point(50, 0, 0)
-            }, 10, 10, new double[]{0, 0}, 100)
+                new Point(100, 0, 0)
+            }, 10.0, 10.0, new double[]{0, 0}, 100)
         );
 //        autoRunner.start();
     }

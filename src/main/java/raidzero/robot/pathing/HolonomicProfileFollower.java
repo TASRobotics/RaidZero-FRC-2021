@@ -18,6 +18,11 @@ public class HolonomicProfileFollower extends ProfileFollower {
     }
 
     public void start(PathPoint[] path) {
+        // for (var pp : path) {
+        //     System.out.println(
+        //         (pp.time / 10.0) + "s " + pp.position + " in " + pp.velocity + " in/100ms " + pp.angle + " deg"
+        //     );
+        // }
         super.start(path, false);
 
         // Create profile for rotor angle
@@ -34,7 +39,7 @@ public class HolonomicProfileFollower extends ProfileFollower {
             rotorPath[i].velocity = (path[i + 1].angle - path[i - 1].angle) / (path[i + 1].time - path[i - 1].time);
             rotorPath[i].time = path[i].time;
         }
-        rotorProfile.start(rotorPath, false);
+        //rotorProfile.start(rotorPath, false);
     }
 
     @Override

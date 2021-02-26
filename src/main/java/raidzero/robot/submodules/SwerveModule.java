@@ -8,6 +8,7 @@ import raidzero.robot.pathing.ProfileFollower;
 import raidzero.robot.utils.EncoderUtils;
 import java.util.Map;
 import javax.swing.text.Position;
+import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -20,7 +21,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 public class SwerveModule extends Submodule {
 
     private static enum MotorMode {
-        POSITION, VELOCITY
+        POSITION, VELOCITY, PATHING
     };
 
     private double zeroAngle;
@@ -40,6 +41,7 @@ public class SwerveModule extends Submodule {
     // whether or not to reverse the motor becuase of constant
     // angle adjustments
     private boolean angleAdjustmentMotorPolarity = false;
+    private int outputClosedLoop = 0;
     
     private NetworkTableEntry PositionEntry;
 
@@ -51,6 +53,8 @@ public class SwerveModule extends Submodule {
      * @param timestamp
      */
     public void onStart(double timestamp) {
+        outputClosedLoop = 0;
+        motor.clearMotionProfileTrajectories();
     }
 
     /**
@@ -72,7 +76,7 @@ public class SwerveModule extends Submodule {
                 SwerveConstants.PID_PRIMARY_SLOT);
         motor.config_kP(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KP);
         motor.config_kD(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KD);
-        // motor.config_kF(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KF);
+        motor.config_kF(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KF);
         motor.config_kP(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KP);
         motor.config_kD(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KD);
         motor.configMotionAcceleration(SwerveConstants.DEFAULT_TARG_ACCEL);
@@ -156,7 +160,11 @@ public class SwerveModule extends Submodule {
      * Reads cached inputs & calculate outputs.
      */
     public void update(double timestamp) {
-        moduleProfile.update();
+        if (runMode == MotorMode.PATHING) {
+            moduleProfile.update();
+            outputClosedLoop = moduleProfile.getOutput();
+        } 
+        // System.out.println("Encoder: " + motor.getSelectedSensorPosition());
         PositionEntry.setDouble( -((1+(getRotorPosition()%1))%0.5) );
     }
 
@@ -182,6 +190,9 @@ public class SwerveModule extends Submodule {
     public void run() {
         rotor.set(ControlMode.MotionMagic, rotorTargPos * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         switch (runMode) {
+            case PATHING:
+                motor.set(ControlMode.MotionProfile, outputClosedLoop);
+                break;
             case POSITION:
                 motor.set(ControlMode.MotionMagic, motorPos);
                 break;
@@ -201,7 +212,7 @@ public class SwerveModule extends Submodule {
     }
 
     public void stop() {
-
+        outputClosedLoop = SetValueMotionProfile.Disable.value;
     }
 
     public void zeroRotor() {
@@ -221,6 +232,8 @@ public class SwerveModule extends Submodule {
 
 
     public void runPath(Path path) {
+        System.out.println("ACTIVAGTING PROFILE");
+        runMode = MotorMode.PATHING;
         moduleProfile.start(path.getPathPoints());
     }
 

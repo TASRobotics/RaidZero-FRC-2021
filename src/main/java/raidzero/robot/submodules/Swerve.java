@@ -194,8 +194,10 @@ public class Swerve extends Submodule {
     public void loadHolonomicPath(HolonomicPath path) {
         // Paths for the different modules are now generated based on the holonomic
         // path.
+        // modules[0].runPath(new Path(PathGenerator.generatePath(path.getPathPoints(),
+        //              Constants.SwerveConstants.MODULE_ANGLES[0], Constants.SwerveConstants.ROBOT_RADIUS)));
         for (int i = 0; i < modules.length; i++) {
-            modules[i].runPath(new Path(PathGenerator.calculatePathPoints(path.getPathPoints(),
+            modules[i].runPath(new Path(PathGenerator.generatePath(path.getPathPoints(),
                     Constants.SwerveConstants.MODULE_ANGLES[i], Constants.SwerveConstants.ROBOT_RADIUS)));
         }
     }

@@ -96,7 +96,7 @@ public class ProfileFollower {
      * Note: Should be called periodically.
      */
     public void update() {
-        //System.out.println(state);
+        System.out.println("bottom buffer: " + status.btmBufferCnt + " valid: " + status.activePointValid);
         switch (state) {
         case FillPoints:
             if (initRun) {
@@ -110,12 +110,13 @@ public class ProfileFollower {
             if (status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
                 setValue = SetValueMotionProfile.Enable;
                 state = State.Run;
-                System.out.println("Executing profile...");
+                System.out.println("--> Executing profile...");
             }
             break;
         case Run:
             leaderTalon.getMotionProfileStatus(status);
             if (status.activePointValid && status.isLast) {
+                System.out.println("--> Profile ended...");
                 setValue = SetValueMotionProfile.Hold;
                 state = State.FillPoints;
             }
@@ -186,10 +187,12 @@ public class ProfileFollower {
         // Clear the buffer just in case the robot is still running some points
         leaderTalon.clearMotionProfileTrajectories();
 
+        double totalTime = 0.0;
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
             tp.position = reverse * positionUnitConverter.apply(waypoints[i].position);
             tp.velocity = reverse * positionUnitConverter.apply(waypoints[i].velocity);
+            totalTime += waypoints[i].time;
             // timeDur takes ms, but Pathpoint::time is in 100 ms
             tp.timeDur = (int) (waypoints[i].time * 100);
             // auxiliaryPos takes in units of 3600 ticks, but angle is in 360 degress
@@ -207,7 +210,13 @@ public class ProfileFollower {
                 tp.isLastPoint = true;
             }
 
+            System.out.println(
+                "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
+            );
+
             leaderTalon.pushMotionProfileTrajectory(tp);
         }
+        System.out.println("--> Total time: " + (totalTime / 10.0) + " s");
+
     }
 }
