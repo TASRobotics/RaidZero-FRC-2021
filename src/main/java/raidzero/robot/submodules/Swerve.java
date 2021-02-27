@@ -186,6 +186,7 @@ public class Swerve extends Submodule {
         if (controlState == ControlState.PATHING) {
             return;
         }
+        controlState = ControlState.PATHING;
         // Paths for the each modules are generated based on the holonomic path.
         for (int i = 0; i < modules.length; i++) {
             modules[i].executePath(new Path(PathGenerator.generatePath(path.getPathPoints(),

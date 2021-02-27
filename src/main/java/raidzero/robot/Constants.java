@@ -58,6 +58,7 @@ public class Constants {
         public static final double MOTOR_POSI_KP = 0.1;
         public static final double MOTOR_POSI_KD = 0;
         public static final double MOTOR_POSI_KF = 0.8 * 1023.0 / 13480;
+
         public static final double MOTOR_VELO_KF = 0.05;
         public static final double MOTOR_VELO_KP = 0.08;
         public static final double MOTOR_VELO_KD = 0.2;
@@ -82,7 +83,7 @@ public class Constants {
     public class PathConstants {
         public static final int BASE_TRAJ_PERIOD_MS = 0;
         public static final int MIN_POINTS_IN_TALON = 10;
-        public static final int TRANSMIT_PERIOD_MS = 3;
+        public static final int TRANSMIT_PERIOD_MS = 10;
     }
 
     /**

@@ -51,6 +51,12 @@ public class HolonomicProfileFollower extends ProfileFollower {
         rotorProfile.update();
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        rotorProfile.reset();
+    }
+
     /**
      * Returns whether the motor & rotor motion profile haves finished executing.
      * 
@@ -59,5 +65,23 @@ public class HolonomicProfileFollower extends ProfileFollower {
     @Override
     public boolean isFinished() {
         return super.isFinished() && rotorProfile.isFinished();
+    }
+
+    /**
+     * Returns the motor profile follower output.
+     * 
+     * @return motor motion profile output
+     */
+    public int getMotorOutput() {
+        return getOutput();
+    }
+
+    /**
+     * Returns the rotor profile follower output.
+     * 
+     * @return rotor motion profile output
+     */
+    public int getRotorOutput() {
+        return rotorProfile.getOutput();
     }
 }

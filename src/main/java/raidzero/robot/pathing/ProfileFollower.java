@@ -96,7 +96,7 @@ public class ProfileFollower {
      * Note: Should be called periodically.
      */
     public void update() {
-        System.out.println("bottom buffer: " + status.btmBufferCnt + " valid: " + status.activePointValid);
+        // System.out.println("bottom buffer: " + status.btmBufferCnt + " valid: " + status.activePointValid);
         switch (state) {
         case FillPoints:
             if (initRun) {
@@ -206,9 +206,9 @@ public class ProfileFollower {
                 tp.isLastPoint = true;
             }
 
-            System.out.println(
-                "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
-            );
+            // System.out.println(
+            //     "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
+            // );
 
             leaderTalon.pushMotionProfileTrajectory(tp);
         }

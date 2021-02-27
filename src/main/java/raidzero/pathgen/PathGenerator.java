@@ -127,11 +127,11 @@ public class PathGenerator {
         calculateAngles(dx, dy, shiftedPathPoints);
         cumulativeDistances(dx, dy, shiftedPathPoints);
 
-        for (var pp : shiftedPathPoints) {
-            System.out.println(
-                (pp.time / 10.0) + "s " + pp.position + " in " + pp.velocity + " in/100ms " + pp.angle + " deg"
-            );
-        }
+        // for (var pp : shiftedPathPoints) {
+        //     System.out.println(
+        //         (pp.time / 10.0) + "s " + pp.position + " in " + pp.velocity + " in/100ms " + pp.angle + " deg"
+        //     );
+        // }
         return shiftedPathPoints;
     }
 

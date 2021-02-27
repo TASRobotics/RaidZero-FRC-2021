@@ -46,7 +46,8 @@ public class SwerveModule extends Submodule {
     private double outputMotorPosition = 0.0;
     private double outputMotorVelocity = 0.0;
     private double outputRotorPosition = 0;
-    private int outputClosedLoop = 0;
+    private int outputMotorProfile = 0;
+    private int outputRotorProfile = 0;
 
     private ControlState controlState = ControlState.VELOCITY;
     private HolonomicProfileFollower profileFollower;
@@ -112,8 +113,12 @@ public class SwerveModule extends Submodule {
         outputMotorPosition = 0.0;
         outputMotorVelocity = 0.0;
         outputRotorPosition = 0.0;
-        outputClosedLoop = 0;
+        outputMotorProfile = 0;
+        outputRotorProfile = 0;
         motor.clearMotionProfileTrajectories();
+        motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,
+                SwerveConstants.PID_PRIMARY_SLOT);
+        rotor.clearMotionProfileTrajectories();
     }
 
     /**
@@ -122,7 +127,9 @@ public class SwerveModule extends Submodule {
     public void update(double timestamp) {
         if (controlState == ControlState.PATHING) {
             profileFollower.update();
-            outputClosedLoop = profileFollower.getOutput();
+            outputMotorProfile = profileFollower.getMotorOutput();
+            outputRotorProfile = profileFollower.getRotorOutput();
+            // System.out.println("MP: " + outputMotorProfile + " | RP: " + outputRotorProfile);
         }
         positionEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
     }
@@ -131,17 +138,20 @@ public class SwerveModule extends Submodule {
      * Runs components in the submodule that have continuously changing inputs.
      */
     public void run() {
-        rotor.set(ControlMode.MotionMagic,
-                outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         switch (controlState) {
             case POSITION:
                 motor.set(ControlMode.MotionMagic, outputMotorPosition);
+                rotor.set(ControlMode.MotionMagic,
+                    outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
                 break;
             case VELOCITY:
                 motor.set(ControlMode.Velocity, outputMotorVelocity);
+                rotor.set(ControlMode.MotionMagic,
+                    outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
                 break;
             case PATHING:
-                motor.set(ControlMode.MotionProfile, outputClosedLoop);
+                motor.set(ControlMode.MotionProfile, outputMotorProfile);
+                rotor.set(ControlMode.MotionProfile, outputRotorProfile);
                 break;
         }
     }
@@ -236,6 +246,8 @@ public class SwerveModule extends Submodule {
      */
     @Override
     public void zero() {
+        outputMotorProfile = SetValueMotionProfile.Disable.value;
+        outputRotorProfile = SetValueMotionProfile.Disable.value;
         outputRotorPosition = 0.0;
         zeroMotor();
         zeroRotor();
@@ -248,7 +260,8 @@ public class SwerveModule extends Submodule {
     public void stop() {
         setControlState(ControlState.VELOCITY);
         outputMotorVelocity = 0.0;
-        outputClosedLoop = SetValueMotionProfile.Disable.value;
+        outputMotorProfile = SetValueMotionProfile.Disable.value;
+        outputRotorProfile = SetValueMotionProfile.Disable.value;
     }
 
     /**
@@ -287,6 +300,7 @@ public class SwerveModule extends Submodule {
             return;
         }
         setControlState(ControlState.PATHING);
+        profileFollower.reset();
         profileFollower.start(path.getPathPoints());
     }
 
@@ -299,6 +313,7 @@ public class SwerveModule extends Submodule {
         if (profileFollower == null || controlState != ControlState.PATHING) {
             return false;
         }
+        System.out.println("Q" + quadrant + " finished? " + profileFollower.isFinished());
         return profileFollower.isFinished();
     }
 
