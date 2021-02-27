@@ -12,7 +12,7 @@ import raidzero.pathgen.Point;
 import raidzero.pathgen.PathPoint;
 import raidzero.robot.Constants.PathConstants;
 import raidzero.robot.Constants.SwerveConstants;
-import raidzero.robot.utils.EncoderUtils;
+
 import edu.wpi.first.wpilibj.Notifier;
 
 public class ProfileFollower {
@@ -20,20 +20,20 @@ public class ProfileFollower {
     /**
      * The states of the motion profile.
      */
-    private enum State {
+    protected enum State {
         FillPoints, WaitPoints, Run;
     };
 
-    private BaseTalon leaderTalon;
+    protected BaseTalon leaderTalon;
 
-    private boolean reversed;
+    protected boolean reversed;
 
-    private boolean initRun;
-    private State state;
-    private MotionProfileStatus status;
-    private SetValueMotionProfile setValue;
+    protected boolean initRun;
+    protected State state;
+    protected MotionProfileStatus status;
+    protected SetValueMotionProfile setValue;
 
-    private DoubleFunction<Double> positionUnitConverter;
+    protected DoubleFunction<Double> positionUnitConverter;
 
     /**
      * Runs periodically to push the trajectory points into the controller.
@@ -164,10 +164,6 @@ public class ProfileFollower {
         setValue = SetValueMotionProfile.Disable;
         state = State.FillPoints;
         initRun = false;
-    }
-
-    private void startFilling(PathPoint[] waypoints) {
-        startFilling(waypoints, true);
     }
 
     /**

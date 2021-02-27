@@ -4,70 +4,72 @@ import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.dashboard.Tab;
 import raidzero.robot.pathing.HolonomicProfileFollower;
 import raidzero.robot.pathing.Path;
-import raidzero.robot.pathing.ProfileFollower;
 import raidzero.robot.utils.EncoderUtils;
+
 import java.util.Map;
-import javax.swing.text.Position;
+
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
+
+import org.apache.commons.math3.util.FastMath;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
-
 public class SwerveModule extends Submodule {
 
-    private static enum MotorMode {
+    private enum ControlState {
         POSITION, VELOCITY, PATHING
     };
 
-    private double zeroAngle;
-    private MotorMode runMode = MotorMode.VELOCITY;
-
-    private TalonFX rotor;
     private TalonFX motor;
-    private HolonomicProfileFollower moduleProfile;
+    private TalonFX rotor;
 
-    private CANCoder angle;
+    private CANCoder rotorExternalEncoder;
+
+    // The default forward angle (from external rotor encoder)
+    private double zeroAngle;
+
+    // The quadrant the module is in (cartesian plane)
     private int quadrant;
 
-    private double motorPos = 0;
-    private double motorVel = 0;
-    private double rotorTargPos = 0;
+    // Difference in rotor angle & target angle (in revolutions)
     private double dPos = 0;
-    // whether or not to reverse the motor becuase of constant
-    // angle adjustments
+
+    // Whether to reverse the motor becuase of constant angle adjustments
     private boolean angleAdjustmentMotorPolarity = false;
+
+    private double outputMotorPosition = 0.0;
+    private double outputMotorVelocity = 0.0;
+    private double outputRotorPosition = 0;
     private int outputClosedLoop = 0;
-    
-    private NetworkTableEntry PositionEntry;
 
-    private Path path;
+    private ControlState controlState = ControlState.VELOCITY;
+    private HolonomicProfileFollower profileFollower;
 
-    /**
-     * Called at the start of autonomous or teleop.
-     * 
-     * @param timestamp
-     */
-    public void onStart(double timestamp) {
-        outputClosedLoop = 0;
-        motor.clearMotionProfileTrajectories();
+    private NetworkTableEntry positionEntry;
+
+    @Override
+    public void onInit() {
+        throw new RuntimeException("Cannot initialize SwerveModule by itself.");
     }
 
     /**
      * Called once when the submodule is initialized.
      */
-    public void onInit(int ids[], double initAngle, int quadrant) {
-        motor = new TalonFX(ids[0]);
-        rotor = new TalonFX(ids[1]);
-        angle = new CANCoder(quadrant);
-        moduleProfile = new HolonomicProfileFollower(motor, rotor, EncoderUtils::inchesToTicks);
-        zeroAngle = initAngle;
+    public void onInit(int motorId, int rotorId, double initialAngle, int quadrant) {
         this.quadrant = quadrant;
 
+        motor = new TalonFX(motorId);
+        rotor = new TalonFX(rotorId);
+        rotorExternalEncoder = new CANCoder(quadrant);
+        profileFollower = new HolonomicProfileFollower(motor, rotor, 
+            EncoderUtils::inchesToTicks, EncoderUtils::rotorDegreesToTicks);
+        zeroAngle = initialAngle;
 
         motor.configFactoryDefault();
         rotor.setInverted(SwerveConstants.DEFAULT_MOTOR_INVERSION);
@@ -93,21 +95,68 @@ public class SwerveModule extends Submodule {
         rotor.configMotionAcceleration(SwerveConstants.ROTOR_TARG_ACCEL);
         rotor.configMotionCruiseVelocity(SwerveConstants.ROTOR_TARG_VELO);
 
-        PositionEntry = Shuffleboard.getTab(Tab.MAIN)
-        .add("Module"+quadrant, 0)
-        .withWidget(BuiltInWidgets.kDial)
-        .withProperties(Map.of("min", -0.5, "max", 0))
-        .withSize(2, 2)
-        .withPosition(0, 0)
-        .getEntry();
-
+        positionEntry = Shuffleboard.getTab(Tab.MAIN).add("Module" + quadrant, 0)
+                .withWidget(BuiltInWidgets.kDial).withProperties(Map.of("min", -0.5, "max", 0))
+                .withSize(2, 2).withPosition(0, 0).getEntry();
 
         zero();
     }
 
-    public void changeMotorMode(MotorMode mode) {
-        runMode = mode;
-        switch (runMode) {
+    /**
+     * Called at the start of autonomous or teleop.
+     * 
+     * @param timestamp
+     */
+    @Override
+    public void onStart(double timestamp) {
+        outputMotorPosition = 0.0;
+        outputMotorVelocity = 0.0;
+        outputRotorPosition = 0.0;
+        outputClosedLoop = 0;
+        motor.clearMotionProfileTrajectories();
+    }
+
+    /**
+     * Reads cached inputs & calculate outputs.
+     */
+    public void update(double timestamp) {
+        if (controlState == ControlState.PATHING) {
+            profileFollower.update();
+            outputClosedLoop = profileFollower.getOutput();
+        }
+        positionEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
+    }
+
+    /**
+     * Runs components in the submodule that have continuously changing inputs.
+     */
+    public void run() {
+        rotor.set(ControlMode.MotionMagic,
+                outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
+        switch (controlState) {
+            case POSITION:
+                motor.set(ControlMode.MotionMagic, outputMotorPosition);
+                break;
+            case VELOCITY:
+                motor.set(ControlMode.Velocity, outputMotorVelocity);
+                break;
+            case PATHING:
+                motor.set(ControlMode.MotionProfile, outputClosedLoop);
+                break;
+        }
+    }
+
+    /**
+     * Sets the control state with additional changes for closed-loop profiles.
+     * 
+     * @param state the new control state
+     */
+    public void setControlState(ControlState state) {
+        if (state == controlState) {
+            return;
+        }
+        controlState = state;
+        switch (controlState) {
             case POSITION:
                 motor.selectProfileSlot(SwerveConstants.MOTOR_POSITION_SLOT,
                         SwerveConstants.PID_PRIMARY_SLOT);
@@ -116,17 +165,20 @@ public class SwerveModule extends Submodule {
                 motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,
                         SwerveConstants.PID_PRIMARY_SLOT);
                 break;
-        }   
+            default:
+                break;
+        }
     }
 
     /**
-     * sets the rotor to PID to a position
+     * Sets the rotor to a position.
      * 
-     * @param pos the position to go to in units of full rotations
+     * @param pos the position to go to in units of degrees
      */
     public void setRotorPos(double pos) {
-        // convert to revolutions
-        pos = pos / SwerveConstants.DEGREES_IN_REV;
+        // convert degrees to revolutions
+        pos /= 360.0;
+
         // get the difference in angle
         double cpos = getRotorPosition();
         dPos = pos - cpos;
@@ -138,103 +190,114 @@ public class SwerveModule extends Submodule {
         if (dPos > 0.25) {
             dPos -= 0.5;
             angleAdjustmentMotorPolarity = true;
-            rotorTargPos = dPos + cpos;
+            outputRotorPosition = dPos + cpos;
             return;
         }
-        
-        angleAdjustmentMotorPolarity = false;
-        rotorTargPos = dPos + cpos;
-    }
 
-    public void setMotorVelocity(double speed) {
-        motor.setInverted(angleAdjustmentMotorPolarity);
-        motorVel = speed * Math.pow(1-Math.abs(dPos), 4);
+        angleAdjustmentMotorPolarity = false;
+        outputRotorPosition = dPos + cpos;
     }
 
     public void setMotorPosition(double position) {
-        // will have to sort out reversing later
-        motorPos = position;
+        setControlState(ControlState.POSITION);
+
+        // TODO(jimmy): Sort out reversing
+        outputMotorPosition = position;
     }
 
     /**
-     * Reads cached inputs & calculate outputs.
+     * Sets the velocity of the motor to a target velocity.
+     * 
+     * @param velocity target velocity in encoder ticks / 100ms
      */
-    public void update(double timestamp) {
-        if (runMode == MotorMode.PATHING) {
-            moduleProfile.update();
-            outputClosedLoop = moduleProfile.getOutput();
-        } 
-        // System.out.println("Encoder: " + motor.getSelectedSensorPosition());
-        PositionEntry.setDouble( -((1+(getRotorPosition()%1))%0.5) );
+    public void setMotorVelocity(double velocity) {
+        setControlState(ControlState.VELOCITY);
+
+        motor.setInverted(angleAdjustmentMotorPolarity);
+        outputMotorVelocity = velocity * FastMath.pow(1 - Math.abs(dPos), 4);
     }
 
     /**
      * Sets the module to a 2-D target velocity. Input array should have magnitude less than 1
      */
-    public void setVectorVelocity(double[] v, double speedLimit) {
+    public void setVectorVelocity(double[] normalizedV, double speedLimit) {
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
-        setMotorVelocity(
-            speedLimit * Math.sqrt(Math.pow(v[0], 2) + Math.pow(v[1], 2)) * SwerveConstants.MAX_MOTOR_SPEED);
-        // set rotor to the theta of cartesian vector v if the magnitude of the vector is not too
-        // small
-        if (motorVel < 0.1) {
+        setMotorVelocity(speedLimit * FastMath.hypot(normalizedV[0], normalizedV[1])
+                * SwerveConstants.MAX_MOTOR_SPEED);
+        // set rotor to the theta of vector v if the magnitude of the vector is not too small
+        if (Math.abs(outputMotorVelocity) < 0.1) {
             return;
         }
-        setRotorPos(SwerveConstants.DEGREES_IN_REV / (2 * Math.PI) * Math.atan2(v[1], v[0]));
-    }
-
-
-    /**
-     * Runs components in the submodule that have continuously changing inputs.
-     */
-    public void run() {
-        rotor.set(ControlMode.MotionMagic, rotorTargPos * SwerveConstants.ROTOR_REVOLUTION_RATIO);
-        switch (runMode) {
-            case PATHING:
-                motor.set(ControlMode.MotionProfile, outputClosedLoop);
-                break;
-            case POSITION:
-                motor.set(ControlMode.MotionMagic, motorPos);
-                break;
-            case VELOCITY:
-                motor.set(ControlMode.Velocity, motorVel);
-                break;
-        }
+        setRotorPos(FastMath.toDegrees(FastMath.atan2(normalizedV[1], normalizedV[0])));
     }
 
     /**
      * Resets the sensor(s) to zero.
      */
+    @Override
     public void zero() {
-        rotorTargPos = 0;
+        outputRotorPosition = 0.0;
         zeroMotor();
         zeroRotor();
     }
 
+    /**
+     * Stops the swerve module motor while maintaining rotor position.
+     */
+    @Override
     public void stop() {
+        setControlState(ControlState.VELOCITY);
+        outputMotorVelocity = 0.0;
         outputClosedLoop = SetValueMotionProfile.Disable.value;
     }
 
-    public void zeroRotor() {
-        rotor.setSelectedSensorPosition((int) Math.abs((angle.getAbsolutePosition() - zeroAngle)
-                * (SwerveConstants.ROTOR_REVOLUTION_RATIO / SwerveConstants.DEGREES_IN_REV)), 0,
-                10);
-    }
-
+    /**
+     * Zeroes the encoder of the motor.
+     */
     public void zeroMotor() {
         motor.setSelectedSensorPosition(0);
     }
 
+    /**
+     * Zeroes the internal encoder of the rotor to the absolute position from the external encoder.
+     */
+    public void zeroRotor() {
+        rotor.setSelectedSensorPosition(
+                (int) Math.abs((rotorExternalEncoder.getAbsolutePosition() - zeroAngle)
+                        * (SwerveConstants.ROTOR_REVOLUTION_RATIO / 360.0)),
+                0, 10);
+    }
 
+    /**
+     * Returns the rotor position in units of revolutions.
+     * 
+     * @return rotor position in revolutions
+     */
     public double getRotorPosition() {
         return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_REVOLUTION_RATIO;
     }
 
+    /**
+     * Executes a path using a holonomic profile follower.
+     */
+    public void executePath(Path path) {
+        if (controlState == ControlState.PATHING) {
+            return;
+        }
+        setControlState(ControlState.PATHING);
+        profileFollower.start(path.getPathPoints());
+    }
 
-    public void runPath(Path path) {
-        System.out.println("ACTIVAGTING PROFILE");
-        runMode = MotorMode.PATHING;
-        moduleProfile.start(path.getPathPoints());
+    /**
+     * Returns whether the swerve has finished following a path.
+     * 
+     * @return if the drive is finished pathing
+     */
+    public boolean isFinishedWithPath() {
+        if (profileFollower == null || controlState != ControlState.PATHING) {
+            return false;
+        }
+        return profileFollower.isFinished();
     }
 
 }

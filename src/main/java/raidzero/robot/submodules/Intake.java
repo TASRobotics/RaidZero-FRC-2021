@@ -16,7 +16,8 @@ public class Intake extends Submodule {
         return instance;
     }
 
-    private Intake() {}
+    private Intake() {
+    }
 
     private CANSparkMax topIntakeMotor;
     private CANSparkMax bottomIntakeMotor;
@@ -24,7 +25,7 @@ public class Intake extends Submodule {
     private double outputOpenLoop = 0.0;
 
     @Override
-    public void onInit(){
+    public void onInit() {
         topIntakeMotor = new CANSparkMax(IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
         topIntakeMotor.restoreFactoryDefaults();
         topIntakeMotor.setIdleMode(IntakeConstants.TOP_NEUTRAL_MODE);
@@ -37,18 +38,18 @@ public class Intake extends Submodule {
     }
 
     @Override
-    public void onStart(double timestamp){
+    public void onStart(double timestamp) {
         outputOpenLoop = 0.0;
     }
 
     @Override
-    public void run(){
+    public void run() {
         topIntakeMotor.set(outputOpenLoop);
         bottomIntakeMotor.set(outputOpenLoop);
     }
 
     @Override
-    public void stop(){
+    public void stop() {
         outputOpenLoop = 0.0;
         topIntakeMotor.set(0.0);
         bottomIntakeMotor.set(0.0);
@@ -56,9 +57,10 @@ public class Intake extends Submodule {
 
     /**
      * Spins the intake using open-loop control
+     * 
      * @param percentOutput the percent output is [-1, 1]
      */
-    public void intakeBalls(double percentOutput){
-        outputOpenLoop = percentOutput * 0.5;
+    public void intakeBalls(double percentOutput) {
+        outputOpenLoop = percentOutput;
     }
 }

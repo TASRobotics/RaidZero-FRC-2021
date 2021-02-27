@@ -19,7 +19,7 @@ import raidzero.robot.dashboard.Tab;
 
 public class AdjustableHood extends Submodule {
 
-    public static enum ControlState {
+    private enum ControlState {
         OPEN_LOOP, POSITION
     };
 
@@ -42,13 +42,10 @@ public class AdjustableHood extends Submodule {
 
     private ControlState controlState = ControlState.OPEN_LOOP;
 
-    private NetworkTableEntry hoodPositionEntry = Shuffleboard.getTab(Tab.MAIN)
-        .add("Hood Position", 0)
-        .withWidget(BuiltInWidgets.kDial)
-        .withProperties(Map.of("min", 0, "max", 7000))
-        .withSize(2, 2)
-        .withPosition(0, 0)
-        .getEntry();
+    private NetworkTableEntry hoodPositionEntry =
+            Shuffleboard.getTab(Tab.MAIN).add("Hood Position", 0).withWidget(BuiltInWidgets.kDial)
+                    .withProperties(Map.of("min", 0, "max", 7000)).withSize(2, 2).withPosition(0, 0)
+                    .getEntry();
 
     @Override
     public void onInit() {
@@ -155,8 +152,13 @@ public class AdjustableHood extends Submodule {
         moveToTick(angle.ticks);
     }
 
+    /**
+     * Returns whether the hood is at the target position in the position control mode.
+     * 
+     * @return if the hood is at the target position
+     */
     public boolean isAtPosition() {
-        return controlState == ControlState.POSITION &&
-               Math.abs(hoodMotor.getClosedLoopError()) < HoodConstants.TOLERANCE;
+        return controlState == ControlState.POSITION
+                && Math.abs(hoodMotor.getClosedLoopError()) < HoodConstants.TOLERANCE;
     }
 }

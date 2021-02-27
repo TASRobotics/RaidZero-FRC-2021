@@ -14,7 +14,6 @@ import raidzero.robot.submodules.SubmoduleManager;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.submodules.Turret;
 import raidzero.robot.submodules.Superstructure;
-import raidzero.robot.submodules.Swerve;
 import raidzero.robot.pathing.HolonomicPath;
 
 /**
@@ -76,15 +75,7 @@ public class Robot extends TimedRobot {
         submoduleManager.onStart(Timer.getFPGATimestamp());
 
         autoRunner.readSendableSequence();
-
-        swerve.zero();
-        swerve.loadHolonomicPath(new HolonomicPath(
-            new Point[]{
-                new Point(0, 0, 0),
-                new Point(100, 0, 0)
-            }, 10.0, 10.0, new double[]{0, 0}, 100)
-        );
-//        autoRunner.start();
+        autoRunner.start();
     }
 
     /**
@@ -103,7 +94,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         // Stop the autonomous
-//        autoRunner.stop();
+        autoRunner.stop();
 
         // Start the teleop handler
         teleop.onStart();

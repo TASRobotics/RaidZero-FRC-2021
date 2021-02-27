@@ -5,18 +5,21 @@ import java.util.function.DoubleFunction;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import raidzero.pathgen.PathPoint;
-import raidzero.robot.utils.EncoderUtils;
 
 public class HolonomicProfileFollower extends ProfileFollower {
 
     BaseTalon rotor;
     ProfileFollower rotorProfile;
 
-    public HolonomicProfileFollower(BaseTalon motor, BaseTalon rotor, DoubleFunction<Double> positionUnitConverter) {
-        super(motor, positionUnitConverter);
-        rotorProfile = new ProfileFollower(rotor, EncoderUtils::rotorDegreesToTicks);
+    public HolonomicProfileFollower(BaseTalon motor, BaseTalon rotor, 
+        DoubleFunction<Double> motorUnitConverter,
+        DoubleFunction<Double> rotorUnitConverter
+    ) {
+        super(motor, motorUnitConverter);
+        rotorProfile = new ProfileFollower(rotor, rotorUnitConverter);
     }
 
+    @Override
     public void start(PathPoint[] path) {
         // for (var pp : path) {
         //     System.out.println(
@@ -39,7 +42,7 @@ public class HolonomicProfileFollower extends ProfileFollower {
             rotorPath[i].velocity = (path[i + 1].angle - path[i - 1].angle) / (path[i + 1].time - path[i - 1].time);
             rotorPath[i].time = path[i].time;
         }
-        //rotorProfile.start(rotorPath, false);
+        rotorProfile.start(rotorPath, false);
     }
 
     @Override
@@ -48,4 +51,13 @@ public class HolonomicProfileFollower extends ProfileFollower {
         rotorProfile.update();
     }
 
+    /**
+     * Returns whether the motor & rotor motion profile haves finished executing.
+     * 
+     * @return if the profiles are finished
+     */
+    @Override
+    public boolean isFinished() {
+        return super.isFinished() && rotorProfile.isFinished();
+    }
 }

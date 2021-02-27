@@ -11,36 +11,36 @@ public class Constants {
     /**
      * Swerve Constants
      */
-    
+
     public static final class SwerveConstants {
-        // motor ids
-        public static final int[] SWERVE_IDS = {
-            0,1,2,3,4,5,6,7
+        // Motor IDs in the order of motor, rotor, motor, rotor etc.
+        public static final int[] SWERVE_IDS = {0, 1, 2, 3, 4, 5, 6, 7};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {30, 205, 41, 92};
+
+        // Robot Radius
+        public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);
+
+        // Module Angles
+        public static final double[] MODULE_ANGLES = {
+            Math.PI / 4, Math.PI / 4 + Math.PI / 2,
+            Math.PI / 4 + Math.PI, Math.PI / 4 + 3 * Math.PI / 2
         };
-        public static final double[] INIT_MODULES_DEGREES = new double[] {30,205,41,92};
 
-        //Robot Radius
-        public static final double ROBOT_RADIUS = 30./Math.sqrt(2);
-
-        //Module Angles
-        public static final double[] MODULE_ANGLES = {Math.PI/4, Math.PI/4+Math.PI/2, Math.PI/4+Math.PI, Math.PI/4+3*Math.PI/2};
-        
 
         // unit conversions and constants
         public static final double FALCON_TICKS = 2048;
         public static final double ROTOR_RATIO = 12;
         public static final double ROTOR_REVOLUTION_RATIO = ROTOR_RATIO * FALCON_TICKS;
         public static final double MOTOR_RATIO = 7.2;
-        public static final double DEGREES_IN_REV = 360;
-        public static final double RADIANS_IN_REV = 2*Math.PI;
-        public static final double RAD_TO_DEG = DEGREES_IN_REV / RADIANS_IN_REV;
         public static final double WHEEL_DIAMETER_INCHES = 4.0;
-        public static final double SENSOR_UNITS_PER_INCH_MOTOR = FALCON_TICKS * MOTOR_RATIO / (WHEEL_DIAMETER_INCHES * Math.PI);
+        public static final double SENSOR_UNITS_PER_INCH_MOTOR =
+                FALCON_TICKS * MOTOR_RATIO / (WHEEL_DIAMETER_INCHES * Math.PI);
 
         // motor speed limits
         public static final double MAX_MOTOR_RPM = 6300;
         public static final double SECONDS_IN_MINUTE = 60;
-        public static final double MAX_MOTOR_SPEED = FALCON_TICKS*MAX_MOTOR_RPM/(10*SECONDS_IN_MINUTE);
+        public static final double MAX_MOTOR_SPEED =
+                FALCON_TICKS * MAX_MOTOR_RPM / (10 * SECONDS_IN_MINUTE);
         public static final double MOTOR_SPEED_COEF = 0.8;
 
         // motor setup constants
@@ -50,8 +50,8 @@ public class Constants {
         public static final int ROTOR_PID_SLOT = 0;
         public static final boolean DEFAULT_MOTOR_INVERSION = false;
         public static final boolean ROTOR_INVERSION = true;
-        
-        //PID constants
+
+        // PID constants
         public static final int PID_PRIMARY_SLOT = 0;
         public static final int PID_AUX_SLOT = 1;
 
@@ -68,8 +68,8 @@ public class Constants {
         public static final double ROTOR_KD = 0.1;
         public static final double ROTOR_KI = 0.005;
         public static final double ROTOR_IZONE = 6000;
-        public static final double ROTOR_TARG_ACCEL = 100000; 
-        public static final double ROTOR_TARG_VELO = 10000; 
+        public static final double ROTOR_TARG_ACCEL = 100000;
+        public static final double ROTOR_TARG_VELO = 10000;
 
         public static final double HEADING_KP = 0.01;
         public static final double HEADING_KI = 0;
@@ -98,7 +98,7 @@ public class Constants {
         public static final IdleMode BOTTOM_NEUTRAL_MODE = IdleMode.kCoast;
         public static final boolean BOTTOM_MOTOR_INVERSION = false;
 
-        public static final double CONTROL_SCALING_FACTOR = 1.0;
+        public static final double CONTROL_SCALING_FACTOR = 0.5;
     }
 
     /**
@@ -146,10 +146,8 @@ public class Constants {
         // The names refer to the angle of ball release
         public static enum HoodAngle {
             // +-500 for extra tolerance, limit switches should do its thing
-            RETRACTED(-500),
-            HIGH(FULLY_EXTENDED_TICKS / 3), 
-            MEDIUM(2 * FULLY_EXTENDED_TICKS / 3), 
-            LOW(FULLY_EXTENDED_TICKS + 500);
+            RETRACTED(-500), HIGH(FULLY_EXTENDED_TICKS / 3), MEDIUM(
+                    2 * FULLY_EXTENDED_TICKS / 3), LOW(FULLY_EXTENDED_TICKS + 500);
 
             public final int ticks;
 
@@ -157,6 +155,7 @@ public class Constants {
                 this.ticks = ticks;
             }
         }
+
         public static final double K_F = 0;
         public static final double K_P = 0.6;
         public static final double K_I = 0;
@@ -167,7 +166,7 @@ public class Constants {
         public static final double AT_SETPOINT_DURATION = 0.2;
 
         // distance to hood angle regression
-        public static final double ATAN_COEFFICIENT = -600670000;//6.0067*10^8
+        public static final double ATAN_COEFFICIENT = -600670000;// 6.0067*10^8
         public static final double DISTANCE_COEFFICIENT = -624343.7;
         public static final double ANGLE_CONSTANT = -943521338;
     }
@@ -224,54 +223,6 @@ public class Constants {
     public static final double JOYSTICK_DEADBAND = 0.06;
 
     public static final int TIMEOUT_MS = 10;
-    public static final double SQRTTWO = 1.4142135623730950488016887242097;
 
-    /**
-     * Drivetrain Constants
-     * 
-     * 
-     *public static final class DriveConstants {
-     *
-     *    public static final double HIGH_GEAR_RATIO = 0;
-     *    public static final double LOW_GEAR_RATIO = 0;
-     *
-     *    public static final double WHEEL_DIAMETER_INCHES = 0;
-     *
-     *    // Closed-loop constants
-     *    public static final double DRIVE_NEUTRAL_DEADBAND = 0.06;
-     *    public static final int PID_PRIMARY_SLOT = 0;
-     *    public static final int PID_AUX_SLOT = 1;
-     *    public static final double PIGEON_SCALE = 3600.0 / 8192.0;
-     *
-     *    public static final double PRIMARY_F = 0;
-     *    public static final double PRIMARY_P = 0; // 1023 / (30 * 2000)
-     *    public static final double PRIMARY_I = 0;
-     *    public static final double PRIMARY_D = 0;
-     *    public static final int PRIMARY_INT_ZONE = 0;
-     *
-     *    public static final double AUX_F = 0;
-     *    public static final double AUX_P = 8;
-     *    public static final double AUX_I = 0;
-     *    public static final double AUX_D = 0;//4.0;
-     *    public static final int AUX_INT_ZONE = 0;
-     *    public static final boolean AUX_POLARITY = false;
-     *
-     *    public static final int BASE_TRAJ_PERIOD_MS = 0;
-     *    public static final int SENSOR_UNITS_PER_ROTATION = 0;
-     *    public static final double SENSOR_UNITS_PER_INCH_LOW_GEAR = 
-     *        SENSOR_UNITS_PER_ROTATION * LOW_GEAR_RATIO / (WHEEL_DIAMETER_INCHES * Math.PI);
-     *    public static final double SENSOR_UNITS_PER_INCH_HIGH_GEAR = 
-     *        SENSOR_UNITS_PER_ROTATION * HIGH_GEAR_RATIO / (WHEEL_DIAMETER_INCHES * Math.PI);
-     *    public static final int MIN_POINTS_IN_TALON = 10;
-     *    public static final int TRANSMIT_PERIOD_MS = 3;
-     *
-     *    public static final double DEFAULT_CRUISE_VELOCITY = 8;
-     *    public static final double DEFAULT_TARGET_ACCELERATION = 8;
-     *
-     *    // Joystick to Output mapping
-     *    public static final double JOYSTICK_EXPONENT = 1;
-     *    public static final double JOYSTICK_COEFFICIENT = 1;
-     *
-     *}
-     */
-} 
+    public static final double SQRTTWO = Math.sqrt(2);
+}

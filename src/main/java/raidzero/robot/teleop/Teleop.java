@@ -51,7 +51,9 @@ public class Teleop {
     /**
      * Resets the sensor(s) to zero.
      */
-    public void zero() {}
+    public void zero() {
+    }
+
     /**
      * Continuously loops in teleop.
      */
@@ -70,34 +72,30 @@ public class Teleop {
         p2Loop();
     }
 
-    private void p1Loop() {     
-    
-        /** DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION
-        * its not that bad but the absolute encoders
-        * are not good to PID off of so a quick setting
-        * of the relative encoder is better
-        */
-        if(p1.getAButtonPressed()) {
+    private void p1Loop() {
 
+        /**
+         * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
+         * not good to PID off of so a quick setting of the relative encoder is better
+         */
+        if (p1.getAButtonPressed()) {
             swerve.zero();
             return;
         }
 
         int intakeDirection = 1;
-        if (p1.getBumper(Hand.kRight)){
+        if (p1.getBumper(Hand.kRight)) {
             intakeDirection = -1;
         }
-        intake.intakeBalls(JoystickUtils.deadband(
-            IntakeConstants.CONTROL_SCALING_FACTOR * (intakeDirection * p1.getTriggerAxis(Hand.kRight))
-        ));
+        intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR
+                * (intakeDirection * p1.getTriggerAxis(Hand.kRight))));
 
         int spindexerDirection = 1;
-        if (p1.getBumper(Hand.kLeft)){
+        if (p1.getBumper(Hand.kLeft)) {
             spindexerDirection = -1;
         }
-        spindexer.rotate(JoystickUtils.deadband(
-            spindexerDirection * p1.getTriggerAxis(Hand.kLeft) * 0.4 * (p1.getYButton() ? 0.25 : 1)
-        ));
+        spindexer.rotate(JoystickUtils.deadband(spindexerDirection * p1.getTriggerAxis(Hand.kLeft)
+                * 0.4 * (p1.getYButton() ? 0.25 : 1)));
 
         if (p1.getStartButton()) {
             spindexer.rampUp();
@@ -114,20 +112,18 @@ public class Teleop {
         }
 
         // if(p1.getBumper(Hand.kLeft)) {
-        //     swerve.test(p1);
-        //     return;
+        // swerve.test(p1);
+        // return;
         // }
-        swerve.fieldOrientedDrive(
-            JoystickUtils.deadband(p1.getX(Hand.kLeft)),
-            JoystickUtils.deadband(-p1.getY(Hand.kLeft)), 
-            JoystickUtils.deadband(p1.getX(Hand.kRight)), 
-            JoystickUtils.deadband(-p1.getY(Hand.kRight))
-        );
+        swerve.fieldOrientedDrive(JoystickUtils.deadband(p1.getX(Hand.kLeft)),
+                JoystickUtils.deadband(-p1.getY(Hand.kLeft)),
+                JoystickUtils.deadband(p1.getX(Hand.kRight)),
+                JoystickUtils.deadband(-p1.getY(Hand.kRight)));
     }
 
     private void p2Loop() {
 
-        if (p2.getBumper(Hand.kLeft)){
+        if (p2.getBumper(Hand.kLeft)) {
             shooter.shoot(JoystickUtils.deadband(p2.getTriggerAxis(Hand.kRight)), false);
 
             if (p2.getAButtonPressed()) {
@@ -138,7 +134,7 @@ public class Teleop {
             }
             return;
         }
-        
+
         if (p2.getAButtonPressed()) {
             superstructure.setAiming(true);
         } else if (p2.getAButtonReleased()) {
