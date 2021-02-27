@@ -262,10 +262,12 @@ public class SwerveModule extends Submodule {
      * Zeroes the internal encoder of the rotor to the absolute position from the external encoder.
      */
     public void zeroRotor() {
+        double zeroDeg = (rotorExternalEncoder.getAbsolutePosition() - zeroAngle + 360) % 360;
         rotor.setSelectedSensorPosition(
-                (int) Math.abs((rotorExternalEncoder.getAbsolutePosition() - zeroAngle)
-                        * (SwerveConstants.ROTOR_REVOLUTION_RATIO / 360.0)),
-                0, 10);
+                zeroDeg * (SwerveConstants.ROTOR_REVOLUTION_RATIO / 360.0),
+                0, 20);
+
+        outputRotorPosition = zeroDeg / 360.0;
     }
 
     /**
