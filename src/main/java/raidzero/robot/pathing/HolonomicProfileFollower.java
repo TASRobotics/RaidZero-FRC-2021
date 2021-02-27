@@ -42,6 +42,11 @@ public class HolonomicProfileFollower extends ProfileFollower {
             rotorPath[i].velocity = (path[i + 1].angle - path[i - 1].angle) / (path[i + 1].time - path[i - 1].time);
             rotorPath[i].time = path[i].time;
         }
+        // for (var pp : path) {
+        //     System.out.println(
+        //         (pp.time / 10.0) + "s " + pp.position + " deg " + pp.velocity + " in/100ms "
+        //     );
+        // }
         rotorProfile.start(rotorPath, false);
     }
 

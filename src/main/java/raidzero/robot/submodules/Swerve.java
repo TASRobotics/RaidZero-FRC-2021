@@ -178,6 +178,27 @@ public class Swerve extends Submodule {
     }
 
     /**
+     * Sets the positions of all the rotors on the swerve modules.
+     * 
+     * @param angle angle in degree
+     */
+    public void setRotorPositions(double angle) {
+        for (SwerveModule module : modules) {
+            module.setRotorPos(angle);
+        }
+    }
+
+    /**
+     * Returns the position of the rotor on the specified module.
+     * 
+     * @param moduleId ID of the swerve module
+     * @return rotor position in degrees [0, 360)
+     */
+    public double getModuleRotorPosition(int moduleId) {
+        return (modules[moduleId].getRotorPosition() * 360.0) % 360.0;
+    }
+
+    /**
      * Executes a holonomic path.
      * 
      * @param path the holonomic path to execute
