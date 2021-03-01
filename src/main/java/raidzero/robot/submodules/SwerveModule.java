@@ -184,8 +184,10 @@ public class SwerveModule extends Submodule {
      * Sets the rotor to a position.
      * 
      * @param pos the position to go to in units of degrees
+     * 
+     * @return the new target rotor position in units of revolutions
      */
-    public void setRotorPos(double pos) {
+    public double setRotorPos(double pos) {
         // convert degrees to revolutions
         pos /= 360.0;
 
@@ -201,11 +203,12 @@ public class SwerveModule extends Submodule {
             dPos -= 0.5;
             angleAdjustmentMotorPolarity = true;
             outputRotorPosition = dPos + cpos;
-            return;
+            return outputRotorPosition;
         }
 
         angleAdjustmentMotorPolarity = false;
         outputRotorPosition = dPos + cpos;
+        return outputRotorPosition;
     }
 
     public void setMotorPosition(double position) {
