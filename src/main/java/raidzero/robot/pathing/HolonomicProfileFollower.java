@@ -1,7 +1,7 @@
 package raidzero.robot.pathing;
 
 import java.util.function.DoubleFunction;
-
+import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import raidzero.pathgen.PathPoint;
@@ -47,19 +47,19 @@ public class HolonomicProfileFollower extends ProfileFollower {
         //         (pp.time / 10.0) + "s " + pp.position + " deg " + pp.velocity + " in/100ms "
         //     );
         // }
-        rotorProfile.start(rotorPath, false);
+        //rotorProfile.start(rotorPath, false);
     }
 
     @Override
     public void update() {
         super.update();
-        rotorProfile.update();
+        //rotorProfile.update();
     }
 
     @Override
     public void reset() {
         super.reset();
-        rotorProfile.reset();
+        //rotorProfile.reset();
     }
 
     /**
@@ -69,7 +69,7 @@ public class HolonomicProfileFollower extends ProfileFollower {
      */
     @Override
     public boolean isFinished() {
-        return super.isFinished() && rotorProfile.isFinished();
+        return super.isFinished();// && rotorProfile.isFinished();
     }
 
     /**
@@ -87,6 +87,6 @@ public class HolonomicProfileFollower extends ProfileFollower {
      * @return rotor motion profile output
      */
     public int getRotorOutput() {
-        return rotorProfile.getOutput();
+        return SetValueMotionProfile.Disable.value;//rotorProfile.getOutput();
     }
 }

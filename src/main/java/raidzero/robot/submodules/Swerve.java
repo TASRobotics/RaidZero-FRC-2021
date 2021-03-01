@@ -180,22 +180,25 @@ public class Swerve extends Submodule {
     /**
      * Sets the positions of all the rotors on the swerve modules.
      * 
-     * @param angle angle in degree
+     * @param angle angle in degrees
+     * @return new target angles in ticks
      */
-    public void setRotorPositions(double angle) {
-        for (SwerveModule module : modules) {
-            module.setRotorPos(angle);
+    public double[] setRotorPositions(double angle) {
+        double[] targetAngles = new double[4];
+        for (int i = 0; i < 4; ++i) {
+            targetAngles[i] = modules[i].setRotorPos(angle);
         }
+        return targetAngles;
     }
 
     /**
      * Returns the position of the rotor on the specified module.
      * 
      * @param moduleId ID of the swerve module
-     * @return rotor position in degrees [0, 360)
+     * @return rotor position in encoder ticks
      */
     public double getModuleRotorPosition(int moduleId) {
-        return (modules[moduleId].getRotorPosition() * 360.0) % 360.0;
+        return modules[moduleId].getRotorPosition();
     }
 
     /**

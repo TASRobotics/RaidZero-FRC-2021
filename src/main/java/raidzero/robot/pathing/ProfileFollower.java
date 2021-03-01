@@ -176,9 +176,14 @@ public class ProfileFollower {
         //System.out.println("Started filling");
         int reverse = reversed ? -1 : 1;
         // Clear under run error
+        leaderTalon.getMotionProfileStatus(status);
+
         if (status.hasUnderrun) {
-            leaderTalon.clearMotionProfileHasUnderrun();
+            System.out.println("Clearing underrun");
+            System.out.println("Clearing error: " + leaderTalon.clearMotionProfileHasUnderrun(100));
         }
+        leaderTalon.getMotionProfileStatus(status);
+        System.out.println("--> underrun: " + status.hasUnderrun + " isUnderrun: " + status.isUnderrun);
 
         // Clear the buffer just in case the robot is still running some points
         leaderTalon.clearMotionProfileTrajectories();

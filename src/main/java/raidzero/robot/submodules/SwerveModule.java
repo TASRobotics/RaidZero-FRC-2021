@@ -7,7 +7,7 @@ import raidzero.robot.pathing.Path;
 import raidzero.robot.utils.EncoderUtils;
 
 import java.util.Map;
-
+import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -118,7 +118,7 @@ public class SwerveModule extends Submodule {
         motor.clearMotionProfileTrajectories();
         motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,
                 SwerveConstants.PID_PRIMARY_SLOT);
-        rotor.clearMotionProfileTrajectories();
+        //rotor.clearMotionProfileTrajectories();
     }
 
     /**
@@ -126,9 +126,10 @@ public class SwerveModule extends Submodule {
      */
     public void update(double timestamp) {
         if (controlState == ControlState.PATHING) {
+            System.out.println("updating");
             profileFollower.update();
             outputMotorProfile = profileFollower.getMotorOutput();
-            outputRotorProfile = profileFollower.getRotorOutput();
+            //outputRotorProfile = profileFollower.getRotorOutput();
             // System.out.println("MP: " + outputMotorProfile + " | RP: " + outputRotorProfile);
         }
         positionEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
@@ -151,7 +152,7 @@ public class SwerveModule extends Submodule {
                 break;
             case PATHING:
                 motor.set(ControlMode.MotionProfile, outputMotorProfile);
-                rotor.set(ControlMode.MotionProfile, outputRotorProfile);
+                //rotor.set(ControlMode.MotionProfile, outputRotorProfile);
                 break;
         }
     }
@@ -250,7 +251,7 @@ public class SwerveModule extends Submodule {
     @Override
     public void zero() {
         outputMotorProfile = SetValueMotionProfile.Disable.value;
-        outputRotorProfile = SetValueMotionProfile.Disable.value;
+        //outputRotorProfile = SetValueMotionProfile.Disable.value;
         outputRotorPosition = 0.0;
         zeroMotor();
         zeroRotor();
@@ -264,7 +265,15 @@ public class SwerveModule extends Submodule {
         setControlState(ControlState.VELOCITY);
         outputMotorVelocity = 0.0;
         outputMotorProfile = SetValueMotionProfile.Disable.value;
-        outputRotorProfile = SetValueMotionProfile.Disable.value;
+        //outputRotorProfile = SetValueMotionProfile.Disable.value;
+
+        var s = new MotionProfileStatus();
+        motor.getMotionProfileStatus(s);
+        System.out.println(
+            "btmBuffer: " + s.btmBufferCnt + " topBuffer: " + s.topBufferCnt + " underrun: " + s.hasUnderrun + " isUnderrun: " + s.isUnderrun
+        );
+        System.out.println("motor clear: " + motor.clearMotionProfileTrajectories());
+        //System.out.println("rotor clear: " + rotor.clearMotionProfileTrajectories());
     }
 
     /**

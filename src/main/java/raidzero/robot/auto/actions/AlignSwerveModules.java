@@ -1,6 +1,6 @@
 package raidzero.robot.auto.actions;
 
-import raidzero.robot.pathing.HolonomicPath;
+import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.submodules.Swerve;
 
 /**
@@ -11,6 +11,7 @@ public class AlignSwerveModules implements Action {
     private static final Swerve swerve = Swerve.getInstance();
 
     private double angle;
+    private double[] targetAngles;
 
     public AlignSwerveModules(double angle) {
         this.angle = angle;
@@ -19,8 +20,8 @@ public class AlignSwerveModules implements Action {
     @Override
     public boolean isFinished() {
         for (int i = 0; i < 4; ++i) {
-            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + angle);
-            if (Math.abs(swerve.getModuleRotorPosition(i) - angle) > 1.0) {
+            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAngles[i]);
+            if (Math.abs(swerve.getModuleRotorPosition(i) - targetAngles[i]) / SwerveConstants.ROTOR_REVOLUTION_RATIO > 1.0) {
                 return false;
             }
         }
@@ -30,7 +31,7 @@ public class AlignSwerveModules implements Action {
     @Override
     public void start() {
         System.out.println("[Auto] Action '" + getClass().getSimpleName() + "' started!");
-        swerve.setRotorPositions(angle);
+        targetAngles = swerve.setRotorPositions(angle);
     }
 
     @Override
