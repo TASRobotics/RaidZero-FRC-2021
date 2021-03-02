@@ -1,8 +1,10 @@
 package raidzero.robot;
 
+import edu.wpi.first.hal.can.CANStatus;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import raidzero.pathgen.Point;
+
 import raidzero.robot.auto.AutoRunner;
 import raidzero.robot.teleop.Teleop;
 import raidzero.robot.submodules.AdjustableHood;
@@ -14,7 +16,6 @@ import raidzero.robot.submodules.SubmoduleManager;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.submodules.Turret;
 import raidzero.robot.submodules.Superstructure;
-import raidzero.robot.pathing.HolonomicPath;
 
 /**
  * The main robot class.
@@ -84,6 +85,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         double timestamp = Timer.getFPGATimestamp();
+        System.out.println("tx full: " + RobotController.getCANStatus().txFullCount);
         autoRunner.onLoop(timestamp);
         submoduleManager.onLoop(timestamp);
     }

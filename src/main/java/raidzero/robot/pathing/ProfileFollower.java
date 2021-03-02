@@ -29,6 +29,7 @@ public class ProfileFollower {
     protected boolean reversed;
 
     protected boolean initRun;
+    protected boolean doneWaiting;
     protected State state;
     protected MotionProfileStatus status;
     protected SetValueMotionProfile setValue;
@@ -38,9 +39,9 @@ public class ProfileFollower {
     /**
      * Runs periodically to push the trajectory points into the controller.
      */
-    Notifier notifier = new Notifier(() -> {
-        leaderTalon.processMotionProfileBuffer();
-    });
+    // Notifier notifier = new Notifier(() -> {
+    //     leaderTalon.processMotionProfileBuffer();
+    // });
 
     /**
      * Creates the profile follower.
@@ -50,9 +51,13 @@ public class ProfileFollower {
         this.positionUnitConverter = positionUnitConverter;
 
         setValue = SetValueMotionProfile.Disable;
+        initRun = false;
+        doneWaiting = false;
         status = new MotionProfileStatus();
-        notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
+        // notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
         state = State.FillPoints;
+
+        leaderTalon.changeMotionControlFramePeriod(PathConstants.TRANSMIT_PERIOD_MS);
 
         reversed = false;
     }
@@ -90,6 +95,19 @@ public class ProfileFollower {
         start(pathPoints, true);
     }
 
+    public boolean isDoneWaitingForFill() {
+        return doneWaiting;
+    }
+
+    public void enable() {
+        if (state == State.WaitPoints && doneWaiting) {
+            // setValue = SetValueMotionProfile.Enable;
+            // state = State.Run;
+            doneWaiting = false;
+            // System.out.println("--> Executing profile...");
+        }
+    }
+
     /**
      * Updates the state of the motion profile from the motor controller.
      * 
@@ -107,10 +125,10 @@ public class ProfileFollower {
             break;
         case WaitPoints:
             leaderTalon.getMotionProfileStatus(status);
-            if (status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
-                setValue = SetValueMotionProfile.Enable;
-                state = State.Run;
-                System.out.println("--> Executing profile...");
+            if (!doneWaiting && status.btmBufferCnt > PathConstants.MIN_POINTS_IN_TALON) {
+                // setValue = SetValueMotionProfile.Enable;
+                // state = State.Run;
+                doneWaiting = true;
             }
             break;
         case Run:
@@ -164,6 +182,7 @@ public class ProfileFollower {
         setValue = SetValueMotionProfile.Disable;
         state = State.FillPoints;
         initRun = false;
+        doneWaiting = false;
     }
 
     /**
@@ -215,7 +234,7 @@ public class ProfileFollower {
             //     "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
             // );
 
-            leaderTalon.pushMotionProfileTrajectory(tp);
+            System.out.println("Full error? " + leaderTalon.pushMotionProfileTrajectory(tp));
         }
         System.out.println("--> Total time: " + (totalTime / 10.0) + " s");
 

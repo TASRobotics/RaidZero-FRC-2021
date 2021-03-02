@@ -1,11 +1,15 @@
 package raidzero.robot.submodules;
 
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import raidzero.pathgen.PathGenerator;
 import raidzero.robot.Constants;
+import raidzero.robot.Constants.PathConstants;
 import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.pathing.HolonomicPath;
 import raidzero.robot.pathing.Path;
+import java.util.LinkedList;
+import java.util.Queue;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import org.apache.commons.math3.util.FastMath;
 
@@ -30,12 +34,24 @@ public class Swerve extends Submodule {
     private SwerveModule[] modules = new SwerveModule[4];
     private PigeonIMU pigey = new PigeonIMU(0);
 
+    private Notifier notifier = new Notifier(() -> {
+        for (SwerveModule module : modules) {
+            if (module != null) {
+                module.motor.processMotionProfileBuffer();
+                module.rotor.processMotionProfileBuffer();
+            }
+        }
+    });
+
     private double[] ypr = new double[3];
 
     private double omega = 0.0;
     // private double targetAngle = 0.0;
     // private double headingError = 0.0;
     private PIDController headingPID;
+
+    private Path[] pathToPush = new Path[4];
+    private Queue<Integer> pushPathModuleIdQueue = new LinkedList<>();
 
     // private SwerveModule d;
 
@@ -76,6 +92,8 @@ public class Swerve extends Submodule {
                 SwerveConstants.HEADING_KD);
         headingPID.setTolerance(5);
 
+        notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
+
         zero();
     }
 
@@ -83,6 +101,11 @@ public class Swerve extends Submodule {
     public void update(double timestamp) {
         // Retrive the pigeon's gyro values
         pigey.getYawPitchRoll(ypr);
+        if (!pushPathModuleIdQueue.isEmpty()) {
+            System.out.println("Dequeue");
+            int id = pushPathModuleIdQueue.remove();
+            modules[id].pushPath(pathToPush[id]);
+        }
         for (SwerveModule module : modules) {
             module.update(timestamp);
         }
@@ -201,22 +224,56 @@ public class Swerve extends Submodule {
         return modules[moduleId].getRotorPosition();
     }
 
+    public boolean isDoneWaitingForFill() {
+        if (controlState != ControlState.PATHING) {
+            return false;
+        }
+        // return modules[0].isDoneWaitingForFill() && modules[1].isDoneWaitingForFill();// && modules[2].isDoneWaitingForFill();
+
+        for (SwerveModule module : modules) {
+            if (!module.isDoneWaitingForFill()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void enableProfile() {
+        if (controlState != ControlState.PATHING) {
+            return;
+        }
+        for (SwerveModule module : modules) {
+            module.enableProfile();
+        }
+    }
+
     /**
-     * Executes a holonomic path.
+     * Pushes a holonomic path.
      * 
      * @param path the holonomic path to execute
      */
-    public void executeHolonomicPath(HolonomicPath path) {
+    public void pushHolonomicPath(HolonomicPath path) {
         if (controlState == ControlState.PATHING) {
             return;
         }
         controlState = ControlState.PATHING;
-        // Paths for the each modules are generated based on the holonomic path.
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].executePath(new Path(PathGenerator.generatePath(path.getPathPoints(),
-                    Constants.SwerveConstants.MODULE_ANGLES[i],
-                    Constants.SwerveConstants.ROBOT_RADIUS)));
+
+        for (int i = 0; i < 4; ++i) {
+            pushPathModuleIdQueue.add(i);
+            pathToPush[i] = new Path(PathGenerator.generatePath(path.getPathPoints(),
+                Constants.SwerveConstants.MODULE_ANGLES[i],
+                Constants.SwerveConstants.ROBOT_RADIUS));
         }
+        // modules[2].pushPath(new Path(PathGenerator.generatePath(path.getPathPoints(),
+        //             Constants.SwerveConstants.MODULE_ANGLES[2],
+        //             Constants.SwerveConstants.ROBOT_RADIUS)));
+
+        // Paths for the each modules are generated based on the holonomic path.
+        // for (int i = 0; i < modules.length; i++) {
+        //     modules[i].pushPath(new Path(PathGenerator.generatePath(path.getPathPoints(),
+        //             Constants.SwerveConstants.MODULE_ANGLES[i],
+        //             Constants.SwerveConstants.ROBOT_RADIUS)));
+        // }
     }
 
     /**
@@ -228,6 +285,7 @@ public class Swerve extends Submodule {
         if (controlState != ControlState.PATHING) {
             return false;
         }
+        // return modules[0].isFinishedWithPath() && modules[1].isFinishedWithPath();// && modules[2].isFinishedWithPath();
         for (SwerveModule module : modules) {
             if (!module.isFinishedWithPath()) {
                 return false;

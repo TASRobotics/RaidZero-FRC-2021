@@ -26,8 +26,8 @@ public class SwerveModule extends Submodule {
         POSITION, VELOCITY, PATHING
     };
 
-    private TalonFX motor;
-    private TalonFX rotor;
+    public TalonFX motor;
+    public TalonFX rotor;
 
     private CANCoder rotorExternalEncoder;
 
@@ -307,13 +307,21 @@ public class SwerveModule extends Submodule {
     /**
      * Executes a path using a holonomic profile follower.
      */
-    public void executePath(Path path) {
+    public void pushPath(Path path) {
         if (controlState == ControlState.PATHING) {
             return;
         }
         setControlState(ControlState.PATHING);
         profileFollower.reset();
         profileFollower.start(path.getPathPoints());
+    }
+
+    public void enableProfile() {
+        profileFollower.enable();
+    }
+
+    public boolean isDoneWaitingForFill() {
+        return profileFollower.isDoneWaitingForFill();
     }
 
     /**
@@ -325,7 +333,7 @@ public class SwerveModule extends Submodule {
         if (profileFollower == null || controlState != ControlState.PATHING) {
             return false;
         }
-        System.out.println("Q" + quadrant + " finished? " + profileFollower.isFinished());
+        // System.out.println("Q" + quadrant + " finished? " + profileFollower.isFinished());
         return profileFollower.isFinished();
     }
 

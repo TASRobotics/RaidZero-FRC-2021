@@ -51,6 +51,17 @@ public class HolonomicProfileFollower extends ProfileFollower {
     }
 
     @Override
+    public boolean isDoneWaitingForFill() {
+        return super.isDoneWaitingForFill() && rotorProfile.isDoneWaitingForFill();
+    }
+
+    @Override
+    public void enable() {
+        super.enable();
+        rotorProfile.enable();
+    }
+
+    @Override
     public void update() {
         super.update();
         rotorProfile.update();
