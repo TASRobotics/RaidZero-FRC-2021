@@ -32,7 +32,7 @@ public class Swerve extends Submodule {
     }
 
     private SwerveModule[] modules = new SwerveModule[4];
-    private PigeonIMU pigey = new PigeonIMU(0);
+    private PigeonIMU pigey;
 
     private Notifier notifier = new Notifier(() -> {
         for (SwerveModule module : modules) {
@@ -71,6 +71,8 @@ public class Swerve extends Submodule {
         // Total number of modules in the swerve
         int motorCount = SwerveConstants.SWERVE_IDS.length;
 
+        pigey = new PigeonIMU(0);
+
         // Create and initialize each module
         for (int i = 0; i < motorCount / 2; i++) {
             modules[i] = new SwerveModule();
@@ -86,6 +88,7 @@ public class Swerve extends Submodule {
             double moduleAngle = Math.PI / 4 + (Math.PI / 2) * i;
             rotV[i] = new double[] {-Math.sin(moduleAngle), Math.cos(moduleAngle)};
         }
+        // System.out.println("Swerve init");
         // d = modules[0];
 
         headingPID = new PIDController(SwerveConstants.HEADING_KP, SwerveConstants.HEADING_KI,
@@ -99,6 +102,7 @@ public class Swerve extends Submodule {
 
     @Override
     public void update(double timestamp) {
+        // System.out.println("Swerve update");
         // Retrive the pigeon's gyro values
         pigey.getYawPitchRoll(ypr);
         if (!pushPathModuleIdQueue.isEmpty()) {

@@ -15,7 +15,7 @@ public class PathGenerator {
      * Increasing this number results in more query points and greater accuracy for
      * path generation.
      */
-    private static final double QUERY_INTERVAL = 2;
+    private static final double QUERY_INTERVAL = 3;
 
     /**
      * Generates a path that passes through the given waypoints on the field.

@@ -100,7 +100,7 @@ public class SwerveModule extends Submodule {
                 .withWidget(BuiltInWidgets.kDial).withProperties(Map.of("min", -0.5, "max", 0))
                 .withSize(2, 2).withPosition(0, 0).getEntry();
 
-        zero();
+        stop();
     }
 
     /**
@@ -115,10 +115,10 @@ public class SwerveModule extends Submodule {
         outputRotorPosition = 0.0;
         outputMotorProfile = 0;
         outputRotorProfile = 0;
-        motor.clearMotionProfileTrajectories();
+        // motor.clearMotionProfileTrajectories();
         motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,
                 SwerveConstants.PID_PRIMARY_SLOT);
-        rotor.clearMotionProfileTrajectories();
+        // rotor.clearMotionProfileTrajectories();
     }
 
     /**
@@ -126,7 +126,7 @@ public class SwerveModule extends Submodule {
      */
     public void update(double timestamp) {
         if (controlState == ControlState.PATHING) {
-            System.out.println("updating");
+            // System.out.println("updating");
             profileFollower.update();
             outputMotorProfile = profileFollower.getMotorOutput();
             outputRotorProfile = profileFollower.getRotorOutput();
@@ -267,13 +267,13 @@ public class SwerveModule extends Submodule {
         outputMotorProfile = SetValueMotionProfile.Disable.value;
         outputRotorProfile = SetValueMotionProfile.Disable.value;
 
-        var s = new MotionProfileStatus();
-        motor.getMotionProfileStatus(s);
-        System.out.println(
-            "btmBuffer: " + s.btmBufferCnt + " topBuffer: " + s.topBufferCnt + " underrun: " + s.hasUnderrun + " isUnderrun: " + s.isUnderrun
-        );
-        System.out.println("motor clear: " + motor.clearMotionProfileTrajectories());
-        System.out.println("rotor clear: " + rotor.clearMotionProfileTrajectories());
+        // var s = new MotionProfileStatus();
+        // motor.getMotionProfileStatus(s);
+        // System.out.println(
+        //     "btmBuffer: " + s.btmBufferCnt + " topBuffer: " + s.topBufferCnt + " underrun: " + s.hasUnderrun + " isUnderrun: " + s.isUnderrun
+        // );
+        // System.out.println("motor clear: " + motor.clearMotionProfileTrajectories());
+        // System.out.println("rotor clear: " + rotor.clearMotionProfileTrajectories());
     }
 
     /**

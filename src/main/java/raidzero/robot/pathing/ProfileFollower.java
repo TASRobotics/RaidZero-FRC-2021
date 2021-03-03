@@ -101,8 +101,8 @@ public class ProfileFollower {
 
     public void enable() {
         if (state == State.WaitPoints && doneWaiting) {
-            // setValue = SetValueMotionProfile.Enable;
-            // state = State.Run;
+            setValue = SetValueMotionProfile.Enable;
+            state = State.Run;
             doneWaiting = false;
             // System.out.println("--> Executing profile...");
         }
@@ -178,7 +178,7 @@ public class ProfileFollower {
      * Clears the Motion profile buffer and resets state info.
      */
     public void reset() {
-        leaderTalon.clearMotionProfileTrajectories();
+        // leaderTalon.clearMotionProfileTrajectories();
         setValue = SetValueMotionProfile.Disable;
         state = State.FillPoints;
         initRun = false;
@@ -201,8 +201,8 @@ public class ProfileFollower {
             System.out.println("Clearing underrun");
             System.out.println("Clearing error: " + leaderTalon.clearMotionProfileHasUnderrun(100));
         }
-        leaderTalon.getMotionProfileStatus(status);
-        System.out.println("--> underrun: " + status.hasUnderrun + " isUnderrun: " + status.isUnderrun);
+        // leaderTalon.getMotionProfileStatus(status);
+        // System.out.println("--> underrun: " + status.hasUnderrun + " isUnderrun: " + status.isUnderrun);
 
         // Clear the buffer just in case the robot is still running some points
         leaderTalon.clearMotionProfileTrajectories();
@@ -234,9 +234,9 @@ public class ProfileFollower {
             //     "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
             // );
 
-            System.out.println("Full error? " + leaderTalon.pushMotionProfileTrajectory(tp));
+            leaderTalon.pushMotionProfileTrajectory(tp);
         }
-        System.out.println("--> Total time: " + (totalTime / 10.0) + " s");
+        // System.out.println("--> Total time: " + (totalTime / 10.0) + " s");
 
     }
 }

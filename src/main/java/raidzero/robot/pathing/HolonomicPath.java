@@ -22,7 +22,6 @@ public class HolonomicPath {
         double startTime = Timer.getFPGATimestamp();
         pathPoints = HolonomicPathGenerator.generateHolonomicPath(points, cruiseVel, targetAccel, endPointAngles,
                 targetAngularAccel);
-        System.out.println("FSFSKD");
         for (var pp : pathPoints) {
             System.out.println(
                 (pp.time / 10.0) + "s - (" + pp.x + ", " + pp.y + ") | " + pp.velocity + " in/100ms " + pp.orientation + " deg"
