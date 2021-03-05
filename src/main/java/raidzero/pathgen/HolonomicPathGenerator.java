@@ -26,7 +26,7 @@ public class HolonomicPathGenerator extends PathGenerator {
 
         TrapezoidalProfiler orientationProfile = new TrapezoidalProfiler(angleEndpoints, targetAngularAcceleration,
                 path);
-        orientationProfile.fillOrientations(path);
+        // orientationProfile.fillOrientations(path);
 
         return path;
     }

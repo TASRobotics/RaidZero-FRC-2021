@@ -25,7 +25,7 @@ public class AutoRunner {
         for (AutoSequence sequence : availableSequences) {
             chooser.addOption(sequence.getName(), sequence);
         }
-        Shuffleboard.getTab(Tab.MAIN).add("Auton", chooser).withSize(3, 1).withPosition(2, 1);
+        Shuffleboard.getTab(Tab.MAIN).add("Auton", chooser).withSize(2, 1).withPosition(2, 2);
         // SmartDashboard.putData("Auton Selection", chooser);
     }
 

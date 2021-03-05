@@ -52,7 +52,8 @@ public class SwerveModule extends Submodule {
     private ControlState controlState = ControlState.VELOCITY;
     private HolonomicProfileFollower profileFollower;
 
-    private NetworkTableEntry positionEntry;
+    private NetworkTableEntry rotorAngleEntry;
+    private NetworkTableEntry motorVelocityEntry;
 
     @Override
     public void onInit() {
@@ -96,9 +97,28 @@ public class SwerveModule extends Submodule {
         rotor.configMotionAcceleration(SwerveConstants.ROTOR_TARG_ACCEL);
         rotor.configMotionCruiseVelocity(SwerveConstants.ROTOR_TARG_VELO);
 
-        positionEntry = Shuffleboard.getTab(Tab.MAIN).add("Module" + quadrant, 0)
+        int column = 0;
+        int row = 0;
+        if (quadrant == 1) {
+            column = 3;
+            row = 0;
+        } else if (quadrant == 2) {
+            column = 2;
+            row = 0;
+        } else if (quadrant == 3) {
+            column = 2;
+            row = 1;
+        } else {
+            column = 3;
+            row = 1;
+        }
+
+        rotorAngleEntry = Shuffleboard.getTab(Tab.MAIN).add("Rotor" + quadrant, 0)
                 .withWidget(BuiltInWidgets.kDial).withProperties(Map.of("min", -0.5, "max", 0))
-                .withSize(2, 2).withPosition(0, 0).getEntry();
+                .withSize(1, 1).withPosition(column, row).getEntry();
+        motorVelocityEntry = Shuffleboard.getTab(Tab.MAIN).add("Motor" + quadrant, 0)
+                .withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -1.0, "max", 1.0))
+                .withSize(1, 1).withPosition(column + 2, row).getEntry();
 
         stop();
     }
@@ -132,7 +152,8 @@ public class SwerveModule extends Submodule {
             outputRotorProfile = profileFollower.getRotorOutput();
             // System.out.println("MP: " + outputMotorProfile + " | RP: " + outputRotorProfile);
         }
-        positionEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
+        rotorAngleEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
+        motorVelocityEntry.setDouble(getMotorVelocity());
     }
 
     /**
@@ -237,7 +258,7 @@ public class SwerveModule extends Submodule {
     public void setVectorVelocity(double[] normalizedV, double speedLimit) {
         // set the velocity to the magnitude of vector v scaled to the maximum desired speed
         setMotorVelocity(speedLimit * FastMath.hypot(normalizedV[0], normalizedV[1])
-                * SwerveConstants.MAX_MOTOR_SPEED);
+                * SwerveConstants.MAX_MOTOR_SPEED_DRIVING);
         // set rotor to the theta of vector v if the magnitude of the vector is not too small
         if (Math.abs(outputMotorVelocity) < 0.1) {
             return;
@@ -264,8 +285,10 @@ public class SwerveModule extends Submodule {
     public void stop() {
         setControlState(ControlState.VELOCITY);
         outputMotorVelocity = 0.0;
+        outputRotorPosition = getRotorPosition();
         outputMotorProfile = SetValueMotionProfile.Disable.value;
         outputRotorProfile = SetValueMotionProfile.Disable.value;
+        System.out.println("Q" + quadrant + " Current: " + getRotorPosition() + " Target: " + outputRotorPosition);
 
         // var s = new MotionProfileStatus();
         // motor.getMotionProfileStatus(s);
@@ -293,6 +316,15 @@ public class SwerveModule extends Submodule {
                 0, 20);
 
         outputRotorPosition = zeroDeg / 360.0;
+    }
+
+    /**
+     * Returns the motor velocity in units of fractions of max speed.
+     * 
+     * @return motor velocity in fractions of max speed
+     */
+    public double getMotorVelocity() {
+        return motor.getSelectedSensorVelocity() / SwerveConstants.MAX_MOTOR_SPEED_TICKS;
     }
 
     /**

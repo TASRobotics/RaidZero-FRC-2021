@@ -99,8 +99,6 @@ public class Swerve extends Submodule {
                 SwerveConstants.HEADING_KD);
         headingPID.setTolerance(5);
 
-        notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
-
         zero();
     }
 
@@ -133,6 +131,7 @@ public class Swerve extends Submodule {
     public void stop() {
         controlState = ControlState.OPEN_LOOP;
         totalV = new double[] {0.1, 0};
+        notifier.stop();
 
         for (SwerveModule module : modules) {
             module.stop();
@@ -226,7 +225,7 @@ public class Swerve extends Submodule {
      * Returns the position of the rotor on the specified module.
      * 
      * @param moduleId ID of the swerve module
-     * @return rotor position in encoder ticks
+     * @return rotor position in revolution
      */
     public double getModuleRotorPosition(int moduleId) {
         return modules[moduleId].getRotorPosition();
@@ -265,6 +264,8 @@ public class Swerve extends Submodule {
             return;
         }
         controlState = ControlState.PATHING;
+
+        notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
 
         for (int i = 0; i < 4; ++i) {
             pushPathModuleIdQueue.add(i);

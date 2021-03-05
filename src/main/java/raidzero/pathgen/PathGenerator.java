@@ -2,6 +2,7 @@ package raidzero.pathgen;
 
 import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.analysis.interpolation.HermiteInterpolator;
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * Calculations for generating path from waypoints.
@@ -119,8 +120,8 @@ public class PathGenerator {
                     - (pathPoints[i - 1].x + radius * Math.cos(Math.toRadians(pathPoints[i - 1].orientation) + angleOffset));
             dy[i] = (pathPoints[i].y + radius * Math.sin(Math.toRadians(pathPoints[i].orientation) + angleOffset))
                     - (pathPoints[i - 1].y + radius * Math.sin(Math.toRadians(pathPoints[i - 1].orientation) + angleOffset));
-            shiftedPathPoints[i].time = Math.max(pathPoints[i].time, 0.01);
-            shiftedPathPoints[i].velocity = Math.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
+            shiftedPathPoints[i].time = Math.max(pathPoints[i].time, 0.04);
+            shiftedPathPoints[i].velocity = FastMath.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
             // System.out.println("Shifted vel: " + shiftedPathPoints[i].velocity + " dx: " + dx[i] + " dy: " + dy[i]);
         }
 
@@ -148,6 +149,7 @@ public class PathGenerator {
         // data points on
         // the path. The angle for the first point should be given.
         for (var i = 0; i < path.length; i++) {
+            System.out.println("Atan2: " + Math.atan2(dy[i], dx[i]) + " Dy: " + dy[i] + " Dx: " + dx[i]);
             path[i].angle = Math.toDegrees(Math.atan2(dy[i], dx[i]));
             if (i > 0) {
                 while (path[i].angle - path[i - 1].angle > 180) {

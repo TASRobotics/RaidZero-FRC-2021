@@ -15,7 +15,7 @@ public class TestPathingSequence extends AutoSequence {
     };
 
     private static final HolonomicPath PATH = new HolonomicPath(
-        POINTS, 10.0, 10.0, new double[]{0, 0}, 100);
+        POINTS, 10.0, 15.0, new double[]{0, 0}, 100);
     
     private static final Swerve swerve = Swerve.getInstance();
 
@@ -28,8 +28,8 @@ public class TestPathingSequence extends AutoSequence {
             Arrays.asList(
                 new LambdaAction(() -> swerve.zero()),
                 // TODO(louis): needs to account for optimization
-                new AlignSwerveModules(PATH.getFirstPoint().angle.getAsDouble()),
-                new DrivePath(PATH)
+                new AlignSwerveModules(PATH.getFirstPoint().angle.getAsDouble())
+                // new DrivePath(PATH)
             )
         ));
         System.out.println("Added actions.");

@@ -21,7 +21,7 @@ public class AlignSwerveModules implements Action {
     public boolean isFinished() {
         for (int i = 0; i < 4; ++i) {
             System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAngles[i]);
-            if (Math.abs(swerve.getModuleRotorPosition(i) - targetAngles[i]) / SwerveConstants.ROTOR_REVOLUTION_RATIO > 1.0) {
+            if (Math.abs(swerve.getModuleRotorPosition(i) - targetAngles[i]) > 0.01) {
                 return false;
             }
         }

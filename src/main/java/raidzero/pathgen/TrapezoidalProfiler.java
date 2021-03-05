@@ -1,5 +1,7 @@
 package raidzero.pathgen;
 
+import org.apache.commons.math3.util.FastMath;
+
 public class TrapezoidalProfiler {
     /**
      * The Initial and final position to trapezoid between (in appropriate units)
@@ -41,9 +43,9 @@ public class TrapezoidalProfiler {
         this.endpoints = endpoints;
         this.targetAcceleration = targetAcceleration;
         this.pointTimes = new double[pathPoints.length];
-
-        for (int i = 0; i < pathPoints.length; i++) {
-            this.pointTimes[i] = pathPoints[i].time;
+        this.pointTimes[0] = 0.0;
+        for (int i = 1; i < pathPoints.length; i++) {
+            this.pointTimes[i] = pathPoints[i].time + this.pointTimes[i - 1];
         }
 
         createProfile();
@@ -52,22 +54,24 @@ public class TrapezoidalProfiler {
 
     public void fillOrientations(HolonomicPathPoint[] pathPoints) {
         for (int i = 0; i < pathPoints.length; i++) {
-            pathPoints[i].orientation = positionPoints[i];
+            System.out.println("Orientations: " + positionPoints[i]);
+            pathPoints[i].orientation = 0;//positionPoints[i];
         }
     }
 
     private void createProfile() {
+        // TODO(louis): verify profile generation code
         positionPoints = new double[pointTimes.length];
         double totalDistance = endpoints[1] - endpoints[0];
         double totalTime = pointTimes[pointTimes.length - 1];
-        double deltat = totalTime / 2 - Math.sqrt(Math.pow(totalTime, 2) / 4 - totalDistance / targetAcceleration);
+        double deltat = totalTime / 2 - Math.sqrt(FastMath.pow(totalTime, 2) / 4 - totalDistance / targetAcceleration);
         for (int i = 0; i < positionPoints.length; i++) {
             if (pointTimes[i] < deltat) { // Ramping up distance calculation
-                positionPoints[i] = 1 / 2 * targetAcceleration * Math.pow(pointTimes[i], 2);
+                positionPoints[i] = 1 / 2 * targetAcceleration * FastMath.pow(pointTimes[i], 2);
             } else if (pointTimes[i] > totalTime - deltat) { // Ramping down distance calculation
-                positionPoints[i] = totalDistance - 1 / 2 * targetAcceleration * Math.pow(totalTime - pointTimes[i], 2);
+                positionPoints[i] = totalDistance - 1 / 2 * targetAcceleration * FastMath.pow(totalTime - pointTimes[i], 2);
             } else { // Cruise Distance Calculations
-                positionPoints[i] = 1 / 2 * targetAcceleration * Math.pow(deltat, 2)
+                positionPoints[i] = 1 / 2 * targetAcceleration * FastMath.pow(deltat, 2)
                         + targetAcceleration * deltat * (pointTimes[i] - deltat);
             }
         }

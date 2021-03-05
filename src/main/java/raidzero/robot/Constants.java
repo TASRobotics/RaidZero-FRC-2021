@@ -26,7 +26,6 @@ public class Constants {
             Math.PI / 4 + Math.PI, Math.PI / 4 + 3 * Math.PI / 2
         };
 
-
         // unit conversions and constants
         public static final double FALCON_TICKS = 2048;
         public static final double ROTOR_RATIO = 12;
@@ -39,7 +38,9 @@ public class Constants {
         // motor speed limits
         public static final double MAX_MOTOR_RPM = 6300;
         public static final double SECONDS_IN_MINUTE = 60;
-        public static final double MAX_MOTOR_SPEED =
+        // TODO(louis): Clarify the next 2 constants
+        public static final double MAX_MOTOR_SPEED_TICKS = 13500;
+        public static final double MAX_MOTOR_SPEED_DRIVING =
                 FALCON_TICKS * MAX_MOTOR_RPM / (10 * SECONDS_IN_MINUTE);
         public static final double MOTOR_SPEED_COEF = 0.8;
 
@@ -83,7 +84,7 @@ public class Constants {
     public class PathConstants {
         public static final int BASE_TRAJ_PERIOD_MS = 0;
         public static final int MIN_POINTS_IN_TALON = 10;
-        public static final int TRANSMIT_PERIOD_MS = 20;
+        public static final int TRANSMIT_PERIOD_MS = 15;
     }
 
     /**
