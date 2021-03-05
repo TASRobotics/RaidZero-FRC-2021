@@ -68,28 +68,28 @@ public class Teleop {
         /**
          * p1 controls
          */
-        p1Loop();
+        p1Loop(p1);
         /**
          * p2 controls
          */
-        p2Loop();
+        p2Loop(p2);
     }
 
-    private void p1Loop() {
-        shift1 = p1.getBumper(Hand.kRight);
+    private void p1Loop(XboxController p) {
+        shift1 = p.getBumper(Hand.kRight);
 
     /**
      * Drive
     */
-        swerve.fieldOrientedDrive(JoystickUtils.deadband(p1.getX(Hand.kLeft)),
-            JoystickUtils.deadband(-p1.getY(Hand.kLeft)),
-            JoystickUtils.deadband(p1.getX(Hand.kRight)),
-            JoystickUtils.deadband(-p1.getY(Hand.kRight)));
+        swerve.fieldOrientedDrive(JoystickUtils.deadband(p.getX(Hand.kLeft)),
+            JoystickUtils.deadband(-p.getY(Hand.kLeft)),
+            JoystickUtils.deadband(p.getX(Hand.kRight)),
+            JoystickUtils.deadband(-p.getY(Hand.kRight)));
         /**
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better
          */
-        if (p1.getBackButtonPressed()) {
+        if (p.getBackButtonPressed()) {
             swerve.zero();
             return;
         }
@@ -99,7 +99,7 @@ public class Teleop {
      * Intake
     */
         // intakeOut is used to passively shuffle the spindexer
-        double intakeOut = p1.getTriggerAxis(Hand.kRight);
+        double intakeOut = p.getTriggerAxis(Hand.kRight);
       
         intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
         intake.setMotorDirection(shift1);
@@ -107,40 +107,30 @@ public class Teleop {
      * Spindexer
      */
         // shifting reverses it, and intaking moves it slowly forward to shuffle
-        spindexer.rotate(JoystickUtils.deadband( ((shift1 ? -1 : 1) * p1.getTriggerAxis(Hand.kLeft)) +
+        spindexer.rotate(JoystickUtils.deadband( ((shift1 ? -1 : 1) * p.getTriggerAxis(Hand.kLeft)) +
             (shift1 ? 0 : intakeOut/5)));
-
-    /**
-     * Conveyor
-     */
-        if (p1.getBButton()) {
-            conveyor.moveBalls(1.0);
-        } else if (p1.getXButton()) {
-            conveyor.moveBalls(-1.0);
-        } else {
-            conveyor.moveBalls(0.0);
-        }
+        // OVERWRITTEN WHEN THE CONVEYOR MOVES
         
     }
 
-    private void p2Loop() {
-        shift2 = p2.getBumper(Hand.kRight);
+    private void p2Loop(XboxController p) {
+        shift2 = p.getBumper(Hand.kRight);
 
-        if (p2.getBumper(Hand.kLeft)) {
-            shooter.shoot(JoystickUtils.deadband(p2.getTriggerAxis(Hand.kRight)), false);
+        if (p.getBumper(Hand.kLeft)) {
+            shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
 
-            if (p2.getAButtonPressed()) {
+            if (p.getAButtonPressed()) {
                 // TODO: PID turret 90 degrees
                 superstructure.setTurretPIDing(true);
-            } else if (p2.getAButtonReleased()) {
+            } else if (p.getAButtonReleased()) {
                 superstructure.setTurretPIDing(false);
             }
             return;
         }
 
-        if (p2.getAButtonPressed()) {
+        if (p.getAButtonPressed()) {
             superstructure.setAiming(true);
-        } else if (p2.getAButtonReleased()) {
+        } else if (p.getAButtonReleased()) {
             // In case the override button is released while PIDing
             if (superstructure.isTurretPIDing()) {
                 superstructure.setTurretPIDing(false);
@@ -149,43 +139,54 @@ public class Teleop {
         }
         // Turn turret using right joystick
         if (!superstructure.isUsingTurret()) {
-            turret.rotateManual(JoystickUtils.deadband(p2.getX(Hand.kRight)));
+            turret.rotateManual(JoystickUtils.deadband(p.getX(Hand.kRight)));
         }
 
-        /**
-         * Shooter
-         */
-        if (p2.getBumperPressed(Hand.kRight)) {
+    /**
+     * Shooter
+     */
+        if (p.getBumperPressed(Hand.kRight)) {
             shooter.shoot(1.0, false);
-        } else if (p2.getBumperReleased(Hand.kRight)) {
+        } else if (p.getBumperReleased(Hand.kRight)) {
             shooter.shoot(0.0, false);
         }
 
-        /**
-         * Hood
-         */
-        if (p2.getStickButton(Hand.kRight)) {
+    /**
+     * Conveyor
+     */
+        if (p.getY(Hand.kRight) > 0.2) {
+            conveyor.moveBalls(1.0);
+            spindexer.rampUp();
+        } else {
+            conveyor.moveBalls(0.0);
+            spindexer.rampDown();
+        }
+
+    /**
+     * Hood
+     */
+        if (p.getStickButton(Hand.kRight)) {
             superstructure.setAimingAndHood(true);
         } else {
             superstructure.setAimingAndHood(false);
         }
 
-        /**
-         * Adjustable hood
-         */
-        int p2Pov = p2.getPOV();
-        if (p2Pov == 0) {
+    /**
+     * Adjustable hood
+     */
+        int pPov = p.getPOV();
+        if (pPov == 0) {
             hood.moveToAngle(HoodAngle.RETRACTED);
-        } else if (p2Pov == 90) {
+        } else if (pPov == 90) {
             hood.moveToAngle(HoodAngle.HIGH);
-        } else if (p2Pov == 180) {
+        } else if (pPov == 180) {
             hood.moveToAngle(HoodAngle.MEDIUM);
-        } else if (p2Pov == 270) {
+        } else if (pPov == 270) {
             hood.moveToAngle(HoodAngle.LOW);
         } else {
-            if (p2.getXButton()) {
+            if (p.getXButton()) {
                 hood.adjust(-0.5);
-            } else if (p2.getBButton()) {
+            } else if (p.getBButton()) {
                 hood.adjust(0.5);
             } else {
                 hood.stop();

@@ -74,4 +74,5 @@ public class Conveyor extends Submodule {
     public void moveBalls(double output) {
         outputOpenLoop = output;
     }
+
 }
