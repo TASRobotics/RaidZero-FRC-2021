@@ -21,6 +21,7 @@ public class Intake extends Submodule {
 
     private CANSparkMax topIntakeMotor;
     private CANSparkMax bottomIntakeMotor;
+    private boolean motorPolarityBuffer = true;
 
     private double outputOpenLoop = 0.0;
 
@@ -44,8 +45,8 @@ public class Intake extends Submodule {
 
     @Override
     public void run() {
-        topIntakeMotor.set(outputOpenLoop);
-        bottomIntakeMotor.set(outputOpenLoop);
+        topIntakeMotor.set(outputOpenLoop * (motorPolarityBuffer ? 1 : -1));
+        bottomIntakeMotor.set(outputOpenLoop * (motorPolarityBuffer ? 1 : -1));
     }
 
     @Override
@@ -62,5 +63,9 @@ public class Intake extends Submodule {
      */
     public void intakeBalls(double percentOutput) {
         outputOpenLoop = percentOutput;
+    }
+
+    public void setMotorDirection(boolean in) {
+        motorPolarityBuffer = in;
     }
 }

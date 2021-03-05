@@ -1,6 +1,8 @@
 package raidzero.robot.submodules;
 
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import raidzero.pathgen.PathGenerator;
 import raidzero.robot.Constants;
@@ -8,6 +10,7 @@ import raidzero.robot.Constants.PathConstants;
 import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.pathing.HolonomicPath;
 import raidzero.robot.pathing.Path;
+import raidzero.robot.utils.JoystickUtils;
 import java.util.LinkedList;
 import java.util.Queue;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -60,6 +63,7 @@ public class Swerve extends Submodule {
     private double[] totalV = new double[] {0, 0};
 
     private ControlState controlState = ControlState.OPEN_LOOP;
+    private SwerveModule testmodule;
 
     public void onStart(double timestamp) {
         controlState = ControlState.OPEN_LOOP;
@@ -298,25 +302,26 @@ public class Swerve extends Submodule {
         return true;
     }
 
-    // public void test(XboxController c) {
-    // if (c.getAButtonPressed()) {
-    // d = modules[0];
-    // }
-    // if (c.getBButtonPressed()) {
-    // d = modules[1];
-    // }
-    // if (c.getXButtonPressed()) {
-    // d = modules[2];
-    // }
-    // if (c.getYButtonPressed()) {
-    // d = modules[3];
-    // }
-    // d.setVectorVelocity(new double[] {JoystickUtils.deadband(-c.getY(Hand.kLeft)),
-    // JoystickUtils.deadband(c.getX(Hand.kLeft))}, 1);
-    // // d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
-    // // d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
-    // if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
-    // d.setRotorPos(90);
-    // }
-    // }
+    public void test(XboxController c) {
+
+        if (c.getAButtonPressed()) {
+            testmodule = modules[0];
+        }
+        if (c.getBButtonPressed()) {
+            testmodule = modules[1];
+        }
+        if (c.getXButtonPressed()) {
+            testmodule = modules[2];
+        }
+        if (c.getYButtonPressed()) {
+            testmodule = modules[3];
+        }
+            testmodule.setVectorVelocity(new double[] {JoystickUtils.deadband(-c.getY(Hand.kLeft)),
+            JoystickUtils.deadband(c.getX(Hand.kLeft))}, 1);
+            // d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
+            // d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
+        if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
+            testmodule.setRotorPos(90);
+        }
+    }
 }

@@ -30,6 +30,9 @@ public class Teleop {
     private static final Shooter shooter = Shooter.getInstance();
     private static final Turret turret = Turret.getInstance();
 
+    private static boolean shift1 = false;
+    private static boolean shift2 = false;
+
     public static Teleop getInstance() {
         if (instance == null) {
             instance = new Teleop();
@@ -73,36 +76,43 @@ public class Teleop {
     }
 
     private void p1Loop() {
+        shift1 = p1.getBumper(Hand.kRight);
 
+    /**
+     * Drive
+    */
+        swerve.fieldOrientedDrive(JoystickUtils.deadband(p1.getX(Hand.kLeft)),
+            JoystickUtils.deadband(-p1.getY(Hand.kLeft)),
+            JoystickUtils.deadband(p1.getX(Hand.kRight)),
+            JoystickUtils.deadband(-p1.getY(Hand.kRight)));
         /**
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better
          */
-        if (p1.getAButtonPressed()) {
+        if (p1.getBackButtonPressed()) {
             swerve.zero();
             return;
         }
+        
+        
+    /**
+     * Intake
+    */
+        // intakeOut is used to passively shuffle the spindexer
+        double intakeOut = p1.getTriggerAxis(Hand.kRight);
+      
+        intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
+        intake.setMotorDirection(shift1);
+    /**
+     * Spindexer
+     */
+        // shifting reverses it, and intaking moves it slowly forward to shuffle
+        spindexer.rotate(JoystickUtils.deadband( ((shift1 ? -1 : 1) * p1.getTriggerAxis(Hand.kLeft)) +
+            (shift1 ? 0 : intakeOut/5)));
 
-        int intakeDirection = 1;
-        if (p1.getBumper(Hand.kRight)) {
-            intakeDirection = -1;
-        }
-        intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR
-                * (intakeDirection * p1.getTriggerAxis(Hand.kRight))));
-
-        int spindexerDirection = 1;
-        if (p1.getBumper(Hand.kLeft)) {
-            spindexerDirection = -1;
-        }
-        spindexer.rotate(JoystickUtils.deadband(spindexerDirection * p1.getTriggerAxis(Hand.kLeft)
-                * 0.4 * (p1.getYButton() ? 0.25 : 1)));
-
-        if (p1.getStartButton()) {
-            spindexer.rampUp();
-        } else if (p1.getBackButton()) {
-            spindexer.rampDown();
-        }
-
+    /**
+     * Conveyor
+     */
         if (p1.getBButton()) {
             conveyor.moveBalls(1.0);
         } else if (p1.getXButton()) {
@@ -110,18 +120,11 @@ public class Teleop {
         } else {
             conveyor.moveBalls(0.0);
         }
-
-        // if(p1.getBumper(Hand.kLeft)) {
-        // swerve.test(p1);
-        // return;
-        // }
-        swerve.fieldOrientedDrive(JoystickUtils.deadband(p1.getX(Hand.kLeft)),
-                JoystickUtils.deadband(-p1.getY(Hand.kLeft)),
-                JoystickUtils.deadband(p1.getX(Hand.kRight)),
-                JoystickUtils.deadband(-p1.getY(Hand.kRight)));
+        
     }
 
     private void p2Loop() {
+        shift2 = p2.getBumper(Hand.kRight);
 
         if (p2.getBumper(Hand.kLeft)) {
             shooter.shoot(JoystickUtils.deadband(p2.getTriggerAxis(Hand.kRight)), false);
