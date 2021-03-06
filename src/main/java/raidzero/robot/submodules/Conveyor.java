@@ -4,7 +4,6 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import raidzero.robot.Constants.ConveyorConstants;
 
 public class Conveyor extends Submodule {
@@ -25,7 +24,6 @@ public class Conveyor extends Submodule {
     private CANPIDController conveyorPidController;
 
     private double outputOpenLoop = 0.0;
-    private final double constantthingweshouldsetlater = 10;
 
     @Override
     public void onInit() {
@@ -38,13 +36,12 @@ public class Conveyor extends Submodule {
 
         // TODO(jimmy): Tune PID constants
         conveyorPidController.setReference(0, ControlType.kVelocity);
-        conveyorMotor.pidWrite(outputOpenLoop * constantthingweshouldsetlater);
-        conveyorPidController.setP(0.14);
-        conveyorPidController.setIZone(0);
-        conveyorPidController.setD(0.01);
-        conveyorPidController.setI(0);
-        conveyorPidController.setFF(0);
-        conveyorPidController.setOutputRange(-1, 1);
+        conveyorPidController.setFF(ConveyorConstants.KF);
+        conveyorPidController.setP(ConveyorConstants.KP);
+        conveyorPidController.setI(ConveyorConstants.KI);
+        conveyorPidController.setD(ConveyorConstants.KD);
+        conveyorPidController.setIZone(ConveyorConstants.IZONE);
+        conveyorPidController.setOutputRange(ConveyorConstants.MINOUT, ConveyorConstants.MAXOUT);
         conveyorPidController.setFeedbackDevice(conveyorMotor.getEncoder());
     }
 
@@ -55,9 +52,7 @@ public class Conveyor extends Submodule {
 
     @Override
     public void run() {
-        // conveyorMotor.getPIDController().setReference(outputOpenLoop *
-        // constantthingweshouldsetlater, ControlType.kVelocity);
-        conveyorMotor.set(outputOpenLoop);
+        conveyorPidController.setReference(outputOpenLoop * ConveyorConstants.MAXRPM, ControlType.kVelocity);
     }
 
     @Override
@@ -75,4 +70,7 @@ public class Conveyor extends Submodule {
         outputOpenLoop = output;
     }
 
+    public boolean upToSpeed() {
+        return Math.abs( outputOpenLoop - (conveyorMotor.getEncoder().getVelocity() / ConveyorConstants.MAXRPM) ) < 0.3 ;
+    }
 }

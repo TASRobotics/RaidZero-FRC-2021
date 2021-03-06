@@ -1,5 +1,6 @@
 package raidzero.robot.submodules;
 
+import javax.swing.RootPaneContainer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.wpilibj.PWM;
@@ -104,5 +105,13 @@ public class Spindexer extends Submodule {
      */
     public void rampDown() {
         outputServoPosition = 0.15;
+    }
+
+    /**
+     * shoot ballz lols
+     */
+    public void shoot() {
+        rampUp();
+        rotate(SpindexerConstants.SHOOT_SPEED);
     }
 }

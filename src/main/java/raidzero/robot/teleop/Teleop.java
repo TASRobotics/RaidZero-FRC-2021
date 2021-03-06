@@ -31,7 +31,7 @@ public class Teleop {
     private static final Turret turret = Turret.getInstance();
 
     private static boolean shift1 = false;
-    private static boolean shift2 = false;
+    private static boolean reachedConvSpeed = false;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -114,7 +114,6 @@ public class Teleop {
     }
 
     private void p2Loop(XboxController p) {
-        shift2 = p.getBumper(Hand.kRight);
 
         if (p.getBumper(Hand.kLeft)) {
             shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
@@ -154,12 +153,18 @@ public class Teleop {
     /**
      * Conveyor
      */
-        if (p.getY(Hand.kRight) > 0.2) {
+        if (p.getYButton()) {
             conveyor.moveBalls(1.0);
-            spindexer.rampUp();
+            if (conveyor.upToSpeed()) reachedConvSpeed = true;
+            if(reachedConvSpeed) spindexer.shoot();
         } else {
-            conveyor.moveBalls(0.0);
+            conveyor.moveBalls(JoystickUtils.deadband(p.getY(Hand.kLeft)));
             spindexer.rampDown();
+            reachedConvSpeed = false;
+        }
+        
+        if(p.getStartButton()) {
+            spindexer.rampUp();
         }
 
     /**
@@ -185,6 +190,7 @@ public class Teleop {
             hood.moveToAngle(HoodAngle.LOW);
         } else {
             if (p.getXButton()) {
+                System.out.println("a");
                 hood.adjust(-0.5);
             } else if (p.getBButton()) {
                 hood.adjust(0.5);

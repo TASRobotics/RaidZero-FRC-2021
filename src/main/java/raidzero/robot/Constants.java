@@ -111,6 +111,17 @@ public class Constants {
 
         public static final IdleMode NEUTRAL_MODE = IdleMode.kCoast;
         public static final boolean MOTOR_INVERSION = false;
+
+        public static final double KF = 0.010;
+        public static final double KP = 0.00022;
+        public static final double KI = 0;
+        public static final double KD = 0.003;
+    
+        public static final double IZONE = 0;
+        public static final double MINOUT = -1;
+        public static final double MAXOUT = 1;
+
+        public static final double MAXRPM = 5000;
     }
 
     public static final class TurretConstants {
@@ -217,6 +228,8 @@ public class Constants {
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
         public static final InvertType MOTOR_INVERSION = InvertType.None;
+
+        public static final double SHOOT_SPEED = 1.0;
     }
 
     /**
