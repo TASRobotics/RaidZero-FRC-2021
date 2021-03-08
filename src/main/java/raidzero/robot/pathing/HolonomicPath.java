@@ -24,7 +24,7 @@ public class HolonomicPath {
                 targetAngularAccel);
         for (var pp : pathPoints) {
             System.out.println(
-                (pp.time / 10.0) + "s - (" + pp.x + ", " + pp.y + ") | " + pp.velocity + " in/100ms " + pp.orientation + " deg"
+                (pp.time / 10.0) + "s - (" + pp.x + ", " + pp.y + ") | " + pp.velocity + " in/100ms " + pp.angle + " deg"
             );
         }
         System.out.println("PathGenerator: " + (Timer.getFPGATimestamp() - startTime) + "s to generate a path!");

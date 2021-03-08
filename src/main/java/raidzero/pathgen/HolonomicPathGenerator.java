@@ -24,10 +24,7 @@ public class HolonomicPathGenerator extends PathGenerator {
             path[i].y = yQueries[i];
         }
 
-        TrapezoidalProfiler orientationProfile = new TrapezoidalProfiler(angleEndpoints, targetAngularAcceleration,
-                path);
-        // orientationProfile.fillOrientations(path);
-
+        // TODO(louis): Incorperate final angles
         return path;
     }
 }
