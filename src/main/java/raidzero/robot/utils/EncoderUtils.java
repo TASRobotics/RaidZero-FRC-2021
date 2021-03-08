@@ -13,6 +13,6 @@ public class EncoderUtils {
     }
 
     public static double rotorDegreesToTicks(double degrees) {
-        return (degrees / 360.0) * SwerveConstants.ROTOR_REVOLUTION_RATIO;
+        return (((degrees + 360) % 360.0) / 360.0) * SwerveConstants.ROTOR_REVOLUTION_RATIO;
     }
 }

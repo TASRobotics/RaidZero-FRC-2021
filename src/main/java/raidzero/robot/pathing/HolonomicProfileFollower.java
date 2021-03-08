@@ -5,6 +5,7 @@ import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import raidzero.pathgen.PathPoint;
+import raidzero.robot.utils.EncoderUtils;
 
 public class HolonomicProfileFollower extends ProfileFollower {
 
@@ -34,7 +35,8 @@ public class HolonomicProfileFollower extends ProfileFollower {
             rotorPath[i] = new PathPoint();
         }
         rotorPath[0].position = path[0].angle;
-        rotorPath[0].velocity = 0;
+        rotorPath[0].velocity = 0.0;
+        rotorPath[0].time = 0.0;
         rotorPath[path.length - 1].position = path[path.length - 1].angle;
         rotorPath[path.length - 1].velocity = 0;
         for (int i = 1; i < path.length - 1; i++) {
@@ -43,11 +45,13 @@ public class HolonomicProfileFollower extends ProfileFollower {
             rotorPath[i].time = path[i].time;
         }
         rotorPath[path.length - 1].time = path[path.length - 1].time;
+        System.out.println("Rotor profile:");
         for (var rp : rotorPath) {
             System.out.println(
-                (rp.time / 10.0) + "s " + rp.position + " deg " + rp.velocity + " in/100ms "
+                (rp.time / 10.0) + "s " + rp.position + " deg " + EncoderUtils.rotorDegreesToTicks(rp.position) + " ticks " + rp.velocity + " in/100ms "
             );
         }
+        System.out.println("=============");
         rotorProfile.start(rotorPath, false);
     }
 

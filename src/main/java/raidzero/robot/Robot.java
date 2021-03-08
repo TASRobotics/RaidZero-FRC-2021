@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         double timestamp = Timer.getFPGATimestamp();
-        System.out.println("tx full: " + RobotController.getCANStatus().txFullCount);
+        // System.out.println("tx full: " + RobotController.getCANStatus().txFullCount);
         autoRunner.onLoop(timestamp);
         submoduleManager.onLoop(timestamp);
     }

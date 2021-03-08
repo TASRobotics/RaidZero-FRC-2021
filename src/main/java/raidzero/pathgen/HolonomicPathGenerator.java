@@ -24,7 +24,10 @@ public class HolonomicPathGenerator extends PathGenerator {
             path[i].y = yQueries[i];
         }
 
-        // TODO(louis): Incorperate final angles
+        // TODO(louis): Incorperate robot orientation with trapezoidal profile
+        for (var pathPoint : path) {
+            pathPoint.orientation = 0.0;
+        }
         return path;
     }
 }

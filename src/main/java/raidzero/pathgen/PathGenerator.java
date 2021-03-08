@@ -16,7 +16,7 @@ public class PathGenerator {
      * Increasing this number results in more query points and greater accuracy for
      * path generation.
      */
-    private static final double QUERY_INTERVAL = 3;
+    private static final double QUERY_INTERVAL = 5;
 
     /**
      * Generates a path that passes through the given waypoints on the field.
@@ -111,22 +111,36 @@ public class PathGenerator {
 
         double[] dx = new double[pathPoints.length];
         double[] dy = new double[pathPoints.length];
+
+        // TODO(louis): Verify if this is fine for most cases
         dx[0] = 0;
         dy[0] = 0;
         shiftedPathPoints[0].velocity = 0;
-
+        
+        // double cosNow = 0.0, cosPrev = 0.0;
+        // double sinNow = 0.0, sinPrev = 0.0;
+        double currentTheta = 0.0;
+        double dtheta = 0.0; // change in orientation
         for (int i = 1; i < pathPoints.length; i++) {
-            dx[i] = (pathPoints[i].x + radius * Math.cos(Math.toRadians(pathPoints[i].orientation) + angleOffset))
-                    - (pathPoints[i - 1].x + radius * Math.cos(Math.toRadians(pathPoints[i - 1].orientation) + angleOffset));
-            dy[i] = (pathPoints[i].y + radius * Math.sin(Math.toRadians(pathPoints[i].orientation) + angleOffset))
-                    - (pathPoints[i - 1].y + radius * Math.sin(Math.toRadians(pathPoints[i - 1].orientation) + angleOffset));
-            shiftedPathPoints[i].time = Math.max(pathPoints[i].time, 0.04);
+            // cosNow = Math.cos(angleOffset - Math.toRadians(pathPoints[i].orientation));
+            // cosPrev = Math.cos(angleOffset - Math.toRadians(pathPoints[i - 1].orientation));
+            // sinNow = Math.sin(angleOffset - Math.toRadians(pathPoints[i].orientation));
+            // sinPrev = Math.sin(angleOffset - Math.toRadians(pathPoints[i - 1].orientation));
+            // dx[i] = (pathPoints[i].x + radius * cosNow) - (pathPoints[i - 1].x + radius * cosPrev);
+            // dy[i] = (pathPoints[i].y + radius * sinNow) - (pathPoints[i - 1].y + radius * sinPrev);
+            currentTheta = Math.toRadians(pathPoints[i].orientation);
+            dtheta = currentTheta - Math.toRadians(pathPoints[i - 1].orientation);
+            dx[i] = (pathPoints[i].x - pathPoints[i - 1].x) + dtheta * radius * Math.cos(angleOffset - currentTheta);
+            dy[i] = (pathPoints[i].y - pathPoints[i - 1].y) + dtheta * radius * Math.sin(angleOffset - currentTheta);
+            shiftedPathPoints[i].time = pathPoints[i].time;
             shiftedPathPoints[i].velocity = FastMath.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
             // System.out.println("Shifted vel: " + shiftedPathPoints[i].velocity + " dx: " + dx[i] + " dy: " + dy[i]);
         }
 
         calculateAngles(dx, dy, shiftedPathPoints);
         cumulativeDistances(dx, dy, shiftedPathPoints);
+
+        shiftedPathPoints[0].angle = pathPoints[0].angle;
 
         // for (var pp : shiftedPathPoints) {
         //     System.out.println(
@@ -149,7 +163,7 @@ public class PathGenerator {
         // data points on
         // the path. The angle for the first point should be given.
         for (var i = 0; i < path.length; i++) {
-            System.out.println("Atan2: " + Math.atan2(dy[i], dx[i]) + " Dy: " + dy[i] + " Dx: " + dx[i]);
+            // System.out.println("Atan2: " + Math.atan2(dy[i], dx[i]) + " Dy: " + dy[i] + " Dx: " + dx[i]);
             path[i].angle = Math.toDegrees(Math.atan2(dy[i], dx[i]));
             if (i > 0) {
                 while (path[i].angle - path[i - 1].angle > 180) {
@@ -165,7 +179,7 @@ public class PathGenerator {
     private static void cumulativeDistances(double[] dx, double[] dy, PathPoint[] path) {
         path[0].position = 0;
         for (int i = 1; i < path.length; i++) {
-            path[i].position = Math.hypot(dx[i], dy[i]) + path[i - 1].position;
+            path[i].position = FastMath.hypot(dx[i], dy[i]) + path[i - 1].position;
         }
     }
 
@@ -279,9 +293,12 @@ public class PathGenerator {
                 // (1/2) (-a) t^2 + v0 t + (x0 - x) = 0
                 // t = (-v0 +- sqrt(v0^2 - 4 ((1/2) (-a)) (x0 - x))) / (2 ((1/2) (-a)))
                 // t = (-v0 +- sqrt(v0^2 - 2 (-a) (x0 - x))) / -a
+                // Epsilon check to combat floating point errors
+                double radicand = decelerateInitialVelocity * decelerateInitialVelocity
+                    - 2 * -targetAcceleration * (decelerateStartPosition - path[k].position);
+                double sqrt = Math.abs(radicand) < 0.0001 ? 0.0 : Math.sqrt(radicand);
                 path[k].time = decelerateStartTime
-                        + (-decelerateInitialVelocity + Math.sqrt(decelerateInitialVelocity * decelerateInitialVelocity
-                                - 2 * -targetAcceleration * (decelerateStartPosition - path[k].position)))
+                        + (-decelerateInitialVelocity + sqrt)
                                 / -targetAcceleration;
             }
         }

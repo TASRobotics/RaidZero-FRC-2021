@@ -198,7 +198,6 @@ public class ProfileFollower {
         leaderTalon.getMotionProfileStatus(status);
 
         if (status.hasUnderrun) {
-            System.out.println("Clearing underrun");
             System.out.println("Clearing error: " + leaderTalon.clearMotionProfileHasUnderrun(100));
         }
         // leaderTalon.getMotionProfileStatus(status);
@@ -207,12 +206,10 @@ public class ProfileFollower {
         // Clear the buffer just in case the robot is still running some points
         leaderTalon.clearMotionProfileTrajectories();
 
-        double totalTime = 0.0;
         for (int i = 0; i < waypoints.length; i++) {
             TrajectoryPoint tp = new TrajectoryPoint();
             tp.position = reverse * positionUnitConverter.apply(waypoints[i].position);
             tp.velocity = reverse * positionUnitConverter.apply(waypoints[i].velocity);
-            totalTime += waypoints[i].time;
             // timeDur takes ms, but Pathpoint::time is in 100 ms
             tp.timeDur = (int) (waypoints[i].time * 100);
             // auxiliaryPos takes in units of 3600 ticks, but angle is in 360 degress
@@ -223,7 +220,7 @@ public class ProfileFollower {
             tp.zeroPos = false;
 
             if (i == 0) {
-                tp.zeroPos = true;
+                tp.zeroPos = false; // disable reset
             }
 
             if (i == waypoints.length - 1) {
@@ -236,7 +233,6 @@ public class ProfileFollower {
 
             leaderTalon.pushMotionProfileTrajectory(tp);
         }
-        // System.out.println("--> Total time: " + (totalTime / 10.0) + " s");
 
     }
 }

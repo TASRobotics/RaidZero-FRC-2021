@@ -190,7 +190,6 @@ public class Teleop {
             hood.moveToAngle(HoodAngle.LOW);
         } else {
             if (p.getXButton()) {
-                System.out.println("a");
                 hood.adjust(-0.5);
             } else if (p.getBButton()) {
                 hood.adjust(0.5);

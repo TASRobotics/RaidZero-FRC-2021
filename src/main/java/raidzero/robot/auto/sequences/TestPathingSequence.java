@@ -10,8 +10,8 @@ import raidzero.robot.submodules.Swerve;
 public class TestPathingSequence extends AutoSequence {
 
     private static final Point[] POINTS = new Point[]{
-        new Point(0, 0, 0),
-        new Point(100, 0, 0)
+        new Point(0, 0, 90),
+        new Point(100, 100, 0)
     };
 
     private static final HolonomicPath PATH = new HolonomicPath(
@@ -27,9 +27,8 @@ public class TestPathingSequence extends AutoSequence {
         addAction(new SeriesAction(
             Arrays.asList(
                 new LambdaAction(() -> swerve.zero()),
-                // TODO(louis): needs to account for optimization
-                new AlignSwerveModules(PATH.getFirstPoint().angle.getAsDouble())
-                // new DrivePath(PATH)
+                new AlignSwerveModules(PATH.getFirstPoint().angle.getAsDouble()),
+                new DrivePath(PATH)
             )
         ));
         System.out.println("Added actions.");

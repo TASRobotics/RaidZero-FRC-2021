@@ -34,7 +34,7 @@ public class DrivePath implements Action {
     @Override
     public void update() {
         if (swerve.isDoneWaitingForFill()) {
-            // System.out.println("Enabling profile...");
+            System.out.println("Enabling profile...");
             swerve.enableProfile();
         }
     }

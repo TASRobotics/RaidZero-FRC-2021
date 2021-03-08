@@ -84,7 +84,7 @@ public class Constants {
     public class PathConstants {
         public static final int BASE_TRAJ_PERIOD_MS = 0;
         public static final int MIN_POINTS_IN_TALON = 10;
-        public static final int TRANSMIT_PERIOD_MS = 15;
+        public static final int TRANSMIT_PERIOD_MS = 20;
     }
 
     /**

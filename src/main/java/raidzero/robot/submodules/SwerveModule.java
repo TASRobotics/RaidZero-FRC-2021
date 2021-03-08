@@ -152,6 +152,7 @@ public class SwerveModule extends Submodule {
             outputRotorProfile = profileFollower.getRotorOutput();
             // System.out.println("MP: " + outputMotorProfile + " | RP: " + outputRotorProfile);
         }
+        System.out.println("Q" + quadrant + ": pos=" + getRotorPosition() * SwerveConstants.ROTOR_REVOLUTION_RATIO + " target=" + outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         rotorAngleEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
         motorVelocityEntry.setDouble(getMotorVelocity());
     }
@@ -343,7 +344,9 @@ public class SwerveModule extends Submodule {
         if (controlState == ControlState.PATHING) {
             return;
         }
+        stop();
         setControlState(ControlState.PATHING);
+        rotor.setSelectedSensorPosition(EncoderUtils.rotorDegreesToTicks(path.getPathPoints()[0].angle));
         profileFollower.reset();
         profileFollower.start(path.getPathPoints());
     }
