@@ -1,6 +1,6 @@
 package raidzero.robot.submodules;
 
-import com.revrobotics.CANSparkMax;
+import raidzero.robot.wrappers.LazyCANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import raidzero.robot.Constants.IntakeConstants;
@@ -19,20 +19,20 @@ public class Intake extends Submodule {
     private Intake() {
     }
 
-    private CANSparkMax topIntakeMotor;
-    private CANSparkMax bottomIntakeMotor;
+    private LazyCANSparkMax topIntakeMotor;
+    private LazyCANSparkMax bottomIntakeMotor;
     private boolean motorPolarityBuffer = true;
 
     private double outputOpenLoop = 0.0;
 
     @Override
     public void onInit() {
-        topIntakeMotor = new CANSparkMax(IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
+        topIntakeMotor = new LazyCANSparkMax(IntakeConstants.TOP_MOTOR_ID, MotorType.kBrushless);
         topIntakeMotor.restoreFactoryDefaults();
         topIntakeMotor.setIdleMode(IntakeConstants.TOP_NEUTRAL_MODE);
         topIntakeMotor.setInverted(IntakeConstants.TOP_MOTOR_INVERSION);
 
-        bottomIntakeMotor = new CANSparkMax(IntakeConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
+        bottomIntakeMotor = new LazyCANSparkMax(IntakeConstants.BOTTOM_MOTOR_ID, MotorType.kBrushless);
         bottomIntakeMotor.restoreFactoryDefaults();
         bottomIntakeMotor.setIdleMode(IntakeConstants.BOTTOM_NEUTRAL_MODE);
         bottomIntakeMotor.setInverted(IntakeConstants.BOTTOM_MOTOR_INVERSION);

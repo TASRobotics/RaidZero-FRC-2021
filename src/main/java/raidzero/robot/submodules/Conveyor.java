@@ -1,7 +1,7 @@
 package raidzero.robot.submodules;
 
+import raidzero.robot.wrappers.LazyCANSparkMax;
 import com.revrobotics.CANPIDController;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import raidzero.robot.Constants.ConveyorConstants;
@@ -20,14 +20,14 @@ public class Conveyor extends Submodule {
     private Conveyor() {
     }
 
-    private CANSparkMax conveyorMotor;
+    private LazyCANSparkMax conveyorMotor;
     private CANPIDController conveyorPidController;
 
     private double outputOpenLoop = 0.0;
 
     @Override
     public void onInit() {
-        conveyorMotor = new CANSparkMax(ConveyorConstants.MOTOR_ID, MotorType.kBrushless);
+        conveyorMotor = new LazyCANSparkMax(ConveyorConstants.MOTOR_ID, MotorType.kBrushless);
         conveyorMotor.restoreFactoryDefaults();
         conveyorMotor.setIdleMode(ConveyorConstants.NEUTRAL_MODE);
         conveyorMotor.setInverted(ConveyorConstants.MOTOR_INVERSION);

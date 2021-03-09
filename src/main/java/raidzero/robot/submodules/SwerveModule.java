@@ -5,6 +5,7 @@ import raidzero.robot.dashboard.Tab;
 import raidzero.robot.pathing.HolonomicProfileFollower;
 import raidzero.robot.pathing.Path;
 import raidzero.robot.utils.EncoderUtils;
+import raidzero.robot.wrappers.LazyTalonFX;
 
 import java.util.Map;
 import com.ctre.phoenix.motion.MotionProfileStatus;
@@ -26,8 +27,8 @@ public class SwerveModule extends Submodule {
         POSITION, VELOCITY, PATHING
     };
 
-    public TalonFX motor;
-    public TalonFX rotor;
+    public LazyTalonFX motor;
+    public LazyTalonFX rotor;
 
     private CANCoder rotorExternalEncoder;
 
@@ -66,8 +67,8 @@ public class SwerveModule extends Submodule {
     public void onInit(int motorId, int rotorId, double initialAngle, int quadrant) {
         this.quadrant = quadrant;
 
-        motor = new TalonFX(motorId);
-        rotor = new TalonFX(rotorId);
+        motor = new LazyTalonFX(motorId);
+        rotor = new LazyTalonFX(rotorId);
         rotorExternalEncoder = new CANCoder(quadrant);
         profileFollower = new HolonomicProfileFollower(motor, rotor, 
             EncoderUtils::inchesToTicks, EncoderUtils::rotorDegreesToTicks);
