@@ -1,6 +1,5 @@
 package raidzero.robot.submodules;
 
-import javax.swing.RootPaneContainer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.wpilibj.PWM;

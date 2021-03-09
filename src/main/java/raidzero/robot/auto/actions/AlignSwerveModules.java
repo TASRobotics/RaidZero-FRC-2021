@@ -1,7 +1,7 @@
 package raidzero.robot.auto.actions;
 
-import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.submodules.Swerve;
+import raidzero.robot.submodules.SwerveModule.TargetPolarityTuple;
 
 /**
  * Action for aligning swerve modules to an angle.
@@ -11,7 +11,7 @@ public class AlignSwerveModules implements Action {
     private static final Swerve swerve = Swerve.getInstance();
 
     private double angle;
-    private double[] targetAngles;
+    private TargetPolarityTuple[] targetAndPolarities;
 
     public AlignSwerveModules(double angle) {
         this.angle = angle;
@@ -20,8 +20,8 @@ public class AlignSwerveModules implements Action {
     @Override
     public boolean isFinished() {
         for (int i = 0; i < 4; ++i) {
-            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAngles[i]);
-            if (Math.abs(swerve.getModuleRotorPosition(i) - targetAngles[i]) > 0.01) {
+            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAndPolarities[i].target);
+            if (Math.abs(swerve.getModuleRotorPosition(i) - targetAndPolarities[i].target) > 0.01) {
                 return false;
             }
         }
@@ -31,7 +31,7 @@ public class AlignSwerveModules implements Action {
     @Override
     public void start() {
         System.out.println("[Auto] Action '" + getClass().getSimpleName() + "' started!");
-        targetAngles = swerve.setRotorPositions(angle);
+        targetAndPolarities = swerve.setRotorPositions(angle);
     }
 
     @Override

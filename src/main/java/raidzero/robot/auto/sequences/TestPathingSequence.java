@@ -11,11 +11,12 @@ public class TestPathingSequence extends AutoSequence {
 
     private static final Point[] POINTS = new Point[]{
         new Point(0, 0, 90),
-        new Point(100, 100, 0)
+        new Point(0, 35, 90),
+        new Point(70, 70, 0),
     };
 
     private static final HolonomicPath PATH = new HolonomicPath(
-        POINTS, 10.0, 15.0, new double[]{0, 0}, 100);
+        POINTS, 6.0, 6.0, new double[]{0, 0}, 100);
     
     private static final Swerve swerve = Swerve.getInstance();
 

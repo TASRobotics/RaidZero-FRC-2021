@@ -215,6 +215,8 @@ public class Constants {
         public static final double AIM_KP = 0.035;
         public static final double AIM_KI = 0.004;
         public static final double AIM_KD = 0.001;
+        public static final double MIN_I = -0.08;
+        public static final double MAX_I = 0.08;
         public static final double ANGLE_ADJUST_THRESHOLD = 2.0;
 
         public static final double AIM_ON_TARGET_DURATION = 0.2;

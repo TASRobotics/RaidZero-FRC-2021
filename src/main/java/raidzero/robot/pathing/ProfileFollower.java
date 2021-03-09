@@ -13,8 +13,6 @@ import raidzero.pathgen.PathPoint;
 import raidzero.robot.Constants.PathConstants;
 import raidzero.robot.Constants.SwerveConstants;
 
-import edu.wpi.first.wpilibj.Notifier;
-
 public class ProfileFollower {
 
     /**

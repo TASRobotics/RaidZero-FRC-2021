@@ -1,7 +1,5 @@
 package raidzero.robot;
 
-import edu.wpi.first.hal.can.CANStatus;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -65,7 +63,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         // Stop autonomous
-//        autoRunner.stop();
+        autoRunner.stop();
         submoduleManager.onStop(Timer.getFPGATimestamp());
     }
 

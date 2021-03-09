@@ -125,7 +125,7 @@ public class Turret extends Submodule {
         outputOpenLoop = percentOutput;
     }
 
-    public boolean isInPercentMode() {
+    public boolean isInOpenLoop() {
         return controlState == ControlState.OPEN_LOOP;
     }
 

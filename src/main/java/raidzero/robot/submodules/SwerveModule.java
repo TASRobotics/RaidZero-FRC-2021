@@ -8,11 +8,9 @@ import raidzero.robot.utils.EncoderUtils;
 import raidzero.robot.wrappers.LazyTalonFX;
 
 import java.util.Map;
-import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
 
 import org.apache.commons.math3.util.FastMath;
@@ -26,6 +24,16 @@ public class SwerveModule extends Submodule {
     private enum ControlState {
         POSITION, VELOCITY, PATHING
     };
+
+    public static class TargetPolarityTuple {
+        public double target;
+        public boolean polarity;
+
+        public TargetPolarityTuple(double target, boolean polarity) {
+            this.target = target;
+            this.polarity = polarity;
+        }
+    }
 
     public LazyTalonFX motor;
     public LazyTalonFX rotor;
@@ -153,7 +161,7 @@ public class SwerveModule extends Submodule {
             outputRotorProfile = profileFollower.getRotorOutput();
             // System.out.println("MP: " + outputMotorProfile + " | RP: " + outputRotorProfile);
         }
-        System.out.println("Q" + quadrant + ": pos=" + getRotorPosition() * SwerveConstants.ROTOR_REVOLUTION_RATIO + " target=" + outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
+        // System.out.println("Q" + quadrant + ": pos=" + getRotorPosition() * SwerveConstants.ROTOR_REVOLUTION_RATIO + " target=" + outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         rotorAngleEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
         motorVelocityEntry.setDouble(getMotorVelocity());
     }
@@ -208,10 +216,8 @@ public class SwerveModule extends Submodule {
      * Sets the rotor to a position.
      * 
      * @param pos the position to go to in units of degrees
-     * 
-     * @return the new target rotor position in units of revolutions
      */
-    public double setRotorPos(double pos) {
+    public void setRotorPos(double pos) {
         // convert degrees to revolutions
         pos /= 360.0;
 
@@ -227,12 +233,21 @@ public class SwerveModule extends Submodule {
             dPos -= 0.5;
             angleAdjustmentMotorPolarity = true;
             outputRotorPosition = dPos + cpos;
-            return outputRotorPosition;
+            return;
         }
 
         angleAdjustmentMotorPolarity = false;
         outputRotorPosition = dPos + cpos;
-        return outputRotorPosition;
+    }
+
+    public boolean getMotorPolarity() {
+        return angleAdjustmentMotorPolarity;
+    }
+
+    // Revert this
+    public TargetPolarityTuple setRotorPosWithOutputs(double pos) {
+        setRotorPos(pos);
+        return new TargetPolarityTuple(outputRotorPosition, angleAdjustmentMotorPolarity);
     }
 
     public void setMotorPosition(double position) {
@@ -290,7 +305,7 @@ public class SwerveModule extends Submodule {
         outputRotorPosition = getRotorPosition();
         outputMotorProfile = SetValueMotionProfile.Disable.value;
         outputRotorProfile = SetValueMotionProfile.Disable.value;
-        System.out.println("Q" + quadrant + " Current: " + getRotorPosition() + " Target: " + outputRotorPosition);
+        // System.out.println("Q" + quadrant + " Current: " + getRotorPosition() + " Target: " + outputRotorPosition);
 
         // var s = new MotionProfileStatus();
         // motor.getMotionProfileStatus(s);
@@ -353,6 +368,7 @@ public class SwerveModule extends Submodule {
     }
 
     public void enableProfile() {
+        motor.setInverted(angleAdjustmentMotorPolarity);
         profileFollower.enable();
     }
 

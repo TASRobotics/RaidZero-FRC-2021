@@ -41,20 +41,7 @@ public class Teleop {
     }
 
     public void onStart() {
-
-    }
-
-    /**
-     * Stops the submodule.
-     */
-    public void stop() {
-
-    }
-
-    /**
-     * Resets the sensor(s) to zero.
-     */
-    public void zero() {
+        swerve.zero();
     }
 
     /**
@@ -83,8 +70,7 @@ public class Teleop {
     */
         swerve.fieldOrientedDrive(JoystickUtils.deadband(p.getX(Hand.kLeft)),
             JoystickUtils.deadband(-p.getY(Hand.kLeft)),
-            JoystickUtils.deadband(p.getX(Hand.kRight)),
-            JoystickUtils.deadband(-p.getY(Hand.kRight)));
+            JoystickUtils.deadband(p.getX(Hand.kRight)));
         /**
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better

@@ -1,17 +1,24 @@
 package raidzero.robot.submodules;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import raidzero.pathgen.PathGenerator;
 import raidzero.robot.Constants;
 import raidzero.robot.Constants.PathConstants;
 import raidzero.robot.Constants.SwerveConstants;
+import raidzero.robot.dashboard.Tab;
 import raidzero.robot.pathing.HolonomicPath;
 import raidzero.robot.pathing.Path;
+import raidzero.robot.submodules.SwerveModule.TargetPolarityTuple;
 import raidzero.robot.utils.JoystickUtils;
+import raidzero.robot.wrappers.SendablePigeon;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import org.apache.commons.math3.util.FastMath;
@@ -35,7 +42,7 @@ public class Swerve extends Submodule {
     }
 
     private SwerveModule[] modules = new SwerveModule[4];
-    private PigeonIMU pigey;
+    private SendablePigeon pigey;
 
     private Notifier notifier = new Notifier(() -> {
         for (SwerveModule module : modules) {
@@ -75,7 +82,8 @@ public class Swerve extends Submodule {
         // Total number of modules in the swerve
         int motorCount = SwerveConstants.SWERVE_IDS.length;
 
-        pigey = new PigeonIMU(0);
+        pigey = new SendablePigeon(0);
+        Shuffleboard.getTab(Tab.MAIN).add("Pigey", pigey).withSize(2, 2).withPosition(4, 2);
 
         // Create and initialize each module
         for (int i = 0; i < motorCount / 2; i++) {
@@ -92,8 +100,6 @@ public class Swerve extends Submodule {
             double moduleAngle = Math.PI / 4 + (Math.PI / 2) * i;
             rotV[i] = new double[] {-Math.sin(moduleAngle), Math.cos(moduleAngle)};
         }
-        // System.out.println("Swerve init");
-        // d = modules[0];
 
         headingPID = new PIDController(SwerveConstants.HEADING_KP, SwerveConstants.HEADING_KI,
                 SwerveConstants.HEADING_KD);
@@ -155,7 +161,8 @@ public class Swerve extends Submodule {
      * Zeroes the heading of the swerve.
      */
     public void zeroHeading() {
-        pigey.setYaw(0);
+        System.out.println(pigey.setYaw(0, 20));
+        System.out.println(pigey.setFusedHeading(0, 20));
     }
 
     /**
@@ -180,7 +187,7 @@ public class Swerve extends Submodule {
         }
     }
 
-    public void fieldOrientedDrive(double vX, double vY, double rX, double rY) {
+    public void fieldOrientedDrive(double vX, double vY, double rX) {
         // translational adjustment to move w/ respect to the field
         double heading = Math.toRadians(ypr[0]);
         double cos = Math.cos(heading);
@@ -211,12 +218,12 @@ public class Swerve extends Submodule {
      * Sets the positions of all the rotors on the swerve modules.
      * 
      * @param angle angle in degrees
-     * @return new target angles in ticks
+     * @return tuple class of target angle & motor polarity
      */
-    public double[] setRotorPositions(double angle) {
-        double[] targetAngles = new double[4];
+    public TargetPolarityTuple[] setRotorPositions(double angle) {
+        TargetPolarityTuple[] targetAngles = new TargetPolarityTuple[4];
         for (int i = 0; i < 4; ++i) {
-            targetAngles[i] = modules[i].setRotorPos(angle);
+            targetAngles[i] = modules[i].setRotorPosWithOutputs(angle);
         }
         return targetAngles;
     }
