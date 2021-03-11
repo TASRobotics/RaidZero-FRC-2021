@@ -135,12 +135,19 @@ public class Swerve extends Submodule {
 
     @Override
     public void stop() {
-        controlState = ControlState.OPEN_LOOP;
-        totalV = new double[] {0.1, 0};
-        notifier.stop();
+        stop(true);
+    }
 
+    public void stop(boolean resetControlState) {
+        if (resetControlState) {
+            controlState = ControlState.OPEN_LOOP;
+            notifier.stop();
+        }
+        
+        totalV = new double[] {0.1, 0};
+        
         for (SwerveModule module : modules) {
-            module.stop();
+            module.stop(resetControlState);
         }
     }
 
@@ -154,6 +161,12 @@ public class Swerve extends Submodule {
         zeroHeading();
         for (SwerveModule mod : modules) {
             mod.zero();
+        }
+    }
+
+    public void zeroRotors() {
+        for (SwerveModule mod : modules) {
+            mod.zeroRotor();
         }
     }
 
@@ -220,12 +233,18 @@ public class Swerve extends Submodule {
      * @param angle angle in degrees
      * @return tuple class of target angle & motor polarity
      */
-    public TargetPolarityTuple[] setRotorPositions(double angle) {
+    public TargetPolarityTuple[] setRotorPositions(double angle, boolean optimize) {
         TargetPolarityTuple[] targetAngles = new TargetPolarityTuple[4];
         for (int i = 0; i < 4; ++i) {
-            targetAngles[i] = modules[i].setRotorPosWithOutputs(angle);
+            targetAngles[i] = modules[i].setRotorPosWithOutputs(angle, optimize);
         }
         return targetAngles;
+    }
+
+    public void wrapRotorAngles() {
+        for (var module : modules) {
+            module.wrapRotorAngle();
+        }
     }
 
     /**

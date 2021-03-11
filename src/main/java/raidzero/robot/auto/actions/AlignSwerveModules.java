@@ -12,6 +12,7 @@ public class AlignSwerveModules implements Action {
 
     private double angle;
     private TargetPolarityTuple[] targetAndPolarities;
+    private double[] lastError = new double[4];
 
     public AlignSwerveModules(double angle) {
         this.angle = angle;
@@ -20,18 +21,22 @@ public class AlignSwerveModules implements Action {
     @Override
     public boolean isFinished() {
         for (int i = 0; i < 4; ++i) {
-            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAndPolarities[i].target);
-            if (Math.abs(swerve.getModuleRotorPosition(i) - targetAndPolarities[i].target) > 0.01) {
+            double error = swerve.getModuleRotorPosition(i) - targetAndPolarities[i].target;
+            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAndPolarities[i].target + ", err=" + error + ", derror=" + (error - lastError[i]));
+            if (Math.abs(error) > 0.01 && Math.abs(error - lastError[i]) > 0.01) {
                 return false;
             }
+            lastError[i] = error;
         }
         return true;
     }
 
     @Override
     public void start() {
+        System.out.println("Align to: " + angle);
         System.out.println("[Auto] Action '" + getClass().getSimpleName() + "' started!");
-        targetAndPolarities = swerve.setRotorPositions(angle);
+        swerve.zeroRotors();
+        targetAndPolarities = swerve.setRotorPositions(angle, false);
     }
 
     @Override

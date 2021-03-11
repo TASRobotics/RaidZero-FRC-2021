@@ -84,13 +84,13 @@ public class ProfileFollower {
      * @param tarAccel
      *                      the target acceleration desired in in/100ms/s
      */
-    public void start(PathPoint[] pathPoints, boolean useAux) {
-        startFilling(pathPoints, useAux);
+    public void start(PathPoint[] pathPoints, boolean useAux, boolean resetEncoder) {
+        startFilling(pathPoints, useAux, resetEncoder);
         initRun = true;
     }
 
     public void start(PathPoint[] pathPoints) {
-        start(pathPoints, true);
+        start(pathPoints, true, true);
     }
 
     public boolean isDoneWaitingForFill() {
@@ -189,7 +189,7 @@ public class ProfileFollower {
      * @param waypoints
      *                      the array of points created by the path generator
      */
-    private void startFilling(PathPoint[] waypoints, boolean useAux) {
+    private void startFilling(PathPoint[] waypoints, boolean useAux, boolean resetEncoder) {
         //System.out.println("Started filling");
         int reverse = reversed ? -1 : 1;
         // Clear under run error
@@ -218,16 +218,16 @@ public class ProfileFollower {
             tp.zeroPos = false;
 
             if (i == 0) {
-                tp.zeroPos = false; // disable reset
+                tp.zeroPos = resetEncoder; // disable reset
             }
 
             if (i == waypoints.length - 1) {
                 tp.isLastPoint = true;
             }
 
-            // System.out.println(
-            //     "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
-            // );
+            System.out.println(
+                "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
+            );
 
             leaderTalon.pushMotionProfileTrajectory(tp);
         }

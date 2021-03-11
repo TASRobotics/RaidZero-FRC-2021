@@ -58,10 +58,13 @@ public class SwerveModule extends Submodule {
     private int outputMotorProfile = 0;
     private int outputRotorProfile = 0;
 
+    private double currentRotorPositionTicks = 0.0;
+
     private ControlState controlState = ControlState.VELOCITY;
     private HolonomicProfileFollower profileFollower;
 
     private NetworkTableEntry rotorAngleEntry;
+    private NetworkTableEntry rotorTicksEntry;
     private NetworkTableEntry motorVelocityEntry;
 
     @Override
@@ -125,9 +128,11 @@ public class SwerveModule extends Submodule {
         rotorAngleEntry = Shuffleboard.getTab(Tab.MAIN).add("Rotor" + quadrant, 0)
                 .withWidget(BuiltInWidgets.kDial).withProperties(Map.of("min", -0.5, "max", 0))
                 .withSize(1, 1).withPosition(column, row).getEntry();
+        rotorTicksEntry = Shuffleboard.getTab(Tab.MAIN).add("RotorTick" + quadrant, 0)
+                .withWidget(BuiltInWidgets.kTextView).withSize(1, 1).withPosition(column + 2, row).getEntry();
         motorVelocityEntry = Shuffleboard.getTab(Tab.MAIN).add("Motor" + quadrant, 0)
                 .withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -1.0, "max", 1.0))
-                .withSize(1, 1).withPosition(column + 2, row).getEntry();
+                .withSize(1, 1).withPosition(column + 4, row).getEntry();
 
         stop();
     }
@@ -161,8 +166,10 @@ public class SwerveModule extends Submodule {
             outputRotorProfile = profileFollower.getRotorOutput();
             // System.out.println("MP: " + outputMotorProfile + " | RP: " + outputRotorProfile);
         }
+        currentRotorPositionTicks = rotor.getSelectedSensorPosition();
         // System.out.println("Q" + quadrant + ": pos=" + getRotorPosition() * SwerveConstants.ROTOR_REVOLUTION_RATIO + " target=" + outputRotorPosition * SwerveConstants.ROTOR_REVOLUTION_RATIO);
         rotorAngleEntry.setDouble(-((1 + (getRotorPosition() % 1)) % 0.5));
+        rotorTicksEntry.setDouble(currentRotorPositionTicks);
         motorVelocityEntry.setDouble(getMotorVelocity());
     }
 
@@ -212,41 +219,59 @@ public class SwerveModule extends Submodule {
         }
     }
 
+    public void setRotorPos(double pos) {
+        setRotorPos(pos, true);
+    }
+
     /**
      * Sets the rotor to a position.
      * 
      * @param pos the position to go to in units of degrees
      */
-    public void setRotorPos(double pos) {
+    public void setRotorPos(double pos, boolean optimize) {
         // convert degrees to revolutions
         pos /= 360.0;
 
         // get the difference in angle
-        double cpos = getRotorPosition();
-        dPos = pos - cpos;
+        double cPos = getRotorPosition();
+        dPos = pos - cPos;
         // get the positive adjusted angle
         dPos = dPos % 1; // |dpos| <= 1
         dPos += (dPos < -0.25 ? 1 : 0); // dPos >= -0.25
         dPos -= (dPos >= 0.75 ? 1 : 0); // dPos < 0.75
 
+        if (!optimize) {
+            angleAdjustmentMotorPolarity = false;
+            outputRotorPosition = dPos + cPos;
+            return;
+        }
+
         if (dPos > 0.25) {
             dPos -= 0.5;
             angleAdjustmentMotorPolarity = true;
-            outputRotorPosition = dPos + cpos;
+            outputRotorPosition = dPos + cPos;
             return;
         }
 
         angleAdjustmentMotorPolarity = false;
-        outputRotorPosition = dPos + cpos;
+        outputRotorPosition = dPos + cPos;
     }
 
     public boolean getMotorPolarity() {
         return angleAdjustmentMotorPolarity;
     }
 
+    public void wrapRotorAngle() {
+        double moduloed = currentRotorPositionTicks % SwerveConstants.ROTOR_REVOLUTION_RATIO;
+        System.out.println("From: " + currentRotorPositionTicks + " To: " + moduloed);
+
+        rotor.setSelectedSensorPosition(moduloed);
+        outputRotorPosition = (moduloed / SwerveConstants.ROTOR_REVOLUTION_RATIO + 1.0) % 1.0;
+    }
+
     // Revert this
-    public TargetPolarityTuple setRotorPosWithOutputs(double pos) {
-        setRotorPos(pos);
+    public TargetPolarityTuple setRotorPosWithOutputs(double pos, boolean optimize) {
+        setRotorPos(pos, optimize);
         return new TargetPolarityTuple(outputRotorPosition, angleAdjustmentMotorPolarity);
     }
 
@@ -300,11 +325,7 @@ public class SwerveModule extends Submodule {
      */
     @Override
     public void stop() {
-        setControlState(ControlState.VELOCITY);
-        outputMotorVelocity = 0.0;
-        outputRotorPosition = getRotorPosition();
-        outputMotorProfile = SetValueMotionProfile.Disable.value;
-        outputRotorProfile = SetValueMotionProfile.Disable.value;
+        stop(true);
         // System.out.println("Q" + quadrant + " Current: " + getRotorPosition() + " Target: " + outputRotorPosition);
 
         // var s = new MotionProfileStatus();
@@ -314,6 +335,16 @@ public class SwerveModule extends Submodule {
         // );
         // System.out.println("motor clear: " + motor.clearMotionProfileTrajectories());
         // System.out.println("rotor clear: " + rotor.clearMotionProfileTrajectories());
+    }
+
+    public void stop(boolean resetControlState) {
+        if (resetControlState) {
+            setControlState(ControlState.VELOCITY);
+        }
+        outputMotorVelocity = 0.0;
+        outputRotorPosition = getRotorPosition();
+        outputMotorProfile = SetValueMotionProfile.Disable.value;
+        outputRotorProfile = SetValueMotionProfile.Disable.value;
     }
 
     /**
@@ -328,10 +359,9 @@ public class SwerveModule extends Submodule {
      */
     public void zeroRotor() {
         double zeroDeg = (rotorExternalEncoder.getAbsolutePosition() - zeroAngle + 360) % 360;
-        rotor.setSelectedSensorPosition(
-                zeroDeg * (SwerveConstants.ROTOR_REVOLUTION_RATIO / 360.0),
-                0, 20);
-
+        double newPosition = zeroDeg * (SwerveConstants.ROTOR_REVOLUTION_RATIO / 360.0);
+        rotor.setSelectedSensorPosition(newPosition, 0, 20);
+        currentRotorPositionTicks = newPosition;
         outputRotorPosition = zeroDeg / 360.0;
     }
 
@@ -350,7 +380,7 @@ public class SwerveModule extends Submodule {
      * @return rotor position in revolutions
      */
     public double getRotorPosition() {
-        return rotor.getSelectedSensorPosition(0) / SwerveConstants.ROTOR_REVOLUTION_RATIO;
+        return currentRotorPositionTicks / SwerveConstants.ROTOR_REVOLUTION_RATIO;
     }
 
     /**
@@ -362,12 +392,20 @@ public class SwerveModule extends Submodule {
         }
         stop();
         setControlState(ControlState.PATHING);
-        rotor.setSelectedSensorPosition(EncoderUtils.rotorDegreesToTicks(path.getPathPoints()[0].angle));
+        double moduloed = currentRotorPositionTicks % SwerveConstants.ROTOR_REVOLUTION_RATIO;
+        System.out.println("From: " + currentRotorPositionTicks + " To: " + moduloed);
+
+        rotor.setSelectedSensorPosition(moduloed);
+        outputRotorPosition = (moduloed / SwerveConstants.ROTOR_REVOLUTION_RATIO + 1.0) % 1.0;
+        // rotor.setSelectedSensorPosition(EncoderUtils.rotorDegreesToTicks(path.getPathPoints()[0].angle));
+        // outputRotorPosition = path.getPathPoints()[0].angle / 360.0;
+        // zeroRotor();
         profileFollower.reset();
         profileFollower.start(path.getPathPoints());
     }
 
     public void enableProfile() {
+        System.out.println("Q" + quadrant + ": polarity=" + angleAdjustmentMotorPolarity + " mpc=" + motor.getMotionProfileTopLevelBufferCount());
         motor.setInverted(angleAdjustmentMotorPolarity);
         profileFollower.enable();
     }

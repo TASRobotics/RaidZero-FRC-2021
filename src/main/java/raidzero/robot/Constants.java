@@ -15,7 +15,7 @@ public class Constants {
     public static final class SwerveConstants {
         // Motor IDs in the order of motor, rotor, motor, rotor etc.
         public static final int[] SWERVE_IDS = {0, 1, 2, 3, 4, 5, 6, 7};
-        public static final double[] INIT_MODULES_DEGREES = new double[] {30, 205, 41, 92};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {32, 205, 41, 92};// new double[] {30, 205, 41, 92};
 
         // Robot Radius
         public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);

@@ -11,17 +11,33 @@ public class TestPathingSequence extends AutoSequence {
 
     private static final Point[] POINTS = new Point[]{
         new Point(0, 0, 90),
-        new Point(0, 35, 90),
+        new Point(0, 25, 90),
+        new Point(0, 70, 90),
+    };
+    private static final Point[] POINTS2 = new Point[]{
+        new Point(0, 70, 0),
+        new Point(35, 70, 0),
         new Point(70, 70, 0),
+    };
+    private static final Point[] POINTS3 = new Point[]{
+        new Point(70, 70, -90),
+        new Point(0, 0, 180),
     };
 
     private static final HolonomicPath PATH = new HolonomicPath(
-        POINTS, 6.0, 6.0, new double[]{0, 0}, 100);
+        POINTS, 10.0, 10.0, new double[]{0, 45}, 100);
+
+    private static final HolonomicPath PATH2 = new HolonomicPath(
+            POINTS2, 10.0, 10.0, new double[]{0, 0}, 100);
+
+    private static final HolonomicPath PATH3 = new HolonomicPath(
+        POINTS3, 10.0, 10.0, new double[]{0, 0}, 100);
     
     private static final Swerve swerve = Swerve.getInstance();
 
     public TestPathingSequence() {
     }
+    
 
     @Override
     public void sequence() {
@@ -30,6 +46,10 @@ public class TestPathingSequence extends AutoSequence {
                 new LambdaAction(() -> swerve.zero()),
                 new AlignSwerveModules(PATH.getFirstPoint().angle.getAsDouble()),
                 new DrivePath(PATH)
+                // new AlignSwerveModules(PATH2.getFirstPoint().angle.getAsDouble()),
+                // new DrivePath(PATH2),
+                // new AlignSwerveModules(PATH3.getFirstPoint().angle.getAsDouble()),
+                // new DrivePath(PATH3)
             )
         ));
         System.out.println("Added actions.");
