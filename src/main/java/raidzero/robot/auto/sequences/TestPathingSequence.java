@@ -11,14 +11,16 @@ public class TestPathingSequence extends AutoSequence {
 
     private static final Point[] POINTS = new Point[]{
         new Point(0, 0, 90),
-        new Point(0, 25, 90),
+        new Point(0, 35, 90),
         new Point(0, 70, 90),
     };
+
     private static final Point[] POINTS2 = new Point[]{
         new Point(0, 70, 0),
         new Point(35, 70, 0),
         new Point(70, 70, 0),
     };
+
     private static final Point[] POINTS3 = new Point[]{
         new Point(70, 70, -90),
         new Point(0, 0, 180),

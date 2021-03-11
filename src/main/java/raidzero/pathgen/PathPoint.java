@@ -30,6 +30,11 @@ public class PathPoint {
     public double time;
 
     /**
+     * Time from the start in units of 100ms.
+     */
+    public double timeFromStart;
+
+    /**
      * Angle heading of the robot in degrees.
      */
     public double angle;

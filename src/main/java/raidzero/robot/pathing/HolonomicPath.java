@@ -1,6 +1,6 @@
 package raidzero.robot.pathing;
 
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Timer;
 
 import raidzero.pathgen.HolonomicPathGenerator;
 import raidzero.pathgen.HolonomicPathPoint;
@@ -19,7 +19,7 @@ public class HolonomicPath {
         this.cruiseVel = cruiseVel;
         this.targetAccel = targetAccel;
 
-        double startTime = Timer.getFPGATimestamp();
+        // double startTime = Timer.getFPGATimestamp();
         pathPoints = HolonomicPathGenerator.generateHolonomicPath(points, cruiseVel, targetAccel, endPointAngles,
                 targetAngularAccel);
         System.out.println("Holonomic path:");
@@ -28,7 +28,7 @@ public class HolonomicPath {
                 (pp.time / 10.0) + "s - (" + pp.x + ", " + pp.y + ") | " + pp.velocity + " in/100ms " + pp.orientation + " deg"
             );
         }
-        System.out.println("PathGenerator: " + (Timer.getFPGATimestamp() - startTime) + "s to generate a path!");
+        // System.out.println("PathGenerator: " + (Timer.getFPGATimestamp() - startTime) + "s to generate a path!");
     }
 
     /**

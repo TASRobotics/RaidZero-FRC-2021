@@ -305,6 +305,8 @@ public class PathGenerator {
 
         // Calculate the time differences (i.e. make the times not cumulative)
         for (var i = path.length - 1; i > 0; i--) {
+            // Store time from the start
+            path[i].timeFromStart = path[i].time;
             path[i].time -= path[i - 1].time;
         }
 
