@@ -33,7 +33,6 @@ public class AlignSwerveModules implements Action {
 
     @Override
     public void start() {
-        System.out.println("Align to: " + angle);
         System.out.println("[Auto] Action '" + getClass().getSimpleName() + "' started!");
         swerve.zeroRotors();
         targetAndPolarities = swerve.setRotorPositions(angle, false);

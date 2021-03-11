@@ -218,16 +218,16 @@ public class ProfileFollower {
             tp.zeroPos = false;
 
             if (i == 0) {
-                tp.zeroPos = resetEncoder; // disable reset
+                tp.zeroPos = resetEncoder;
             }
 
             if (i == waypoints.length - 1) {
                 tp.isLastPoint = true;
             }
 
-            System.out.println(
-                "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
-            );
+            // System.out.println(
+            //     "TP: " + tp.position + "u, " + waypoints[i].velocity + "in/100ms (" + tp.velocity + "u/100ms), " + tp.timeDur + " ms, zero=" + tp.zeroPos + ", last=" + tp.isLastPoint
+            // );
 
             leaderTalon.pushMotionProfileTrajectory(tp);
         }

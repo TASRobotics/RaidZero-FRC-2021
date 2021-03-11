@@ -135,19 +135,13 @@ public class Swerve extends Submodule {
 
     @Override
     public void stop() {
-        stop(true);
-    }
-
-    public void stop(boolean resetControlState) {
-        if (resetControlState) {
-            controlState = ControlState.OPEN_LOOP;
-            notifier.stop();
-        }
+        controlState = ControlState.OPEN_LOOP;
+        notifier.stop();
         
         totalV = new double[] {0.1, 0};
         
         for (SwerveModule module : modules) {
-            module.stop(resetControlState);
+            module.stop();
         }
     }
 
@@ -239,12 +233,6 @@ public class Swerve extends Submodule {
             targetAngles[i] = modules[i].setRotorPosWithOutputs(angle, optimize);
         }
         return targetAngles;
-    }
-
-    public void wrapRotorAngles() {
-        for (var module : modules) {
-            module.wrapRotorAngle();
-        }
     }
 
     /**

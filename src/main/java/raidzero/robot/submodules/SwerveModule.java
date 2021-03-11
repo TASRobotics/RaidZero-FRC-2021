@@ -261,14 +261,6 @@ public class SwerveModule extends Submodule {
         return angleAdjustmentMotorPolarity;
     }
 
-    public void wrapRotorAngle() {
-        double moduloed = currentRotorPositionTicks % SwerveConstants.ROTOR_REVOLUTION_RATIO;
-        System.out.println("From: " + currentRotorPositionTicks + " To: " + moduloed);
-
-        rotor.setSelectedSensorPosition(moduloed);
-        outputRotorPosition = (moduloed / SwerveConstants.ROTOR_REVOLUTION_RATIO + 1.0) % 1.0;
-    }
-
     // Revert this
     public TargetPolarityTuple setRotorPosWithOutputs(double pos, boolean optimize) {
         setRotorPos(pos, optimize);
@@ -277,8 +269,6 @@ public class SwerveModule extends Submodule {
 
     public void setMotorPosition(double position) {
         setControlState(ControlState.POSITION);
-
-        // TODO(jimmy): Sort out reversing
         outputMotorPosition = position;
     }
 
@@ -325,7 +315,11 @@ public class SwerveModule extends Submodule {
      */
     @Override
     public void stop() {
-        stop(true);
+        setControlState(ControlState.VELOCITY);
+        outputMotorVelocity = 0.0;
+        outputRotorPosition = getRotorPosition();
+        outputMotorProfile = SetValueMotionProfile.Disable.value;
+        outputRotorProfile = SetValueMotionProfile.Disable.value;
         // System.out.println("Q" + quadrant + " Current: " + getRotorPosition() + " Target: " + outputRotorPosition);
 
         // var s = new MotionProfileStatus();
@@ -335,16 +329,6 @@ public class SwerveModule extends Submodule {
         // );
         // System.out.println("motor clear: " + motor.clearMotionProfileTrajectories());
         // System.out.println("rotor clear: " + rotor.clearMotionProfileTrajectories());
-    }
-
-    public void stop(boolean resetControlState) {
-        if (resetControlState) {
-            setControlState(ControlState.VELOCITY);
-        }
-        outputMotorVelocity = 0.0;
-        outputRotorPosition = getRotorPosition();
-        outputMotorProfile = SetValueMotionProfile.Disable.value;
-        outputRotorProfile = SetValueMotionProfile.Disable.value;
     }
 
     /**
@@ -405,7 +389,7 @@ public class SwerveModule extends Submodule {
     }
 
     public void enableProfile() {
-        System.out.println("Q" + quadrant + ": polarity=" + angleAdjustmentMotorPolarity + " mpc=" + motor.getMotionProfileTopLevelBufferCount());
+        // System.out.println("Q" + quadrant + ": polarity=" + angleAdjustmentMotorPolarity + " mpc=" + motor.getMotionProfileTopLevelBufferCount());
         motor.setInverted(angleAdjustmentMotorPolarity);
         profileFollower.enable();
     }
