@@ -22,7 +22,7 @@ public class AlignSwerveModules implements Action {
     public boolean isFinished() {
         for (int i = 0; i < 4; ++i) {
             double error = swerve.getModuleRotorPosition(i) - targetAndPolarities[i].target;
-            System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAndPolarities[i].target + ", err=" + error + ", derror=" + (error - lastError[i]));
+            // System.out.println("M" + i + ": rn=" + swerve.getModuleRotorPosition(i) + ", target=" + targetAndPolarities[i].target + ", err=" + error + ", derror=" + (error - lastError[i]));
             if (Math.abs(error) > 0.01 || Math.abs(error - lastError[i]) > 0.01) {
                 lastError[i] = error;
                 return false;

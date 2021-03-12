@@ -130,8 +130,8 @@ public class PathGenerator {
             // dy[i] = (pathPoints[i].y + radius * sinNow) - (pathPoints[i - 1].y + radius * sinPrev);
             currentTheta = Math.toRadians(pathPoints[i].orientation);
             dtheta = currentTheta - Math.toRadians(pathPoints[i - 1].orientation);
-            dx[i] = (pathPoints[i].x - pathPoints[i - 1].x) + dtheta * radius * Math.cos(angleOffset - currentTheta);
-            dy[i] = (pathPoints[i].y - pathPoints[i - 1].y) + dtheta * radius * Math.sin(angleOffset - currentTheta);
+            dx[i] = (pathPoints[i].x - pathPoints[i - 1].x) + dtheta * radius * Math.sin(angleOffset - currentTheta);
+            dy[i] = (pathPoints[i].y - pathPoints[i - 1].y) - dtheta * radius * Math.cos(angleOffset - currentTheta);
             shiftedPathPoints[i].time = pathPoints[i].time;
             shiftedPathPoints[i].velocity = FastMath.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
             // System.out.println("Shifted vel: " + shiftedPathPoints[i].velocity + " dx: " + dx[i] + " dy: " + dy[i]);

@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import java.lang.Math;
+import org.apache.commons.math3.util.FastMath;
 
 public class Constants {
     /**
@@ -17,8 +17,10 @@ public class Constants {
         public static final int[] SWERVE_IDS = {0, 1, 2, 3, 4, 5, 6, 7};
         public static final double[] INIT_MODULES_DEGREES = new double[] {32, 205, 41, 92};// new double[] {30, 205, 41, 92};
 
-        // Robot Radius
-        public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);
+        // Robot dimensions
+        // public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);
+        public static final double ROBOT_WIDTH = 23.0; // 23.0 inches
+        public static final double ROBOT_RADIUS = FastMath.hypot(ROBOT_WIDTH, ROBOT_WIDTH) / 2.0;
 
         // Module Angles
         public static final double[] MODULE_ANGLES = {

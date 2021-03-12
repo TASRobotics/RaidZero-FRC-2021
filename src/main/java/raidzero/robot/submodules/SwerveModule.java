@@ -377,7 +377,7 @@ public class SwerveModule extends Submodule {
         stop();
         setControlState(ControlState.PATHING);
         double moduloed = currentRotorPositionTicks % SwerveConstants.ROTOR_REVOLUTION_RATIO;
-        System.out.println("From: " + currentRotorPositionTicks + " To: " + moduloed);
+        // System.out.println("From: " + currentRotorPositionTicks + " To: " + moduloed);
 
         rotor.setSelectedSensorPosition(moduloed);
         outputRotorPosition = (moduloed / SwerveConstants.ROTOR_REVOLUTION_RATIO + 1.0) % 1.0;

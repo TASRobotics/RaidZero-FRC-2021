@@ -110,11 +110,9 @@ public class Swerve extends Submodule {
 
     @Override
     public void update(double timestamp) {
-        // System.out.println("Swerve update");
         // Retrive the pigeon's gyro values
         pigey.getYawPitchRoll(ypr);
         if (!pushPathModuleIdQueue.isEmpty()) {
-            System.out.println("Dequeue");
             int id = pushPathModuleIdQueue.remove();
             modules[id].pushPath(pathToPush[id]);
         }
@@ -168,8 +166,8 @@ public class Swerve extends Submodule {
      * Zeroes the heading of the swerve.
      */
     public void zeroHeading() {
-        System.out.println(pigey.setYaw(0, 20));
-        System.out.println(pigey.setFusedHeading(0, 20));
+        pigey.setYaw(0, 20);
+        pigey.setFusedHeading(0, 20);
     }
 
     /**
