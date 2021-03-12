@@ -5,8 +5,9 @@ import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
 
 public class HolonomicPathGenerator extends PathGenerator {
 
-    public static HolonomicPathPoint[] generateHolonomicPath(Point[] waypoints, double cruiseVelocity,
-            double targetAcceleration, double[] angleEndpoints, double targetAngularAcceleration) {
+    public static HolonomicPathPoint[] generateHolonomicPath(Point[] waypoints,
+            double cruiseVelocity, double targetAcceleration, double[] angleEndpoints,
+            double targetAngularAcceleration) {
         generatePath(waypoints, cruiseVelocity, targetAcceleration);
         var queryData = getQueryData(waypoints);
         var splines = calculateSplines(waypoints, queryData);
@@ -22,13 +23,17 @@ public class HolonomicPathGenerator extends PathGenerator {
         var yQueries = query(splines.y.getPolynomials()[0]::value, queryData);
 
         // TODO(louis): Incorperate robot orientation with trapezoidal profile
-        LinearInterpolator interpolator = new LinearInterpolator();
-        var poly = interpolator.interpolate(new double[] {0, path[path.length - 1].timeFromStart}, angleEndpoints);
+        var interp = (new LinearInterpolator()).interpolate(
+            new double[] {0, path[path.length - 1].timeFromStart},
+            angleEndpoints
+        );
+        // Fill in the x y coordinates of the points along with the linearly
+        // interpolated robot orientations
         for (var i = 0; i < path.length; i++) {
             path[i].x = xQueries[i];
             path[i].y = yQueries[i];
-            path[i].orientation = poly.value(path[i].timeFromStart);
-        }        
+            path[i].orientation = interp.value(path[i].timeFromStart);
+        }
         return path;
     }
 }
