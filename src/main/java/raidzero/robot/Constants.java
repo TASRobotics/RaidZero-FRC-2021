@@ -93,14 +93,10 @@ public class Constants {
      * Intake Constants
      */
     public static final class IntakeConstants {
-        public static final int TOP_MOTOR_ID = 2;
-        public static final int BOTTOM_MOTOR_ID = 3;
+        public static final int TOP_MOTOR_ID = 10;
 
-        public static final IdleMode TOP_NEUTRAL_MODE = IdleMode.kCoast;
-        public static final boolean TOP_MOTOR_INVERSION = false;
-
-        public static final IdleMode BOTTOM_NEUTRAL_MODE = IdleMode.kCoast;
-        public static final boolean BOTTOM_MOTOR_INVERSION = false;
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
+        public static final boolean MOTOR_INVERSION = false;
 
         public static final double CONTROL_SCALING_FACTOR = 0.5;
     }
