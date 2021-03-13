@@ -39,4 +39,14 @@ public class PathPoint {
      */
     public double angle;
 
+    public static void printPathPoints(PathPoint[] pathPoints) {
+        for (var pathPoint : pathPoints) {
+            System.out.println(pathPoint);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return (timeFromStart / 10.0) + "s - " + position + " in | " + velocity + " in/100ms " + angle + " deg";
+    }
 }

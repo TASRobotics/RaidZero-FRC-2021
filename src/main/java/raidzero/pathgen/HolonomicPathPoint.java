@@ -17,4 +17,8 @@ public class HolonomicPathPoint extends PathPoint {
      */
     public double orientation;
 
+    @Override
+    public String toString() {
+        return (timeFromStart / 10.0) + "s - (" + x + ", " + y + ") | " + velocity + " in/100ms " + orientation + " deg";
+    }
 }

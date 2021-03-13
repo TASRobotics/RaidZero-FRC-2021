@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import raidzero.pathgen.HolonomicPathGenerator;
 import raidzero.pathgen.PathGenerator;
 import raidzero.robot.Constants;
 import raidzero.robot.Constants.PathConstants;
@@ -178,7 +179,6 @@ public class Swerve extends Submodule {
      * @param omegaR angular velocity of the swerve
      */
     public void drive(double vX, double vY, double omegaR) {
-        // backslash fix note: problem is above this method
         double mag = FastMath.hypot(vX + (Constants.SQRTTWO * omegaR / 2),
                 vY + (Constants.SQRTTWO * omegaR / 2));
         double coef = 1;
@@ -247,8 +247,6 @@ public class Swerve extends Submodule {
         if (controlState != ControlState.PATHING) {
             return false;
         }
-        // return modules[0].isDoneWaitingForFill() && modules[1].isDoneWaitingForFill();// && modules[2].isDoneWaitingForFill();
-
         for (SwerveModule module : modules) {
             if (!module.isDoneWaitingForFill()) {
                 return false;
@@ -281,20 +279,14 @@ public class Swerve extends Submodule {
 
         for (int i = 0; i < 4; ++i) {
             pushPathModuleIdQueue.add(i);
-            pathToPush[i] = new Path(PathGenerator.generatePath(path.getPathPoints(),
-                Constants.SwerveConstants.MODULE_ANGLES[i],
-                Constants.SwerveConstants.ROBOT_RADIUS));
+            pathToPush[i] = new Path(
+                HolonomicPathGenerator.generateModulePath(
+                    path.getPathPoints(),
+                    Constants.SwerveConstants.MODULE_ANGLES[i],
+                    Constants.SwerveConstants.ROBOT_RADIUS
+                )
+            );
         }
-        // modules[2].pushPath(new Path(PathGenerator.generatePath(path.getPathPoints(),
-        //             Constants.SwerveConstants.MODULE_ANGLES[2],
-        //             Constants.SwerveConstants.ROBOT_RADIUS)));
-
-        // Paths for the each modules are generated based on the holonomic path.
-        // for (int i = 0; i < modules.length; i++) {
-        //     modules[i].pushPath(new Path(PathGenerator.generatePath(path.getPathPoints(),
-        //             Constants.SwerveConstants.MODULE_ANGLES[i],
-        //             Constants.SwerveConstants.ROBOT_RADIUS)));
-        // }
     }
 
     /**

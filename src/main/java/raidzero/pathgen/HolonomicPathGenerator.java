@@ -2,6 +2,7 @@
 package raidzero.pathgen;
 
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
+import org.apache.commons.math3.util.FastMath;
 
 public class HolonomicPathGenerator extends PathGenerator {
 
@@ -35,5 +36,53 @@ public class HolonomicPathGenerator extends PathGenerator {
             path[i].orientation = interp.value(path[i].timeFromStart);
         }
         return path;
+    }
+
+    public static PathPoint[] generateModulePath(HolonomicPathPoint[] pathPoints, double moduleAngle, double moduleRadius) {
+        PathPoint[] shiftedPathPoints = new PathPoint[pathPoints.length];
+        for (int i = 0; i < pathPoints.length; ++i) {
+            shiftedPathPoints[i] = new PathPoint();
+        }
+
+        double[] dx = new double[pathPoints.length];
+        double[] dy = new double[pathPoints.length];
+
+        // TODO(louis): Verify if this is fine for most cases
+        dx[0] = 0;
+        dy[0] = 0;
+        shiftedPathPoints[0].velocity = 0;
+        
+        // double cosNow = 0.0, cosPrev = 0.0;
+        // double sinNow = 0.0, sinPrev = 0.0;
+        double currentAngle = 0.0;
+        double dtheta = 0.0; // change in orientation
+        for (int i = 1; i < pathPoints.length; i++) {
+            // cosNow = Math.cos(angleOffset - Math.toRadians(pathPoints[i].orientation));
+            // cosPrev = Math.cos(angleOffset - Math.toRadians(pathPoints[i - 1].orientation));
+            // sinNow = Math.sin(angleOffset - Math.toRadians(pathPoints[i].orientation));
+            // sinPrev = Math.sin(angleOffset - Math.toRadians(pathPoints[i - 1].orientation));
+            // dx[i] = (pathPoints[i].x + radius * cosNow) - (pathPoints[i - 1].x + radius * cosPrev);
+            // dy[i] = (pathPoints[i].y + radius * sinNow) - (pathPoints[i - 1].y + radius * sinPrev);
+            currentAngle = Math.toRadians(pathPoints[i].orientation);
+            dtheta = currentAngle - Math.toRadians(pathPoints[i - 1].orientation);
+            dx[i] = (pathPoints[i].x - pathPoints[i - 1].x) - dtheta * moduleRadius * Math.sin(moduleAngle + currentAngle);
+            dy[i] = (pathPoints[i].y - pathPoints[i - 1].y) + dtheta * moduleRadius * Math.cos(moduleAngle + currentAngle);
+            shiftedPathPoints[i].time = pathPoints[i].time;
+            shiftedPathPoints[i].timeFromStart = pathPoints[i].timeFromStart;
+            shiftedPathPoints[i].velocity = FastMath.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
+            // System.out.println("Shifted vel: " + shiftedPathPoints[i].velocity + " dx: " + dx[i] + " dy: " + dy[i]);
+        }
+
+        calculateAngles(dx, dy, shiftedPathPoints);
+        cumulativeDistances(dx, dy, shiftedPathPoints);
+
+        shiftedPathPoints[0].angle = pathPoints[0].angle;
+
+        // for (var pp : shiftedPathPoints) {
+        //     System.out.println(
+        //         (pp.time / 10.0) + "s " + pp.position + " in " + pp.velocity + " in/100ms " + pp.angle + " deg"
+        //     );
+        // }
+        return shiftedPathPoints;
     }
 }

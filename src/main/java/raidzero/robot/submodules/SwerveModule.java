@@ -1,5 +1,6 @@
 package raidzero.robot.submodules;
 
+import raidzero.pathgen.PathPoint;
 import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.dashboard.Tab;
 import raidzero.robot.pathing.HolonomicProfileFollower;
@@ -384,6 +385,11 @@ public class SwerveModule extends Submodule {
         // rotor.setSelectedSensorPosition(EncoderUtils.rotorDegreesToTicks(path.getPathPoints()[0].angle));
         // outputRotorPosition = path.getPathPoints()[0].angle / 360.0;
         // zeroRotor();
+
+        System.out.println("Q" + quadrant + " path points:");
+        PathPoint.printPathPoints(path.getPathPoints());
+        System.out.println("=======================================");
+
         profileFollower.reset();
         profileFollower.start(path.getPathPoints());
     }
