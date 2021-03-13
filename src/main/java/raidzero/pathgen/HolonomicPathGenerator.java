@@ -48,8 +48,8 @@ public class HolonomicPathGenerator extends PathGenerator {
         double[] dy = new double[pathPoints.length];
 
         // TODO(louis): Verify if this is fine for most cases
-        dx[0] = 0;
-        dy[0] = 0;
+        dx[0] = 1.0;
+        dy[0] = Math.tan(Math.toRadians(pathPoints[0].angle));
         shiftedPathPoints[0].velocity = 0;
         
         // double cosNow = 0.0, cosPrev = 0.0;
@@ -65,8 +65,18 @@ public class HolonomicPathGenerator extends PathGenerator {
             // dy[i] = (pathPoints[i].y + radius * sinNow) - (pathPoints[i - 1].y + radius * sinPrev);
             currentAngle = Math.toRadians(pathPoints[i].orientation);
             dtheta = currentAngle - Math.toRadians(pathPoints[i - 1].orientation);
-            dx[i] = (pathPoints[i].x - pathPoints[i - 1].x) - dtheta * moduleRadius * Math.sin(moduleAngle + currentAngle);
-            dy[i] = (pathPoints[i].y - pathPoints[i - 1].y) + dtheta * moduleRadius * Math.cos(moduleAngle + currentAngle);
+            double vX = pathPoints[i].x - pathPoints[i - 1].x;
+            double vY = pathPoints[i].y - pathPoints[i - 1].y;
+            /**
+             * double newX = vX * cos + vY * sin;
+             * double newY = -vX * sin + vY * cos;
+             */
+            double cos = Math.cos(currentAngle);
+            double sin = Math.sin(currentAngle);
+            dx[i] = vX * cos + vY * sin - dtheta * moduleRadius * Math.sin(moduleAngle);
+            dy[i] = -vX * sin + vY * cos + dtheta * moduleRadius * Math.cos(moduleAngle);
+            //dx[i] = (dtheta) * moduleRadius * Math.sin(moduleAngle);// - currentAngle);
+            //dy[i] = (dtheta) * moduleRadius * Math.cos(moduleAngle);// - currentAngle);
             shiftedPathPoints[i].time = pathPoints[i].time;
             shiftedPathPoints[i].timeFromStart = pathPoints[i].timeFromStart;
             shiftedPathPoints[i].velocity = FastMath.hypot(dx[i], dy[i]) / shiftedPathPoints[i].time;
@@ -76,7 +86,7 @@ public class HolonomicPathGenerator extends PathGenerator {
         calculateAngles(dx, dy, shiftedPathPoints);
         cumulativeDistances(dx, dy, shiftedPathPoints);
 
-        shiftedPathPoints[0].angle = pathPoints[0].angle;
+        // shiftedPathPoints[0].angle = pathPoints[0].angle;
 
         // for (var pp : shiftedPathPoints) {
         //     System.out.println(
