@@ -21,11 +21,6 @@ public class HolonomicProfileFollower extends ProfileFollower {
 
     @Override
     public void start(PathPoint[] path) {
-        // for (var pp : path) {
-        //     System.out.println(
-        //         (pp.time / 10.0) + "s " + pp.position + " in " + pp.velocity + " in/100ms " + pp.angle + " deg"
-        //     );
-        // }
         super.start(path, false, true);
 
         // Create profile for rotor angle
@@ -33,20 +28,24 @@ public class HolonomicProfileFollower extends ProfileFollower {
         for (int i = 0; i < path.length; ++i) {
             rotorPath[i] = new PathPoint();
         }
+
+        // Create profile for rotor angle
         rotorPath[0].position = path[0].angle;
         rotorPath[0].velocity = 0.0;
         rotorPath[0].time = 0.0;
         rotorPath[0].timeFromStart = 0.0;
         rotorPath[path.length - 1].position = path[path.length - 1].angle;
-        rotorPath[path.length - 1].velocity = 0;
+        rotorPath[path.length - 1].velocity = 0.0;
+        rotorPath[path.length - 1].time = path[path.length - 1].time;
+        rotorPath[path.length - 1].timeFromStart = path[path.length - 1].timeFromStart;
         for (int i = 1; i < path.length - 1; i++) {
             rotorPath[i].position = path[i].angle;
             rotorPath[i].velocity = (path[i + 1].angle - path[i - 1].angle) / (path[i + 1].time + path[i].time);
             rotorPath[i].time = path[i].time;
             rotorPath[i].timeFromStart = path[i].timeFromStart;
         }
-        rotorPath[path.length - 1].time = path[path.length - 1].time;
-        rotorPath[path.length - 1].timeFromStart = path[path.length - 1].timeFromStart;
+        System.out.println("Rotor profile:");
+        PathPoint.printPathPoints(rotorPath);
         rotorProfile.start(rotorPath, false, false);
     }
 

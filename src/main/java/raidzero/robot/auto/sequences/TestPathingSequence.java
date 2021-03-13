@@ -27,7 +27,7 @@ public class TestPathingSequence extends AutoSequence {
     };
 
     private static final HolonomicPath PATH = new HolonomicPath(
-        POINTS, 10.0, 10.0, new double[]{0, 90}, 100);
+        POINTS, 10.0, 10.0, new double[]{0, 45}, 100);
 
     // private static final HolonomicPath PATH2 = new HolonomicPath(
     //     POINTS2, 10.0, 10.0, new double[]{0, 0}, 100);
