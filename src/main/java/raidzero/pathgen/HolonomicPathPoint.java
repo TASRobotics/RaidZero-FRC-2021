@@ -17,8 +17,14 @@ public class HolonomicPathPoint extends PathPoint {
      */
     public double orientation;
 
+    public static void printPathPoints(HolonomicPathPoint[] pathPoints) {
+        for (var pathPoint : pathPoints) {
+            System.out.println(pathPoint);
+        }
+    }
+
     @Override
     public String toString() {
-        return (timeFromStart / 10.0) + "s - (" + x + ", " + y + ") | " + velocity + " in/100ms " + orientation + " deg";
+        return String.format("%.2fs > (%.2f, %.2f) | %.2f in/100ms | %.2f deg", (timeFromStart / 10.0), x, y, velocity, orientation);
     }
 }

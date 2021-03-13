@@ -47,6 +47,6 @@ public class PathPoint {
 
     @Override
     public String toString() {
-        return (timeFromStart / 10.0) + "s - " + position + " in | " + velocity + " in/100ms " + angle + " deg";
+        return String.format("%.2fs > %.2f in | %.2f in/100ms | %.2f deg", (timeFromStart / 10.0), position, velocity, angle);
     }
 }
