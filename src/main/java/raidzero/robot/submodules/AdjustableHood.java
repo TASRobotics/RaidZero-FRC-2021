@@ -7,11 +7,18 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-
+import com.revrobotics.CANDigitalInput;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import raidzero.robot.wrappers.LazyCANSparkMax;
 import raidzero.robot.wrappers.LazyTalonSRX;
 import raidzero.robot.Constants.HoodConstants;
 import raidzero.robot.Constants.HoodConstants.HoodAngle;
@@ -35,7 +42,10 @@ public class AdjustableHood extends Submodule {
     private AdjustableHood() {
     }
 
-    private LazyTalonSRX hoodMotor;
+    private LazyCANSparkMax hoodMotor;
+    private CANPIDController pidController;
+    private CANEncoder encoder;
+    private CANDigitalInput reverseLimitSwitch;
 
     private double outputOpenLoop = 0.0;
     private double outputPosition = 0.0;
@@ -49,27 +59,22 @@ public class AdjustableHood extends Submodule {
 
     @Override
     public void onInit() {
-        hoodMotor = new LazyTalonSRX(HoodConstants.MOTOR_ID);
-        hoodMotor.configFactoryDefault();
-        hoodMotor.setNeutralMode(HoodConstants.NEUTRAL_MODE);
+        hoodMotor = new LazyCANSparkMax(HoodConstants.MOTOR_ID, MotorType.kBrushless);
+        hoodMotor.restoreFactoryDefaults();
+        hoodMotor.setIdleMode(HoodConstants.IDLE_MODE);
         hoodMotor.setInverted(HoodConstants.INVERSION);
-        hoodMotor.setSensorPhase(HoodConstants.INVERT_SENSOR_PHASE);
 
-        TalonSRXConfiguration config = new TalonSRXConfiguration();
-        config.primaryPID.selectedFeedbackSensor = FeedbackDevice.QuadEncoder;
+        encoder = hoodMotor.getEncoder();
 
-        config.forwardLimitSwitchSource = LimitSwitchSource.FeedbackConnector;
-        config.forwardLimitSwitchNormal = LimitSwitchNormal.NormallyOpen;
-        config.reverseLimitSwitchSource = LimitSwitchSource.FeedbackConnector;
-        config.reverseLimitSwitchNormal = LimitSwitchNormal.NormallyOpen;
+        hoodMotor.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).enableLimitSwitch(true);
+        reverseLimitSwitch = hoodMotor.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
+        reverseLimitSwitch.enableLimitSwitch(true);
 
-        config.slot0.kF = HoodConstants.K_F;
-        config.slot0.kP = HoodConstants.K_P;
-        config.slot0.kI = HoodConstants.K_I;
-        config.slot0.kD = HoodConstants.K_D;
-        config.slot0.integralZone = HoodConstants.K_INTEGRAL_ZONE;
-
-        hoodMotor.configAllSettings(config);
+        pidController = hoodMotor.getPIDController();
+        pidController.setP(HoodConstants.K_P);
+        pidController.setI(HoodConstants.K_I);
+        pidController.setD(HoodConstants.K_D);
+        pidController.setFF(HoodConstants.K_F);
     }
 
     @Override
@@ -82,21 +87,21 @@ public class AdjustableHood extends Submodule {
 
     @Override
     public void update(double timestamp) {
-        if (hoodMotor.isRevLimitSwitchClosed() == 1) {
+        if (reverseLimitSwitch.get()) {
             zero();
         }
-        SmartDashboard.putNumber("Hood Angle", hoodMotor.getSelectedSensorPosition());
-        hoodPositionEntry.setNumber(hoodMotor.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Hood Angle", encoder.getPosition());
+        hoodPositionEntry.setNumber(encoder.getPosition());
     }
 
     @Override
     public void run() {
         switch (controlState) {
             case OPEN_LOOP:
-                hoodMotor.set(ControlMode.PercentOutput, outputOpenLoop);
+                pidController.setReference(outputOpenLoop, ControlType.kDutyCycle);
                 break;
             case POSITION:
-                hoodMotor.set(ControlMode.Position, outputPosition);
+                pidController.setReference(outputPosition, ControlType.kPosition);
                 break;
         }
     }
@@ -106,12 +111,12 @@ public class AdjustableHood extends Submodule {
         controlState = ControlState.OPEN_LOOP;
         outputOpenLoop = 0.0;
         outputPosition = 0.0;
-        hoodMotor.set(ControlMode.PercentOutput, 0);
+        pidController.setReference(0.0, ControlType.kDutyCycle);
     }
 
     @Override
     public void zero() {
-        hoodMotor.setSelectedSensorPosition(0);
+        encoder.setPosition(0.0);
     }
 
     /**
@@ -120,7 +125,7 @@ public class AdjustableHood extends Submodule {
      * @return position in encoder ticks
      */
     public double getPosition() {
-        return hoodMotor.getSelectedSensorPosition();
+        return encoder.getPosition();
     }
 
     /**
@@ -159,6 +164,6 @@ public class AdjustableHood extends Submodule {
      */
     public boolean isAtPosition() {
         return controlState == ControlState.POSITION
-                && Math.abs(hoodMotor.getClosedLoopError()) < HoodConstants.TOLERANCE;
+                && Math.abs(outputPosition - encoder.getPosition()) < HoodConstants.TOLERANCE;
     }
 }

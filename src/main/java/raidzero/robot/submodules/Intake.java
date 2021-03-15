@@ -1,9 +1,7 @@
 package raidzero.robot.submodules;
 
-import raidzero.robot.wrappers.LazyCANSparkMax;
 import raidzero.robot.wrappers.LazyTalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import raidzero.robot.Constants.IntakeConstants;
 

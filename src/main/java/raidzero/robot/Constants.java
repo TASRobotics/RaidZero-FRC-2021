@@ -60,9 +60,8 @@ public class Constants {
 
         public static final double MOTOR_POSI_KP = 0.1;
         public static final double MOTOR_POSI_KD = 0;
-        public static final double MOTOR_POSI_KF = 0.8 * 1023.0 / 13480;
 
-        public static final double MOTOR_VELO_KF = 0.05;
+        public static final double MOTOR_VELO_KF = 0.8 * 1023.0 / 13480;
         public static final double MOTOR_VELO_KP = 0.08;
         public static final double MOTOR_VELO_KD = 0.2;
         public static final double DEFAULT_TARG_ACCEL = 100000;
@@ -105,9 +104,9 @@ public class Constants {
      * Conveyor Constants
      */
     public static final class ConveyorConstants {
-        public static final int MOTOR_ID = 1;
+        public static final int MOTOR_ID = 31;
 
-        public static final IdleMode NEUTRAL_MODE = IdleMode.kCoast;
+        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
         public static final boolean MOTOR_INVERSION = false;
 
         public static final double KF = 0.010;
@@ -119,35 +118,39 @@ public class Constants {
         public static final double MINOUT = -1;
         public static final double MAXOUT = 1;
 
-        public static final double MAXRPM = 5000;
+        public static final double MAXSPEED = 5000 * 2048;
     }
 
     public static final class TurretConstants {
-        public static final int MOTOR_ID = 12;
+        public static final int MOTOR_ID = 22;
 
-        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Brake;
-        public static final InvertType INVERSION = InvertType.InvertMotorOutput;
+        public static final IdleMode NEUTRAL_MODE = IdleMode.kBrake;
+        public static final boolean INVERSION = false;
         public static final boolean INVERT_PHASE = false;
 
         public static final double TICKS_PER_DEGREE = 10732 / 90;
 
         public static final double MAX_INPUT_PERCENTAGE = 0.4;
 
-        public static final double K_F = 0.0;
-        public static final double K_P = 0.07;
-        public static final double K_I = 0.0;
-        public static final double K_D = 0.001;
-        public static final int K_INTEGRAL_ZONE = 0;
+        public static final double KF = 0.0;
+        public static final double KP = 0.07;
+        public static final double KI = 0.0;
+        public static final double KD = 0.001;
+        public static final int IZONE = 0;
+
+        public static final double MINOUT = -1;
+        public static final double MAXOUT = 1;
+        public static final double MAXRPM = 5000;
 
         public static final int TOLERANCE = 1000;
         public static final double AT_SETPOINT_DURATION = 0.05;
     }
 
     public static final class HoodConstants {
-        public static final int MOTOR_ID = 20;
+        public static final int MOTOR_ID = 21;
 
-        public static final NeutralMode NEUTRAL_MODE = NeutralMode.Brake;
-        public static final InvertType INVERSION = InvertType.InvertMotorOutput;
+        public static final IdleMode IDLE_MODE = IdleMode.kBrake;
+        public static final boolean INVERSION = true;
         public static final boolean INVERT_SENSOR_PHASE = true;
 
         public static final double GEAR_RATIO = 45.0;
@@ -183,7 +186,7 @@ public class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final int MOTOR_ID = 30;
+        public static final int MOTOR_ID = 40;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
         public static final InvertType INVERSION = InvertType.None;
@@ -224,7 +227,7 @@ public class Constants {
      * Spindexer Constants
      */
     public static final class SpindexerConstants {
-        public static final int MOTOR_ID = 15;
+        public static final int MOTOR_ID = 20;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
         public static final InvertType MOTOR_INVERSION = InvertType.None;

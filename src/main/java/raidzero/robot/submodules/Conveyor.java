@@ -1,6 +1,10 @@
 package raidzero.robot.submodules;
 
 import raidzero.robot.wrappers.LazyCANSparkMax;
+import raidzero.robot.wrappers.LazyTalonFX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -20,29 +24,28 @@ public class Conveyor extends Submodule {
     private Conveyor() {
     }
 
-    private LazyCANSparkMax conveyorMotor;
-    private CANPIDController conveyorPidController;
+    private LazyTalonFX conveyorMotor;
 
     private double outputOpenLoop = 0.0;
 
     @Override
     public void onInit() {
-        conveyorMotor = new LazyCANSparkMax(ConveyorConstants.MOTOR_ID, MotorType.kBrushless);
-        conveyorMotor.restoreFactoryDefaults();
-        conveyorMotor.setIdleMode(ConveyorConstants.NEUTRAL_MODE);
+        conveyorMotor = new LazyTalonFX(ConveyorConstants.MOTOR_ID);
+        conveyorMotor.configFactoryDefault();
+        conveyorMotor.setNeutralMode(ConveyorConstants.NEUTRAL_MODE);
         conveyorMotor.setInverted(ConveyorConstants.MOTOR_INVERSION);
 
-        conveyorPidController = conveyorMotor.getPIDController();
-
         // TODO(jimmy): Tune PID constants
-        conveyorPidController.setReference(0, ControlType.kVelocity);
-        conveyorPidController.setFF(ConveyorConstants.KF);
-        conveyorPidController.setP(ConveyorConstants.KP);
-        conveyorPidController.setI(ConveyorConstants.KI);
-        conveyorPidController.setD(ConveyorConstants.KD);
-        conveyorPidController.setIZone(ConveyorConstants.IZONE);
-        conveyorPidController.setOutputRange(ConveyorConstants.MINOUT, ConveyorConstants.MAXOUT);
-        conveyorPidController.setFeedbackDevice(conveyorMotor.getEncoder());
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
+        config.slot0.kF = ConveyorConstants.KF;
+        config.slot0.kP = ConveyorConstants.KP;
+        config.slot0.kI = ConveyorConstants.KI;
+        config.slot0.kD = ConveyorConstants.KD;
+        config.slot0.integralZone = ConveyorConstants.IZONE;
+
+        conveyorMotor.configAllSettings(config);
+
     }
 
     @Override
@@ -52,13 +55,13 @@ public class Conveyor extends Submodule {
 
     @Override
     public void run() {
-        conveyorPidController.setReference(outputOpenLoop * ConveyorConstants.MAXRPM, ControlType.kVelocity);
+        conveyorMotor.set(ControlMode.Velocity,  outputOpenLoop*ConveyorConstants.MAXSPEED);
     }
 
     @Override
     public void stop() {
         outputOpenLoop = 0.0;
-        conveyorMotor.set(0.0);
+        conveyorMotor.set(ControlMode.PercentOutput, 0.0);
     }
 
     /**
@@ -71,6 +74,6 @@ public class Conveyor extends Submodule {
     }
 
     public boolean upToSpeed() {
-        return Math.abs( outputOpenLoop - (conveyorMotor.getEncoder().getVelocity() / ConveyorConstants.MAXRPM) ) < 0.3 ;
+        return Math.abs( outputOpenLoop - (conveyorMotor.getSelectedSensorVelocity(0) / ConveyorConstants.MAXSPEED)) < 0.3 ;
     }
 }

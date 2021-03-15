@@ -93,7 +93,7 @@ public class SwerveModule extends Submodule {
                 SwerveConstants.PID_PRIMARY_SLOT);
         motor.config_kP(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KP);
         motor.config_kD(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KD);
-        motor.config_kF(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KF);
+        motor.config_kF(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KF);
         motor.config_kP(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KP);
         motor.config_kD(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KD);
         motor.configMotionAcceleration(SwerveConstants.DEFAULT_TARG_ACCEL);
