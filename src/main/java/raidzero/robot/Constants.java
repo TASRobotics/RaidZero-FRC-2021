@@ -95,7 +95,7 @@ public class Constants {
         public static final int TOP_MOTOR_ID = 10;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
-        public static final boolean MOTOR_INVERSION = false;
+        public static final boolean MOTOR_INVERSION = true;
 
         public static final double CONTROL_SCALING_FACTOR = 0.5;
     }
@@ -107,7 +107,7 @@ public class Constants {
         public static final int MOTOR_ID = 31;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
-        public static final boolean MOTOR_INVERSION = false;
+        public static final boolean MOTOR_INVERSION = true;
 
         public static final double KF = 0.010;
         public static final double KP = 0.00022;
@@ -228,11 +228,14 @@ public class Constants {
      */
     public static final class SpindexerConstants {
         public static final int MOTOR_ID = 20;
+        public static final int SERVO_ID = 0;
+
+        public static final double SERVO_UP = 0;
+        public static final double SERVO_DOWN = 0.75;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
-        public static final InvertType MOTOR_INVERSION = InvertType.None;
-
-        public static final double SHOOT_SPEED = 1.0;
+        public static final InvertType MOTOR_INVERSION = InvertType.InvertMotorOutput;
+        public static final double SHOOT_SPEED = 0.6;
     }
 
     /**

@@ -8,6 +8,7 @@ import raidzero.robot.teleop.Teleop;
 import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.Intake;
+import raidzero.robot.submodules.Led;
 import raidzero.robot.submodules.Shooter;
 import raidzero.robot.submodules.Spindexer;
 import raidzero.robot.submodules.SubmoduleManager;
@@ -30,6 +31,7 @@ public class Robot extends TimedRobot {
     private static final AdjustableHood hood = AdjustableHood.getInstance();
     private static final Shooter shooter = Shooter.getInstance();
     private static final Turret turret = Turret.getInstance();
+    private static final Led led = Led.getInstance();
 
     private static final Superstructure superstructure = Superstructure.getInstance();
 
@@ -50,7 +52,8 @@ public class Robot extends TimedRobot {
             spindexer, 
             hood,
             shooter,
-            turret
+            turret,
+            led
         );
         submoduleManager.onInit();
 

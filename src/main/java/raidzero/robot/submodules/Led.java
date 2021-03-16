@@ -25,18 +25,21 @@ public class Led extends Submodule {
      * 
      * @param timestamp
      */
-    public void onStart(double timestamp) {}
+    public void onStart(double timestamp) {
+        glowPattern(0);
+    }
 
     /**
      * Called once when the submodule is initialized.
      */
     public void onInit() {
         leds = new I2C(Port.kOnboard, 4);
+        glowPattern(0);
     }
 
     public void glowPattern(int patternId) {
         data[0] = (byte) patternId;
-        if (patternId < 256) leds.transaction(data, 1, null, 0);
+        if (patternId < 256) leds.transaction(data, 1, new byte[1], 0);
         else return;
     }
 
@@ -51,7 +54,9 @@ public class Led extends Submodule {
      */
     public void run() {}
 
-    public void stop() {}
+    public void stop() {
+        glowPattern(1);
+    }
 
     /**
      * Resets the sensor(s) to zero.

@@ -46,6 +46,8 @@ public class Conveyor extends Submodule {
 
         conveyorMotor.configAllSettings(config);
 
+        conveyorMotor.configClosedloopRamp(2.5);
+
     }
 
     @Override
@@ -74,6 +76,6 @@ public class Conveyor extends Submodule {
     }
 
     public boolean upToSpeed() {
-        return Math.abs( outputOpenLoop - (conveyorMotor.getSelectedSensorVelocity(0) / ConveyorConstants.MAXSPEED)) < 0.3 ;
+        return Math.abs(conveyorMotor.getClosedLoopError()) < 100 ;
     }
 }

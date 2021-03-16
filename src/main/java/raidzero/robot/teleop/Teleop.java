@@ -65,9 +65,9 @@ public class Teleop {
     private void p1Loop(XboxController p) {
         shift1 = p.getBumper(Hand.kRight);
 
-    /**
-     * Drive
-    */
+        /**
+         * Drive
+        */
         swerve.fieldOrientedDrive(JoystickUtils.deadband(p.getX(Hand.kLeft)),
             JoystickUtils.deadband(-p.getY(Hand.kLeft)),
             JoystickUtils.deadband(p.getX(Hand.kRight)));
@@ -81,21 +81,30 @@ public class Teleop {
         }
         
         
-    /**
-     * Intake
-    */
+        /**
+         * Intake
+        */
         // intakeOut is used to passively shuffle the spindexer
         double intakeOut = p.getTriggerAxis(Hand.kRight);
       
         intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
         intake.setMotorDirection(shift1);
-    /**
-     * Spindexer
-     */
+        /**
+        * Spindexer
+         */
         // shifting reverses it, and intaking moves it slowly forward to shuffle
         spindexer.rotate(JoystickUtils.deadband( ((shift1 ? -1 : 1) * p.getTriggerAxis(Hand.kLeft)) +
-            (shift1 ? 0 : intakeOut/5)));
+            (shift1 ? 0 : intakeOut/7.5)));
         // OVERWRITTEN WHEN THE CONVEYOR MOVES
+        
+        if(p.getStartButton()) {
+            spindexer.rampUp();
+        }
+
+        /**
+         * Conveyor
+         */
+        conveyor.moveBalls(p.getTriggerAxis(Hand.kRight));
         
     }
 
@@ -127,22 +136,22 @@ public class Teleop {
             turret.rotateManual(JoystickUtils.deadband(p.getX(Hand.kRight)));
         }
 
-    /**
-     * Shooter
-     */
+        /**
+         * Shooter
+         */
         if (p.getBumperPressed(Hand.kRight)) {
             shooter.shoot(1.0, false);
         } else if (p.getBumperReleased(Hand.kRight)) {
             shooter.shoot(0.0, false);
         }
 
-    /**
-     * Conveyor
-     */
+        /**
+         * Conveyor
+         */
         if (p.getYButton()) {
             conveyor.moveBalls(1.0);
-            if (conveyor.upToSpeed()) reachedConvSpeed = true;
-            if(reachedConvSpeed) spindexer.shoot();
+            //if (conveyor.upToSpeed()) reachedConvSpeed = true;
+            //if(reachedConvSpeed) spindexer.shoot();
         } else {
             conveyor.moveBalls(JoystickUtils.deadband(p.getY(Hand.kLeft)));
             spindexer.rampDown();
@@ -151,20 +160,22 @@ public class Teleop {
         
         if(p.getStartButton()) {
             spindexer.rampUp();
+        } else {
+            spindexer.rampDown();
         }
 
-    /**
-     * Hood
-     */
+        /**
+         * Hood
+         */
         if (p.getStickButton(Hand.kRight)) {
             superstructure.setAimingAndHood(true);
         } else {
             superstructure.setAimingAndHood(false);
         }
 
-    /**
-     * Adjustable hood
-     */
+        /**
+         * Adjustable hood
+         */
         int pPov = p.getPOV();
         if (pPov == 0) {
             hood.moveToAngle(HoodAngle.RETRACTED);

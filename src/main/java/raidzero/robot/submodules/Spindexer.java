@@ -29,15 +29,15 @@ public class Spindexer extends Submodule {
 
     private double outputOpenLoop = 0.0;
     private double outputVelocity = 0.0;
-    private double outputServoPosition = 0.15;
+    private double outputServoPosition = SpindexerConstants.SERVO_DOWN;
 
     private ControlState controlState = ControlState.OPEN_LOOP;
 
     @Override
     public void onInit() {
-        rampServo = new PWM(9);
-        rampServo.setPosition(0.15);
-        rampServo.setBounds(2.0, 1.6, 1.5, 1.4, 1.0);
+        rampServo = new PWM(0);
+        rampServo.setPosition(SpindexerConstants.SERVO_DOWN);
+        //rampServo.setBounds(2.0, 1.6, 1.5, 1.4, 1.0);
 
         spindexerMotor = new LazyTalonSRX(SpindexerConstants.MOTOR_ID);
         spindexerMotor.configFactoryDefault();
@@ -49,7 +49,7 @@ public class Spindexer extends Submodule {
     public void onStart(double timestamp) {
         controlState = ControlState.OPEN_LOOP;
 
-        outputOpenLoop = 0.0;
+        outputOpenLoop = SpindexerConstants.SERVO_DOWN;
         outputVelocity = 0.0;
     }
 
@@ -69,7 +69,7 @@ public class Spindexer extends Submodule {
     @Override
     public void stop() {
         controlState = ControlState.OPEN_LOOP;
-        outputOpenLoop = 0.0;
+        outputOpenLoop = SpindexerConstants.SERVO_DOWN;
         outputVelocity = 0.0;
         spindexerMotor.set(ControlMode.PercentOutput, 0.0);
     }
@@ -96,14 +96,14 @@ public class Spindexer extends Submodule {
      * Moves the ramp up.
      */
     public void rampUp() {
-        outputServoPosition = 1.0;
+        outputServoPosition = SpindexerConstants.SERVO_UP;
     }
 
     /**
      * Moves the ramp down.
      */
     public void rampDown() {
-        outputServoPosition = 0.15;
+        outputServoPosition = SpindexerConstants.SERVO_DOWN;
     }
 
     /**
