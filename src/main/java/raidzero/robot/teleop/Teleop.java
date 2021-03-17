@@ -31,6 +31,7 @@ public class Teleop {
     private static final Turret turret = Turret.getInstance();
 
     private static boolean shift1 = false;
+    private static boolean shift2 = false;
     private static boolean reachedConvSpeed = false;
 
     public static Teleop getInstance() {
@@ -63,12 +64,11 @@ public class Teleop {
     }
 
     private void p1Loop(XboxController p) {
-        shift1 = p.getBumper(Hand.kRight);
-
         /**
          * Drive
         */
-        swerve.fieldOrientedDrive(JoystickUtils.deadband(p.getX(Hand.kLeft)),
+        swerve.fieldOrientedDrive(
+            JoystickUtils.deadband(p.getX(Hand.kLeft)),
             JoystickUtils.deadband(-p.getY(Hand.kLeft)),
             JoystickUtils.deadband(p.getX(Hand.kRight)));
         /**
@@ -84,6 +84,7 @@ public class Teleop {
         /**
          * Intake
         */
+        shift1 = p.getBumper(Hand.kRight);
         // intakeOut is used to passively shuffle the spindexer
         double intakeOut = p.getTriggerAxis(Hand.kRight);
       
@@ -97,31 +98,27 @@ public class Teleop {
             (shift1 ? 0 : intakeOut/7.5)));
         // OVERWRITTEN WHEN THE CONVEYOR MOVES
         
-        if(p.getStartButton()) {
-            spindexer.rampUp();
-        }
-
-        /**
-         * Conveyor
-         */
-        conveyor.moveBalls(p.getTriggerAxis(Hand.kRight));
-        
     }
 
     private void p2Loop(XboxController p) {
 
-        if (p.getBumper(Hand.kLeft)) {
-            shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
+        /**
+         * if (p.getBumper(Hand.kLeft)) {
+         *     shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
+         * 
+         *     if (p.getAButtonPressed()) {
+         *         // TODO: PID turret 90 degrees
+         *         superstructure.setTurretPIDing(true);
+         *     } else if (p.getAButtonReleased()) {
+         *         superstructure.setTurretPIDing(false);
+         *     }
+         *     return;
+         * }
+         */
 
-            if (p.getAButtonPressed()) {
-                // TODO: PID turret 90 degrees
-                superstructure.setTurretPIDing(true);
-            } else if (p.getAButtonReleased()) {
-                superstructure.setTurretPIDing(false);
-            }
-            return;
-        }
-
+        /**
+         * autoAim
+         */
         if (p.getAButtonPressed()) {
             superstructure.setAiming(true);
         } else if (p.getAButtonReleased()) {
@@ -131,6 +128,10 @@ public class Teleop {
             }
             superstructure.setAiming(false);
         }
+
+        /**
+         * Turret
+         */
         // Turn turret using right joystick
         if (!superstructure.isUsingTurret()) {
             turret.rotateManual(JoystickUtils.deadband(p.getX(Hand.kRight)));
@@ -146,23 +147,26 @@ public class Teleop {
         }
 
         /**
-         * Conveyor
+         * Spindexer
          */
-        if (p.getYButton()) {
-            conveyor.moveBalls(1.0);
-            //if (conveyor.upToSpeed()) reachedConvSpeed = true;
-            //if(reachedConvSpeed) spindexer.shoot();
-        } else {
-            conveyor.moveBalls(JoystickUtils.deadband(p.getY(Hand.kLeft)));
-            spindexer.rampDown();
-            reachedConvSpeed = false;
-        }
-        
         if(p.getStartButton()) {
             spindexer.rampUp();
         } else {
             spindexer.rampDown();
         }
+
+        /**
+         * Conveyor
+         */
+        if (p.getYButton()) {
+            conveyor.moveBalls(1.0);
+            if (conveyor.upToSpeed()) reachedConvSpeed = true;
+            if(reachedConvSpeed) System.out.println("conveyorOnSpeed");//spindexer.shoot();
+        } else {
+            conveyor.moveBalls(JoystickUtils.deadband(p.getY(Hand.kLeft)));
+            reachedConvSpeed = false;
+        }
+        
 
         /**
          * Hood
@@ -176,6 +180,9 @@ public class Teleop {
         /**
          * Adjustable hood
          */
+        shift2 = p.getBumper(Hand.kLeft);
+        hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? -1 : 1));
+
         int pPov = p.getPOV();
         if (pPov == 0) {
             hood.moveToAngle(HoodAngle.RETRACTED);
