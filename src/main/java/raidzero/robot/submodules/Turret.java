@@ -1,16 +1,10 @@
 package raidzero.robot.submodules;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import raidzero.robot.wrappers.LazyCANSparkMax;
-import raidzero.robot.wrappers.LazyTalonSRX;
 
 import raidzero.robot.Constants.TurretConstants;
 
@@ -52,7 +46,7 @@ public class Turret extends Submodule {
         turretPidController = turretMotor.getPIDController();
 
         // TODO(jimmy): Tune PID constants
-        turretPidController.setReference(0, ControlType.kVelocity);
+        // turretPidController.setReference(0, ControlType.kVelocity);
         turretPidController.setFF(TurretConstants.KF);
         turretPidController.setP(TurretConstants.KP);
         turretPidController.setI(TurretConstants.KI);
@@ -60,7 +54,6 @@ public class Turret extends Submodule {
         turretPidController.setIZone(TurretConstants.IZONE);
         turretPidController.setOutputRange(TurretConstants.MINOUT, TurretConstants.MAXOUT);
         turretPidController.setFeedbackDevice(turretMotor.getEncoder());
-
     }
 
     @Override
