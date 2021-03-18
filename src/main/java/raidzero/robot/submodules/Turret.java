@@ -122,7 +122,7 @@ public class Turret extends Submodule {
      */
     public void rotateManual(double percentOutput) {
         controlState = ControlState.OPEN_LOOP;
-        outputOpenLoop = percentOutput;
+        outputOpenLoop = percentOutput * TurretConstants.MANUAL_COEF;
     }
 
     public boolean isInOpenLoop() {

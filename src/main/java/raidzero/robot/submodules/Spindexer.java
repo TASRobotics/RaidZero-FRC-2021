@@ -110,7 +110,6 @@ public class Spindexer extends Submodule {
      * shoot ballz lols
      */
     public void shoot() {
-        rampUp();
         rotate(SpindexerConstants.SHOOT_SPEED);
     }
 }

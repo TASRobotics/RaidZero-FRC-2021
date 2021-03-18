@@ -4,6 +4,7 @@ import raidzero.robot.wrappers.LazyCANSparkMax;
 import raidzero.robot.wrappers.LazyTalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.ControlType;
@@ -34,6 +35,7 @@ public class Conveyor extends Submodule {
         conveyorMotor.configFactoryDefault();
         conveyorMotor.setNeutralMode(ConveyorConstants.NEUTRAL_MODE);
         conveyorMotor.setInverted(ConveyorConstants.MOTOR_INVERSION);
+        conveyorMotor.setSensorPhase(ConveyorConstants.SENSOR_PHASE);
 
         // TODO(jimmy): Tune PID constants
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -45,8 +47,10 @@ public class Conveyor extends Submodule {
         config.slot0.integralZone = ConveyorConstants.IZONE;
 
         conveyorMotor.configAllSettings(config);
+        conveyorMotor.selectProfileSlot(0, 0);
 
-        conveyorMotor.configClosedloopRamp(2.5);
+        SupplyCurrentLimitConfiguration currentConfig = new SupplyCurrentLimitConfiguration(true, 35, 35, 0);
+        conveyorMotor.configSupplyCurrentLimit(currentConfig);
 
     }
 
@@ -57,7 +61,8 @@ public class Conveyor extends Submodule {
 
     @Override
     public void run() {
-        conveyorMotor.set(ControlMode.Velocity,  outputOpenLoop*ConveyorConstants.MAXSPEED);
+        System.out.println(outputOpenLoop);
+        conveyorMotor.set(ControlMode.PercentOutput,  outputOpenLoop);//*ConveyorConstants.MAXSPEED);
     }
 
     @Override
@@ -75,7 +80,4 @@ public class Conveyor extends Submodule {
         outputOpenLoop = output;
     }
 
-    public boolean upToSpeed() {
-        return Math.abs(conveyorMotor.getClosedLoopError()) < 100 ;
-    }
 }

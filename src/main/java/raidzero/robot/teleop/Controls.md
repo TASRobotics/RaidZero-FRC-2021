@@ -1,3 +1,4 @@
+
 # Controls
 
 ## P1
@@ -18,6 +19,7 @@ bumper | right | shooter
 a | | autoAim
 y | | feed balls
 joystick | right | turret
+joystick | left | conveyor
 start | | feed servo override
 trigger | left | hood
 bumper | left | reverse hood

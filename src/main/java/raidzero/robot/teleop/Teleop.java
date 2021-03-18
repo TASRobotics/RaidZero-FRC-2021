@@ -32,7 +32,6 @@ public class Teleop {
 
     private static boolean shift1 = false;
     private static boolean shift2 = false;
-    private static boolean reachedConvSpeed = false;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -119,7 +118,7 @@ public class Teleop {
         /**
          * autoAim
          */
-        if (p.getAButtonPressed()) {
+        /** if (p.getAButtonPressed()) {
             superstructure.setAiming(true);
         } else if (p.getAButtonReleased()) {
             // In case the override button is released while PIDing
@@ -128,6 +127,7 @@ public class Teleop {
             }
             superstructure.setAiming(false);
         }
+        */
 
         /**
          * Turret
@@ -160,11 +160,9 @@ public class Teleop {
          */
         if (p.getYButton()) {
             conveyor.moveBalls(1.0);
-            if (conveyor.upToSpeed()) reachedConvSpeed = true;
-            if(reachedConvSpeed) System.out.println("conveyorOnSpeed");//spindexer.shoot();
+            spindexer.shoot();
         } else {
-            conveyor.moveBalls(JoystickUtils.deadband(p.getY(Hand.kLeft)));
-            reachedConvSpeed = false;
+            conveyor.moveBalls(-JoystickUtils.deadband(p.getY(Hand.kLeft)));
         }
         
 
@@ -181,7 +179,7 @@ public class Teleop {
          * Adjustable hood
          */
         shift2 = p.getBumper(Hand.kLeft);
-        hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? -1 : 1));
+        hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? 1 : -1));
 
         int pPov = p.getPOV();
         if (pPov == 0) {
@@ -192,14 +190,6 @@ public class Teleop {
             hood.moveToAngle(HoodAngle.MEDIUM);
         } else if (pPov == 270) {
             hood.moveToAngle(HoodAngle.LOW);
-        } else {
-            if (p.getXButton()) {
-                hood.adjust(-0.5);
-            } else if (p.getBButton()) {
-                hood.adjust(0.5);
-            } else {
-                hood.stop();
-            }
         }
     }
 }

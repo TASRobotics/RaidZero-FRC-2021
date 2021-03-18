@@ -87,7 +87,7 @@ public class SwerveModule extends Submodule {
         zeroAngle = initialAngle;
 
         motor.configFactoryDefault();
-        rotor.setInverted(SwerveConstants.DEFAULT_MOTOR_INVERSION);
+        motor.setInverted(SwerveConstants.DEFAULT_MOTOR_INVERSION);
         motor.configSelectedFeedbackSensor(SwerveConstants.FEEDBACKDEVICE);
         motor.selectProfileSlot(SwerveConstants.MOTOR_VELOCITY_SLOT,
                 SwerveConstants.PID_PRIMARY_SLOT);

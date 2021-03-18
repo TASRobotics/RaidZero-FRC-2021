@@ -15,7 +15,7 @@ public class Constants {
     public static final class SwerveConstants {
         // Motor IDs in the order of motor, rotor, motor, rotor etc.
         public static final int[] SWERVE_IDS = {0, 1, 2, 3, 4, 5, 6, 7};
-        public static final double[] INIT_MODULES_DEGREES = new double[] {32, 205, 41, 92};// new double[] {30, 205, 41, 92};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {327.393, 115.137, 118.564, 214.014}; //pretty bot - olds are //{32, 205, 41, 92};// new double[] {30, 205, 41, 92};
 
         // Robot dimensions
         // public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);
@@ -67,7 +67,7 @@ public class Constants {
         public static final double DEFAULT_TARG_ACCEL = 100000;
         public static final double DEFAULT_TARG_VELO = 22000;
 
-        public static final double ROTOR_KP = 0.8;
+        public static final double ROTOR_KP = 0.4;//0.8;
         public static final double ROTOR_KD = 0.1;
         public static final double ROTOR_KI = 0.005;
         public static final double ROTOR_IZONE = 6000;
@@ -107,7 +107,8 @@ public class Constants {
         public static final int MOTOR_ID = 31;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
-        public static final boolean MOTOR_INVERSION = true;
+        public static final boolean MOTOR_INVERSION = false;
+        public static final boolean SENSOR_PHASE = false;
 
         public static final double KF = 0.010;
         public static final double KP = 0.00022;
@@ -122,7 +123,7 @@ public class Constants {
     }
 
     public static final class TurretConstants {
-        public static final int MOTOR_ID = 22;
+        public static final int MOTOR_ID = 51;
 
         public static final IdleMode NEUTRAL_MODE = IdleMode.kBrake;
         public static final boolean INVERSION = false;
@@ -143,11 +144,12 @@ public class Constants {
         public static final double MAXRPM = 5000;
 
         public static final int TOLERANCE = 1000;
+        public static final double MANUAL_COEF = 0.06;
         public static final double AT_SETPOINT_DURATION = 0.05;
     }
 
     public static final class HoodConstants {
-        public static final int MOTOR_ID = 21;
+        public static final int MOTOR_ID = 52;
 
         public static final IdleMode IDLE_MODE = IdleMode.kBrake;
         public static final boolean INVERSION = true;
@@ -213,7 +215,7 @@ public class Constants {
         public static final double MOUNTING_HEIGHT = 0.56; // in meters
 
         // TODO: Improve the constants
-        public static final double AIM_KP = 0.035;
+        public static final double AIM_KP = 0.0355;
         public static final double AIM_KI = 0.004;
         public static final double AIM_KD = 0.001;
         public static final double MIN_I = -0.08;
@@ -230,12 +232,12 @@ public class Constants {
         public static final int MOTOR_ID = 20;
         public static final int SERVO_ID = 0;
 
-        public static final double SERVO_UP = 0;
+        public static final double SERVO_UP = 0.1;
         public static final double SERVO_DOWN = 0.75;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
         public static final InvertType MOTOR_INVERSION = InvertType.InvertMotorOutput;
-        public static final double SHOOT_SPEED = 0.6;
+        public static final double SHOOT_SPEED = 0.35;
     }
 
     /**
