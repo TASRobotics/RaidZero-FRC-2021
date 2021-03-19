@@ -17,8 +17,10 @@ import com.ctre.phoenix.sensors.CANCoder;
 import org.apache.commons.math3.util.FastMath;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 
 public class SwerveModule extends Submodule {
 
@@ -93,7 +95,7 @@ public class SwerveModule extends Submodule {
                 SwerveConstants.PID_PRIMARY_SLOT);
         motor.config_kP(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KP);
         motor.config_kD(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KD);
-        motor.config_kF(SwerveConstants.MOTOR_POSITION_SLOT, SwerveConstants.MOTOR_POSI_KF);
+        motor.config_kF(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KF);
         motor.config_kP(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KP);
         motor.config_kD(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KD);
         motor.configMotionAcceleration(SwerveConstants.DEFAULT_TARG_ACCEL);
@@ -416,5 +418,15 @@ public class SwerveModule extends Submodule {
         // System.out.println("Q" + quadrant + " finished? " + profileFollower.isFinished());
         return profileFollower.isFinished();
     }
+
+    // public double getNegatedRotorAngle() {
+    //     return 1 + (getRotorPosition() % 1);
+    // }
+
+    // @Override
+    // public void initSendable(SendableBuilder builder) {
+    //     builder.setSmartDashboardType("Gyro");
+    //     builder.addDoubleProperty("Value", this::getNegatedRotorAngle, null);
+    // }
 
 }

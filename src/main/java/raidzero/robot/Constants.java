@@ -15,7 +15,7 @@ public class Constants {
     public static final class SwerveConstants {
         // Motor IDs in the order of motor, rotor, motor, rotor etc.
         public static final int[] SWERVE_IDS = {0, 1, 2, 3, 4, 5, 6, 7};
-        public static final double[] INIT_MODULES_DEGREES = new double[] {32, 205, 41, 92};// new double[] {30, 205, 41, 92};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {17.666, 107.139, 194.150, 86.836};// new double[] {32, 205, 41, 92};
 
         // Robot dimensions
         // public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);
@@ -60,7 +60,6 @@ public class Constants {
 
         public static final double MOTOR_POSI_KP = 0.1;
         public static final double MOTOR_POSI_KD = 0;
-        public static final double MOTOR_POSI_KF = 0.8 * 1023.0 / 13480;
 
         public static final double MOTOR_VELO_KF = 0.05;
         public static final double MOTOR_VELO_KP = 0.08;
@@ -68,7 +67,7 @@ public class Constants {
         public static final double DEFAULT_TARG_ACCEL = 100000;
         public static final double DEFAULT_TARG_VELO = 22000;
 
-        public static final double ROTOR_KP = 0.8;
+        public static final double ROTOR_KP = 1.0;
         public static final double ROTOR_KD = 0.1;
         public static final double ROTOR_KI = 0.005;
         public static final double ROTOR_IZONE = 6000;
