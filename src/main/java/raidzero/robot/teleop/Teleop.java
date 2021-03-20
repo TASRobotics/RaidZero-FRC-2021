@@ -14,6 +14,7 @@ import raidzero.robot.submodules.Intake;
 import raidzero.robot.submodules.Shooter;
 import raidzero.robot.submodules.Spindexer;
 import raidzero.robot.submodules.Turret;
+import raidzero.robot.submodules.Limelight;
 import raidzero.robot.utils.JoystickUtils;
 
 public class Teleop {
@@ -30,9 +31,11 @@ public class Teleop {
     private static final AdjustableHood hood = AdjustableHood.getInstance();
     private static final Shooter shooter = Shooter.getInstance();
     private static final Turret turret = Turret.getInstance();
+    private static final Limelight limelight = Limelight.getInstance();
 
     private static boolean shift1 = false;
     private static boolean shift2 = false;
+    private static double intakeOut = 0;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -61,22 +64,25 @@ public class Teleop {
          * p2 controls
          */
         p2Loop(p2);
+
+        System.out.println("Current Area: "+limelight.getTa());
     }
 
     private void p1Loop(XboxController p) {
         /**
          * Drive
         */
+        boolean turning = p.getRawButton(12);
         swerve.fieldOrientedDrive(
-            JoystickUtils.deadband(0.5*p.getX(Hand.kLeft)),
-            JoystickUtils.deadband(-0.5*p.getY(Hand.kLeft)),
+            JoystickUtils.deadband(p.getX(Hand.kLeft) * (p.getRawButton(1) ? 1 : 0.5)),
+            JoystickUtils.deadband(p.getY(Hand.kLeft) * (p.getRawButton(1) ? -1 : -0.5)),
             //JoystickUtils.deadband(p.getX(Hand.kRight)));
-            JoystickUtils.deadband(0.25*p.getRawAxis(2)));
+            (turning) ? JoystickUtils.deadband(p.getRawAxis(2)) * (p.getRawButton(1) ? 0.5 : 0.25) : 0);
         /**
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better
          */
-        if (p.getBackButtonPressed()) {
+        if (p.getRawButton(2)) {
             swerve.zero();
             return;
         }
@@ -85,19 +91,12 @@ public class Teleop {
         /**
          * Intake
         */
-        shift1 = p.getBumper(Hand.kRight);
+        shift1 = p.getRawButton(8);
         // intakeOut is used to passively shuffle the spindexer
-        double intakeOut = p.getTriggerAxis(Hand.kRight);
+        intakeOut = ((p.getRawButton(7) || shift1) ? 1 : 0) * ((-p.getRawAxis(3))+1) / 2;
       
-        intake.intakeBalls(JoystickUtils.deadband(IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
+        intake.intakeBalls((IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
         intake.setMotorDirection(shift1);
-        /**
-        * Spindexer
-         */
-        // shifting reverses it, and intaking moves it slowly forward to shuffle
-        spindexer.rotate(JoystickUtils.deadband( ((shift1 ? -1 : 1) * p.getTriggerAxis(Hand.kLeft)) +
-            (shift1 ? 0 : intakeOut/7.5)));
-        // OVERWRITTEN WHEN THE CONVEYOR MOVES
         
     }
 
@@ -121,7 +120,7 @@ public class Teleop {
         /**
          * autoAim
          */
-        /** if (p.getAButtonPressed()) {
+         if (p.getAButtonPressed()) {
             superstructure.setAiming(true);
         } else if (p.getAButtonReleased()) {
             // In case the override button is released while PIDing
@@ -130,7 +129,7 @@ public class Teleop {
             }
             superstructure.setAiming(false);
         }
-        */
+        
 
         /**
          * Turret
@@ -152,8 +151,8 @@ public class Teleop {
         /**
          * Spindexer
          */
-        spindexer.rotate(p.getTriggerAxis(Hand.kRight) 
-            * SpindexerConstants.SHOOT_SPEED);
+        spindexer.rotate(JoystickUtils.deadband( ((shift2 ? -1 : 1) * p.getTriggerAxis(Hand.kRight)) +
+        ((intakeOut > 0) ? 0.13 : 0)));
         if(p.getStartButton()) {
             spindexer.rampUp();
         } else {

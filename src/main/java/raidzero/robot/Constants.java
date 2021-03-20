@@ -127,7 +127,6 @@ public class Constants {
 
         public static final IdleMode NEUTRAL_MODE = IdleMode.kBrake;
         public static final boolean INVERSION = false;
-        public static final boolean INVERT_PHASE = false;
 
         public static final double TICKS_PER_DEGREE = 10732 / 90;
 
@@ -159,6 +158,11 @@ public class Constants {
         public static final int FULLY_EXTENDED_TICKS = 82;
 
         // The names refer to the angle of ball release
+        //For limelight, the following are areas:
+        //Green zone: 5.347
+        //Yellow zone: 2.83
+        //Blue zone: 1.65
+        //Red zone: 1.02
         public static enum HoodAngle {
             // +-500 for extra tolerance, limit switches should do its thing
             RETRACTED(74), HIGH(57.1197), MEDIUM(30.809271), LOW(17.14283);
@@ -170,10 +174,10 @@ public class Constants {
             }
         }
 
-        public static final double K_F = 0.0095;
-        public static final double K_P = 0.005;
+        public static final double K_F = 0;
+        public static final double K_P = 0.07;
         public static final double K_I = 0;
-        public static final double K_D = 0.0017;
+        public static final double K_D = 0.002;
         public static final int K_INTEGRAL_ZONE = 0;
 
         public static final int TOLERANCE = 400;
