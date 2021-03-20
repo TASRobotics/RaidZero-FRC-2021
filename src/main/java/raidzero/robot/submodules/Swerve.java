@@ -1,28 +1,25 @@
 package raidzero.robot.submodules;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.controller.HolonomicDriveController;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import raidzero.pathgen.HolonomicPathGenerator;
-import raidzero.pathgen.PathGenerator;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
+
 import raidzero.robot.Constants;
-import raidzero.robot.Constants.PathConstants;
 import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.dashboard.Tab;
-import raidzero.robot.pathing.HolonomicPath;
-import raidzero.robot.pathing.Path;
-import raidzero.robot.submodules.SwerveModule.TargetPolarityTuple;
-import raidzero.robot.utils.JoystickUtils;
 import raidzero.robot.wrappers.SendablePigeon;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import com.ctre.phoenix.sensors.PigeonIMU;
-import org.apache.commons.math3.util.FastMath;
+
 
 public class Swerve extends Submodule {
 
@@ -42,84 +39,96 @@ public class Swerve extends Submodule {
     private Swerve() {
     }
 
-    private SwerveModule[] modules = new SwerveModule[4];
-    private SendablePigeon pigey;
+    private SwerveModule topRightModule = new SwerveModule();
+    private SwerveModule topLeftModule = new SwerveModule();
+    private SwerveModule bottomLeftModule = new SwerveModule();
+    private SwerveModule bottomRightModule = new SwerveModule();
 
-    private Notifier notifier = new Notifier(() -> {
-        for (SwerveModule module : modules) {
-            if (module != null) {
-                module.motor.processMotionProfileBuffer();
-                module.rotor.processMotionProfileBuffer();
-            }
-        }
-    });
+    private SendablePigeon pigeon;
 
-    private double[] ypr = new double[3];
+    private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+        SwerveConstants.MODULE_TOP_LEFT_POSITION, 
+        SwerveConstants.MODULE_TOP_RIGHT_POSITION,
+        SwerveConstants.MODULE_BOTTOM_LEFT_POSITION, 
+        SwerveConstants.MODULE_BOTTOM_RIGHT_POSITION
+    );
 
-    private double omega = 0.0;
-    // private double targetAngle = 0.0;
-    // private double headingError = 0.0;
-    private PIDController headingPID;
+    private SwerveDriveOdometry odometry;
+    private Pose2d currentPose;
 
-    private Path[] pathToPush = new Path[4];
-    private Queue<Integer> pushPathModuleIdQueue = new LinkedList<>();
-
-    // private SwerveModule d;
-
-    // buffer variables
-    private double[][] rotV = new double[4][2];
-    private double[] totalV = new double[] {0, 0};
+    private HolonomicDriveController pathController;
+    private Trajectory currentTrajectory;
+    private Timer timer = new Timer();
 
     private ControlState controlState = ControlState.OPEN_LOOP;
-    private SwerveModule testmodule;
+
+    private NetworkTableEntry xPositionEntry =
+        Shuffleboard.getTab(Tab.MAIN).add("X (m)", 0).withWidget(BuiltInWidgets.kTextView)
+                .withSize(1, 1).withPosition(5, 3).getEntry();
+    private NetworkTableEntry yPositionEntry =
+        Shuffleboard.getTab(Tab.MAIN).add("Y (m)", 0).withWidget(BuiltInWidgets.kTextView)
+                .withSize(1, 1).withPosition(6, 3).getEntry();
 
     public void onStart(double timestamp) {
         controlState = ControlState.OPEN_LOOP;
-        headingPID.reset();
-        headingPID.setSetpoint(0.0);
     }
 
     public void onInit() {
-        // Total number of modules in the swerve
-        int motorCount = SwerveConstants.SWERVE_IDS.length;
+        pigeon = new SendablePigeon(0);
+        Shuffleboard.getTab(Tab.MAIN).add("Pigey", pigeon).withSize(2, 2).withPosition(4, 4);
 
-        pigey = new SendablePigeon(0);
-        Shuffleboard.getTab(Tab.MAIN).add("Pigey", pigey).withSize(2, 2).withPosition(4, 2);
+        topRightModule.onInit(
+            SwerveConstants.MODULE_ID_TOP_RIGHT, 
+            SwerveConstants.MODULE_ID_TOP_RIGHT + 1, 
+            SwerveConstants.INIT_MODULES_DEGREES[0], 
+            1
+        );
+        topLeftModule.onInit(
+            SwerveConstants.MODULE_ID_TOP_LEFT, 
+            SwerveConstants.MODULE_ID_TOP_LEFT + 1, 
+            SwerveConstants.INIT_MODULES_DEGREES[1], 
+            2
+        );
+        bottomLeftModule.onInit(
+            SwerveConstants.MODULE_ID_BOTTOM_LEFT, 
+            SwerveConstants.MODULE_ID_BOTTOM_LEFT + 1, 
+            SwerveConstants.INIT_MODULES_DEGREES[2], 
+            3
+        );
+        bottomRightModule.onInit(
+            SwerveConstants.MODULE_ID_BOTTOM_RIGHT, 
+            SwerveConstants.MODULE_ID_BOTTOM_RIGHT + 1, 
+            SwerveConstants.INIT_MODULES_DEGREES[3], 
+            4
+        );
 
-        // Create and initialize each module
-        for (int i = 0; i < motorCount / 2; i++) {
-            modules[i] = new SwerveModule();
-            modules[i].onInit(SwerveConstants.SWERVE_IDS[2 * i],
-                    SwerveConstants.SWERVE_IDS[2 * i + 1], SwerveConstants.INIT_MODULES_DEGREES[i],
-                    i + 1);
+        odometry = new SwerveDriveOdometry(
+            kinematics, Rotation2d.fromDegrees(pigeon.getHeading()));
 
-            /**
-             * moduleAngle: the direction of the vector that is +90deg offset from each modules
-             * radius vector modulePos: the components of the rotation vector positions { I: j, k
-             * II: -j, k III: -j, -k IV: j, -k }
-             */
-            double moduleAngle = Math.PI / 4 + (Math.PI / 2) * i;
-            rotV[i] = new double[] {-Math.sin(moduleAngle), Math.cos(moduleAngle)};
-        }
-
-        headingPID = new PIDController(SwerveConstants.HEADING_KP, SwerveConstants.HEADING_KI,
-                SwerveConstants.HEADING_KD);
-        headingPID.setTolerance(5);
+        pathController = new HolonomicDriveController(
+            new PIDController(1, 0, 0), 
+            new PIDController(1, 0, 0),
+            new ProfiledPIDController(1, 0, 0,
+                new TrapezoidProfile.Constraints(6.28, 3.14)
+            )
+        );
 
         zero();
     }
 
     @Override
     public void update(double timestamp) {
-        // Retrive the pigeon's gyro values
-        pigey.getYawPitchRoll(ypr);
-        if (!pushPathModuleIdQueue.isEmpty()) {
-            int id = pushPathModuleIdQueue.remove();
-            modules[id].pushPath(pathToPush[id]);
+        if (controlState == ControlState.PATHING) {
+            updatePathing();
         }
-        for (SwerveModule module : modules) {
-            module.update(timestamp);
-        }
+        topRightModule.update(timestamp);
+        topLeftModule.update(timestamp);
+        bottomLeftModule.update(timestamp);
+        bottomRightModule.update(timestamp);
+        currentPose = updateOdometry();
+
+        xPositionEntry.setDouble(currentPose.getX());
+        yPositionEntry.setDouble(currentPose.getY());
     }
 
     /**
@@ -127,206 +136,120 @@ public class Swerve extends Submodule {
      */
     @Override
     public void run() {
-        for (SwerveModule module : modules) {
-            module.run();
-        }
+        topRightModule.run();
+        topLeftModule.run();
+        bottomLeftModule.run();
+        bottomRightModule.run();
     }
 
     @Override
     public void stop() {
         controlState = ControlState.OPEN_LOOP;
-        notifier.stop();
-        
-        totalV = new double[] {0.1, 0};
-        
-        for (SwerveModule module : modules) {
-            module.stop();
-        }
+        topRightModule.stop();
+        topLeftModule.stop();
+        bottomLeftModule.stop();
+        bottomRightModule.stop();
     }
 
     /**
      * Resets the sensor(s) to zero.
      */
+    @Override
     public void zero() {
-        // targetAngle = 0;
-        totalV = new double[] {0.1, 0};
-
         zeroHeading();
-        for (SwerveModule mod : modules) {
-            mod.zero();
-        }
-    }
-
-    public void zeroRotors() {
-        for (SwerveModule mod : modules) {
-            mod.zeroRotor();
-        }
+        setPose(new Pose2d());
+        topRightModule.zero();
+        topLeftModule.zero();
+        bottomLeftModule.zero();
+        bottomRightModule.zero();
     }
 
     /**
      * Zeroes the heading of the swerve.
      */
     public void zeroHeading() {
-        pigey.setYaw(0, 20);
-        pigey.setFusedHeading(0, 20);
+        pigeon.setYaw(0, Constants.TIMEOUT_MS);
+        pigeon.setFusedHeading(0, Constants.TIMEOUT_MS);
     }
 
-    /**
-     * Drives the swerve.
-     * 
-     * @param vX     velocity in the x direction
-     * @param vY     velocity in the y direction
-     * @param omegaR angular velocity of the swerve
-     */
-    public void drive(double vX, double vY, double omegaR) {
-        double mag = FastMath.hypot(vX + (Constants.SQRTTWO * omegaR / 2),
-                vY + (Constants.SQRTTWO * omegaR / 2));
-        double coef = 1;
-        if (mag > 1) {
-            coef = 1 / mag;
-        }
-        for (int i = 0; i < modules.length; i++) {
-            totalV[0] = (vX - omegaR * rotV[i][0]);
-            totalV[1] = (vY - omegaR * rotV[i][1]);
-            modules[i].setVectorVelocity(totalV, coef);
-        }
+    public void setPose(Pose2d pose) {
+        odometry.resetPosition(pose, Rotation2d.fromDegrees(pigeon.getHeading()));
     }
 
-    public void fieldOrientedDrive(double vX, double vY, double rX) {
-        // translational adjustment to move w/ respect to the field
-        double heading = Math.toRadians(ypr[0]);
-        double cos = Math.cos(heading);
-        double sin = Math.sin(heading);
-        double newX = vX * cos + vY * sin;
-        double newY = -vX * sin + vY * cos;
-
-        // TODO(jimmy): Absolute turning instead of relative?
-        // rotational adjustment to PID to the directed heading
-        // if (Math.abs(rX + rY) > 0.01) {
-        // targetAngle = Math.toDegrees(Math.atan2(-rX, rY));
-        // }
-        // headingError = targetAngle - ypr[0];
-        // omega = headingPID.calculate(headingError);
-        // if (omega > 1)
-        // omega = 1;
-        // if (omega < -1)
-        // omega = -1;
-
-        // for relative control
-        omega = rX;
-
-        // send new directions to drive
-        drive(newX, newY, omega);
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
     }
 
-    /**
-     * Sets the positions of all the rotors on the swerve modules.
-     * 
-     * @param angle angle in degrees
-     * @return tuple class of target angle & motor polarity
-     */
-    public TargetPolarityTuple[] setRotorPositions(double angle, boolean optimize) {
-        TargetPolarityTuple[] targetAngles = new TargetPolarityTuple[4];
-        for (int i = 0; i < 4; ++i) {
-            targetAngles[i] = modules[i].setRotorPosWithOutputs(angle, optimize);
-        }
-        return targetAngles;
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
     }
 
-    /**
-     * Returns the position of the rotor on the specified module.
-     * 
-     * @param moduleId ID of the swerve module
-     * @return rotor position in revolution
-     */
-    public double getModuleRotorPosition(int moduleId) {
-        return modules[moduleId].getRotorPosition();
+    private Pose2d updateOdometry() { 
+        return odometry.update(
+            Rotation2d.fromDegrees(pigeon.getHeading()),
+            topLeftModule.getState(),
+            topRightModule.getState(),
+            bottomLeftModule.getState(),
+            bottomRightModule.getState()
+        );
     }
 
-    public boolean isDoneWaitingForFill() {
-        if (controlState != ControlState.PATHING) {
-            return false;
+    public void drive(double xSpeed, double ySpeed, double angularSpeed, boolean fieldOriented) {
+        boolean ignoreAngle = false;
+        if (Math.abs(xSpeed) < 0.1 && Math.abs(ySpeed) < 0.1 && Math.abs(angularSpeed) < 0.1) {
+            ignoreAngle = true;
         }
-        for (SwerveModule module : modules) {
-            if (!module.isDoneWaitingForFill()) {
-                return false;
-            }
-        }
-        return true;
+        var targetState =
+            kinematics.toSwerveModuleStates(
+                fieldOriented
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                    xSpeed, ySpeed, angularSpeed, 
+                    Rotation2d.fromDegrees(pigeon.getHeading())
+                  )
+                : new ChassisSpeeds(xSpeed, ySpeed, angularSpeed)
+            );
+        SwerveDriveKinematics.normalizeWheelSpeeds(targetState, SwerveConstants.MAX_SPEED_MPS);
+        topLeftModule.setTargetState(targetState[0], ignoreAngle, true);
+        topRightModule.setTargetState(targetState[1], ignoreAngle, true);
+        bottomLeftModule.setTargetState(targetState[2], ignoreAngle, true);
+        bottomRightModule.setTargetState(targetState[3], ignoreAngle, true);
     }
 
-    public void enableProfile() {
-        if (controlState != ControlState.PATHING) {
-            return;
-        }
-        for (SwerveModule module : modules) {
-            module.enableProfile();
-        }
-    }
-
-    /**
-     * Pushes a holonomic path.
-     * 
-     * @param path the holonomic path to execute
-     */
-    public void pushHolonomicPath(HolonomicPath path) {
+    public void followPath(Trajectory trajectory) {
         if (controlState == ControlState.PATHING) {
             return;
         }
         controlState = ControlState.PATHING;
+        currentTrajectory = trajectory;
 
-        notifier.startPeriodic(0.001 * PathConstants.TRANSMIT_PERIOD_MS);
-
-        for (int i = 0; i < 4; ++i) {
-            pushPathModuleIdQueue.add(i);
-            pathToPush[i] = new Path(
-                HolonomicPathGenerator.generateModulePath(
-                    path.getPathPoints(),
-                    Constants.SwerveConstants.MODULE_ANGLES[i],
-                    Constants.SwerveConstants.ROBOT_RADIUS
-                )
-            );
-        }
+        timer.reset();
+        timer.start();
     }
 
-    /**
-     * Returns whether the swerve has finished following a path.
-     * 
-     * @return if the swerve is finished pathing
-     */
-    public boolean isFinishedWithPath() {
-        if (controlState != ControlState.PATHING) {
-            return false;
-        }
-        // return modules[0].isFinishedWithPath() && modules[1].isFinishedWithPath();// && modules[2].isFinishedWithPath();
-        for (SwerveModule module : modules) {
-            if (!module.isFinishedWithPath()) {
-                return false;
-            }
-        }
-        return true;
+    private void updatePathing() {
+        var state = currentTrajectory.sample(timer.get());
+        var chassisSpeed = pathController.calculate(currentPose, state, new Rotation2d(0.0));
+        var targetState = kinematics.toSwerveModuleStates(chassisSpeed);
+        topLeftModule.setTargetState(targetState[0], false, false);
+        topRightModule.setTargetState(targetState[1], false, false);
+        bottomLeftModule.setTargetState(targetState[2], false, false);
+        bottomRightModule.setTargetState(targetState[3], false, false);
     }
 
-    public void test(XboxController c) {
+    public boolean isFinishedPathing() {
+        return timer.hasElapsed(currentTrajectory.getTotalTimeSeconds());
+    }
 
-        if (c.getAButtonPressed()) {
-            testmodule = modules[0];
-        }
-        if (c.getBButtonPressed()) {
-            testmodule = modules[1];
-        }
-        if (c.getXButtonPressed()) {
-            testmodule = modules[2];
-        }
-        if (c.getYButtonPressed()) {
-            testmodule = modules[3];
-        }
-            testmodule.setVectorVelocity(new double[] {JoystickUtils.deadband(-c.getY(Hand.kLeft)),
-            JoystickUtils.deadband(c.getX(Hand.kLeft))}, 1);
-            // d.setMotorVelocity(JoystickUtils.deadband(c.getY(Hand.kRight))* 40000);
-            // d.setRotorPos(JoystickUtils.deadband(c.getY(Hand.kLeft)) * 360 / (4));
-        if (c.getTriggerAxis(Hand.kLeft) > 0.5) {
-            testmodule.setRotorPos(90);
+    public void testModule(int quadrant, double motorOutput, double rotorOutput) {
+        System.out.println("Testing Q" + quadrant + ": motor=" + motorOutput + " rotor=" + rotorOutput);
+        if (quadrant == 1) {
+            topRightModule.testMotorAndRotor(motorOutput, rotorOutput);
+        } else if (quadrant == 2) {
+            topLeftModule.testMotorAndRotor(motorOutput, rotorOutput);
+        } else if (quadrant == 3) {
+            bottomLeftModule.testMotorAndRotor(motorOutput, rotorOutput);
+        } else { 
+            bottomRightModule.testMotorAndRotor(motorOutput, rotorOutput);
         }
     }
 }

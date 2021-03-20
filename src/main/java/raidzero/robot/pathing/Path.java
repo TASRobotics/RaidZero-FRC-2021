@@ -1,125 +1,88 @@
 package raidzero.robot.pathing;
 
-import edu.wpi.first.wpilibj.Timer;
-import raidzero.pathgen.PathGenerator;
-import raidzero.pathgen.PathPoint;
-import raidzero.pathgen.Point;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+
+import raidzero.robot.submodules.Swerve;
 
 public class Path {
 
-    private Point[] points;
-    private PathPoint[] pathPoints;
-    private double cruiseVel;
-    private double targetAccel;
-    private boolean reversed;
+    protected static final Swerve drive = Swerve.getInstance();
+
+    protected Trajectory trajectory;
 
     /**
-     * Constructs a Path with default cruise velocity and target acceleration.
-     * 
-     * Note: The motion profile is generated in the constructor.
-     * 
-     * @param points
-     *                     waypoints in the path
-     * @param reversed
-     *                     whether to follow the path reversed
+     * Initializes a path with a trajectory.
      */
-    public Path(Point[] points, boolean reversed) {
-        this(points, reversed, 1.0, 1.0);
+    private Path(Trajectory trajectory) {
+        this.trajectory = trajectory;
+    }
+
+    public static Path fromWaypoints(Pose2d start, Pose2d end, boolean reversed, 
+        double maxVelocity, double maxAcceleration
+    ) {
+        return fromWaypoints(start, new ArrayList<>(), end, reversed, maxVelocity, maxAcceleration);
+    }
+
+    public static Path fromWaypoints(Pose2d start, List<Translation2d> interiorWaypoints, 
+        Pose2d end, boolean reversed, double maxVelocity, double maxAcceleration
+    ) {
+        TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration);
+        config.setReversed(reversed);
+        config.setKinematics(drive.getKinematics());
+        // config.addConstraint(DriveConstants.VOLTAGE_CONSTRAINT);
+    
+        // Uses clamped cubic splines
+        return new Path(TrajectoryGenerator.generateTrajectory(
+            start, interiorWaypoints, end, config));
+    }
+
+    public static Path fromWaypoints(List<Pose2d> waypoints, boolean reversed, 
+        double maxVelocity, double maxAcceleration
+    ) {
+        TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration);
+        config.setReversed(reversed);
+        config.setKinematics(drive.getKinematics());
+        // config.addConstraint(DriveConstants.VOLTAGE_CONSTRAINT);
+    
+        // Uses quintic hermite splines
+        return new Path(TrajectoryGenerator.generateTrajectory(waypoints, config));
     }
 
     /**
-     * Constructs a Path with custom cruise velocity and target acceleration.
+     * Returns a trajectory loaded from a JSON file.
+     * Note: PathWeaver files usually look like XXX.wpilib.json
      * 
-     * Note: The motion profile is generated in the constructor.
-     * 
-     * @param points
-     *                        waypoints in the path
-     * @param reversed
-     *                        whether to follow the path reversed
-     * @param cruiseVel
-     *                        the target cruise velocity in in/100ms
-     * @param targetAccel
-     *                        the target acceleration in in/100ms/s
+     * @param filename name of the JSON path file
+     * @return path with loaded trajectory
      */
-    public Path(Point[] points, boolean reversed, double cruiseVel, double targetAccel) {
-        this.points = points;
-        this.reversed = reversed;
-        this.cruiseVel = cruiseVel;
-        this.targetAccel = targetAccel;
-
-        double startTime = Timer.getFPGATimestamp();
-        pathPoints = PathGenerator.generatePath(points, cruiseVel, targetAccel);
-        System.out.println("PathGenerator: " + (Timer.getFPGATimestamp() - startTime) + "s to generate a path!");
-    }
-
-    public Path(PathPoint[] pathPoints) {
-        this.points = null;
-        this.reversed = false;
-        this.cruiseVel = 0;
-        this.targetAccel = 0;
-        this.pathPoints = pathPoints;
+    protected Path fromJson(String filename) {
+        try {
+            return new Path(TrajectoryUtil.fromPathweaverJson(
+                Filesystem.getDeployDirectory().toPath().resolve("paths/" + filename)
+            ));
+        } catch (IOException exception) {
+            DriverStation.reportError("Unable to open trajectory: " + filename, exception.getStackTrace());
+        }
+        return null;
     }
 
     /**
-     * Returns the waypoints of the path.
+     * Returns the stored trajectory in this path.
      * 
-     * @return array of waypoints
+     * @return the pre-generated trajectory
      */
-    public Point[] getPoints() {
-        return points;
-    }
-
-    /**
-     * Returns the first waypoint of the path.
-     * 
-     * @return first point
-     */
-    public Point getFirstPoint() {
-        return points[0];
-    }
-
-    /**
-     * Returns the last waypoint of the path.
-     * 
-     * @return last point
-     */
-    public Point getLastPoint() {
-        return points[points.length - 1];
-    }
-
-    /**
-     * Returns the path points for the motion profile.
-     * 
-     * @return array of path points
-     */
-    public PathPoint[] getPathPoints() {
-        return pathPoints;
-    }
-
-    /**
-     * Returns whether the path should be followed reversed.
-     * 
-     * @return reverse while driving
-     */
-    public boolean isReversed() {
-        return reversed;
-    }
-
-    /**
-     * Returns the target cruise velocity of the robot.
-     * 
-     * @return cruise velocity in in/100ms
-     */
-    public double getCruiseVelocity() {
-        return cruiseVel;
-    }
-
-    /**
-     * Returns the target acceleration of the robot.
-     * 
-     * @return target acceleration in in/100ms/s
-     */
-    public double getTargetAcceleration() {
-        return targetAccel;
+    public Trajectory getTrajectory() {
+        return trajectory;
     }
 }

@@ -44,7 +44,7 @@ public class AdjustableHood extends Submodule {
 
     private NetworkTableEntry hoodPositionEntry =
             Shuffleboard.getTab(Tab.MAIN).add("Hood Position", 0).withWidget(BuiltInWidgets.kDial)
-                    .withProperties(Map.of("min", 0, "max", 7000)).withSize(2, 2).withPosition(0, 0)
+                    .withProperties(Map.of("min", 0, "max", 7000)).withSize(1, 1).withPosition(0, 0)
                     .getEntry();
 
     @Override

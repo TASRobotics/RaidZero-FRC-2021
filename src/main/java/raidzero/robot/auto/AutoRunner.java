@@ -16,7 +16,8 @@ public class AutoRunner {
     private AutoSequence selectedSequence;
 
     private AutoSequence[] availableSequences = {
-        new TestPathingSequence()
+        new SlalomPathSequence(),
+        new BouncePathSequence()
     };
 
     public AutoRunner() {
