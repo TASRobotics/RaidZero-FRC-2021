@@ -17,7 +17,10 @@ public class AutoRunner {
 
     private AutoSequence[] availableSequences = {
         new SlalomPathSequence(),
-        new BouncePathSequence()
+        new BouncePathSequence(),
+        new BarrelRacingPathSequence(),
+        new SearchPathASequence(),
+        new SearchPathBSequence()
     };
 
     public AutoRunner() {

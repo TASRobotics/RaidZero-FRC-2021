@@ -19,7 +19,7 @@ public class BouncePathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(50), Units.inchesToMeters(60),
+                Units.inchesToMeters(58), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(90)
             )
         ),
@@ -28,15 +28,23 @@ public class BouncePathSequence extends AutoSequence {
     private static final Path PATH2 = Path.fromWaypoints(
         Arrays.asList(
             new Pose2d(
-                Units.inchesToMeters(60), Units.inchesToMeters(60),
+                Units.inchesToMeters(58), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(-90)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(70), Units.inchesToMeters(0),
+                Rotation2d.fromDegrees(-70)
             ),
             new Pose2d(
                 Units.inchesToMeters(120), Units.inchesToMeters(-60),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(150), Units.inchesToMeters(60),
+                Units.inchesToMeters(130), Units.inchesToMeters(0),
+                Rotation2d.fromDegrees(70)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(140), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(90)
             )
         ),
@@ -45,7 +53,7 @@ public class BouncePathSequence extends AutoSequence {
     private static final Path PATH3 = Path.fromWaypoints(
         Arrays.asList(
             new Pose2d(
-                Units.inchesToMeters(150), Units.inchesToMeters(60),
+                Units.inchesToMeters(140), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(-90)
             ),
             new Pose2d(
@@ -53,7 +61,7 @@ public class BouncePathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(210), Units.inchesToMeters(-60),
+                Units.inchesToMeters(220), Units.inchesToMeters(-60),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
