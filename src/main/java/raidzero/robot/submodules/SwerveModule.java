@@ -98,6 +98,8 @@ public class SwerveModule extends Submodule {
         motor.config_kD(SwerveConstants.MOTOR_VELOCITY_SLOT, SwerveConstants.MOTOR_VELO_KD);
         motor.configMotionAcceleration(SwerveConstants.DEFAULT_TARG_ACCEL);
         motor.configMotionCruiseVelocity(SwerveConstants.DEFAULT_TARG_VELO);
+        //This is new - ramp rate
+        motor.configClosedloopRamp(.25);
 
         rotor.configFactoryDefault();
         rotor.setInverted(SwerveConstants.ROTOR_INVERSION);

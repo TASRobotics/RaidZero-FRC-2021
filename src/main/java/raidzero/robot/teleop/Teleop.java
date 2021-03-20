@@ -7,6 +7,7 @@ import raidzero.robot.submodules.Superstructure;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.Constants.HoodConstants.HoodAngle;
 import raidzero.robot.Constants.IntakeConstants;
+import raidzero.robot.Constants.SpindexerConstants;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Intake;
@@ -67,9 +68,10 @@ public class Teleop {
          * Drive
         */
         swerve.fieldOrientedDrive(
-            JoystickUtils.deadband(p.getX(Hand.kLeft)),
-            JoystickUtils.deadband(-p.getY(Hand.kLeft)),
-            JoystickUtils.deadband(p.getX(Hand.kRight)));
+            JoystickUtils.deadband(0.5*p.getX(Hand.kLeft)),
+            JoystickUtils.deadband(-0.5*p.getY(Hand.kLeft)),
+            //JoystickUtils.deadband(p.getX(Hand.kRight)));
+            JoystickUtils.deadband(0.25*p.getRawAxis(2)));
         /**
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better
@@ -100,6 +102,7 @@ public class Teleop {
     }
 
     private void p2Loop(XboxController p) {
+        shift2 = p.getBumper(Hand.kLeft);
 
         /**
          * if (p.getBumper(Hand.kLeft)) {
@@ -149,6 +152,8 @@ public class Teleop {
         /**
          * Spindexer
          */
+        spindexer.rotate(p.getTriggerAxis(Hand.kRight) 
+            * SpindexerConstants.SHOOT_SPEED);
         if(p.getStartButton()) {
             spindexer.rampUp();
         } else {
@@ -178,7 +183,6 @@ public class Teleop {
         /**
          * Adjustable hood
          */
-        shift2 = p.getBumper(Hand.kLeft);
         hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? 1 : -1));
 
         int pPov = p.getPOV();

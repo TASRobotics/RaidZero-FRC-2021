@@ -144,7 +144,7 @@ public class Constants {
         public static final double MAXRPM = 5000;
 
         public static final int TOLERANCE = 1000;
-        public static final double MANUAL_COEF = 0.06;
+        public static final double MANUAL_COEF = 0.3;
         public static final double AT_SETPOINT_DURATION = 0.05;
     }
 
@@ -153,29 +153,27 @@ public class Constants {
 
         public static final IdleMode IDLE_MODE = IdleMode.kBrake;
         public static final boolean INVERSION = true;
-        public static final boolean INVERT_SENSOR_PHASE = true;
 
         public static final double GEAR_RATIO = 45.0;
 
-        public static final int FULLY_EXTENDED_TICKS = 6200;
+        public static final int FULLY_EXTENDED_TICKS = 82;
 
         // The names refer to the angle of ball release
         public static enum HoodAngle {
             // +-500 for extra tolerance, limit switches should do its thing
-            RETRACTED(-500), HIGH(FULLY_EXTENDED_TICKS / 3), MEDIUM(
-                    2 * FULLY_EXTENDED_TICKS / 3), LOW(FULLY_EXTENDED_TICKS + 500);
+            RETRACTED(74), HIGH(57.1197), MEDIUM(30.809271), LOW(17.14283);
 
-            public final int ticks;
+            public final double ticks;
 
-            private HoodAngle(int ticks) {
+            private HoodAngle(double ticks) {
                 this.ticks = ticks;
             }
         }
 
-        public static final double K_F = 0;
-        public static final double K_P = 0.6;
+        public static final double K_F = 0.0095;
+        public static final double K_P = 0.005;
         public static final double K_I = 0;
-        public static final double K_D = 0.001;
+        public static final double K_D = 0.0017;
         public static final int K_INTEGRAL_ZONE = 0;
 
         public static final int TOLERANCE = 400;
@@ -232,12 +230,15 @@ public class Constants {
         public static final int MOTOR_ID = 20;
         public static final int SERVO_ID = 0;
 
-        public static final double SERVO_UP = 0.1;
+        public static final double SERVO_UP = 0.2
+        ;
+        //.2 originally
         public static final double SERVO_DOWN = 0.75;
 
         public static final NeutralMode NEUTRAL_MODE = NeutralMode.Coast;
         public static final InvertType MOTOR_INVERSION = InvertType.InvertMotorOutput;
-        public static final double SHOOT_SPEED = 0.35;
+        public static final double SHOOT_SPEED = 0.36;
+        //originally .38
     }
 
     /**

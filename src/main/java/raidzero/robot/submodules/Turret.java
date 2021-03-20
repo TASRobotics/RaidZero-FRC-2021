@@ -52,7 +52,7 @@ public class Turret extends Submodule {
         turretPidController = turretMotor.getPIDController();
 
         // TODO(jimmy): Tune PID constants
-        turretPidController.setReference(0, ControlType.kVelocity);
+        // turretPidController.setReference(0, ControlType.kVelocity);
         turretPidController.setFF(TurretConstants.KF);
         turretPidController.setP(TurretConstants.KP);
         turretPidController.setI(TurretConstants.KI);

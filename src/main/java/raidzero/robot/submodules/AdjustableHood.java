@@ -46,6 +46,7 @@ public class AdjustableHood extends Submodule {
     private CANPIDController pidController;
     private CANEncoder encoder;
     private CANDigitalInput reverseLimitSwitch;
+    private CANDigitalInput forwardLimitSwitch;
 
     private double outputOpenLoop = 0.0;
     private double outputPosition = 0.0;
@@ -54,7 +55,7 @@ public class AdjustableHood extends Submodule {
 
     private NetworkTableEntry hoodPositionEntry =
             Shuffleboard.getTab(Tab.MAIN).add("Hood Position", 0).withWidget(BuiltInWidgets.kDial)
-                    .withProperties(Map.of("min", 0, "max", 7000)).withSize(2, 2).withPosition(0, 0)
+                    .withProperties(Map.of("min", 0, "max", 83)).withSize(2, 2).withPosition(0, 0)
                     .getEntry();
 
     @Override
@@ -66,8 +67,9 @@ public class AdjustableHood extends Submodule {
 
         encoder = hoodMotor.getEncoder();
 
-        hoodMotor.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed).enableLimitSwitch(true);
+        forwardLimitSwitch = hoodMotor.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
         reverseLimitSwitch = hoodMotor.getReverseLimitSwitch(LimitSwitchPolarity.kNormallyClosed);
+        forwardLimitSwitch.enableLimitSwitch(true);
         reverseLimitSwitch.enableLimitSwitch(true);
 
         pidController = hoodMotor.getPIDController();
@@ -89,6 +91,7 @@ public class AdjustableHood extends Submodule {
     public void update(double timestamp) {
         if (reverseLimitSwitch.get()) {
             zero();
+            System.out.println("zeroed");
         }
         SmartDashboard.putNumber("Hood Angle", encoder.getPosition());
         hoodPositionEntry.setNumber(encoder.getPosition());
@@ -135,6 +138,7 @@ public class AdjustableHood extends Submodule {
      */
     public void adjust(double percentOutput) {
         controlState = ControlState.OPEN_LOOP;
+        System.out.println(encoder.getPosition());
         outputOpenLoop = percentOutput;
     }
 

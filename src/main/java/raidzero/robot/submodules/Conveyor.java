@@ -61,7 +61,6 @@ public class Conveyor extends Submodule {
 
     @Override
     public void run() {
-        System.out.println(outputOpenLoop);
         conveyorMotor.set(ControlMode.PercentOutput,  outputOpenLoop);//*ConveyorConstants.MAXSPEED);
     }
 

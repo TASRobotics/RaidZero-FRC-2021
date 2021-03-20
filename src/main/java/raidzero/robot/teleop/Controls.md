@@ -1,18 +1,17 @@
 
 # Controls
 
-## P1
+## P1 (joystick)
 keybind | hand | action
 -- | -- | -- |
-joystick | left | swerve translation
-joystick | right | swerve rotation
-back | | zero swerve
-trigger | right | intake (also shuffles spindexer)
-trigger | left | spindexer
-bumper | right | reverse intake and spindexer direction
+joystick | | swerve drive
+trigger | | slowmode
+thumb button | | zero
+button 7 | | intake
+button 8 | | outtake
+flap | | intake speed
 
-
-## P2
+## P2 (Xbox Controller)
 keybind | hand | action
 -- | -- | -- |
 bumper | right | shooter
@@ -22,5 +21,6 @@ joystick | right | turret
 joystick | left | conveyor
 start | | feed servo override
 trigger | left | hood
+trigger | right | spindexer
 bumper | left | reverse hood
 
