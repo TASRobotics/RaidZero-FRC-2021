@@ -1,9 +1,14 @@
 package raidzero.robot;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import raidzero.robot.auto.AutoRunner;
+import raidzero.robot.auto.DetermineGSCPath;
+import raidzero.robot.auto.sequences.EmptySequence;
+import raidzero.robot.dashboard.Tab;
 import raidzero.robot.teleop.Teleop;
 import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Conveyor;
@@ -34,6 +39,13 @@ public class Robot extends TimedRobot {
     private static final Superstructure superstructure = Superstructure.getInstance();
 
     private AutoRunner autoRunner;
+
+    private NetworkTableEntry shouldCheckGSCEntry =
+        Shuffleboard.getTab(Tab.SELECTION).add("Scan Path", 0).withWidget(BuiltInWidgets.kBooleanBox)
+                .withSize(1, 1).withPosition(0, 0).getEntry();
+    private NetworkTableEntry foundPathEntry =
+        Shuffleboard.getTab(Tab.SELECTION).add("Chosen Path", 0).withWidget(BuiltInWidgets.kTextView)
+                .withSize(2, 1).withPosition(0, 1).getEntry();
 
     /**
      * Runs only once at the start of robot code execution.
@@ -73,8 +85,30 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         submoduleManager.onStart(Timer.getFPGATimestamp());
-
-        autoRunner.readSendableSequence();
+        
+        if (shouldCheckGSCEntry.getBoolean(false)) {
+            var result = DetermineGSCPath.lookForPath();
+            foundPathEntry.setString(result.name());
+            switch (result) {
+            case PATH_A_RED:
+                autoRunner.selectSequence("Search Path A Sequence Red");
+                break;
+            case PATH_A_BLUE:
+                autoRunner.selectSequence("Search Path A Sequence Blue");
+                break;
+            case PATH_B_RED:
+                autoRunner.selectSequence("Search Path B Sequence Red");
+                break;
+            case PATH_B_BLUE:
+                autoRunner.selectSequence("Search Path B Sequence Blue");
+                break;
+            default:
+                autoRunner.selectSequence(new EmptySequence());
+                break;
+            }
+        } else {
+            autoRunner.readSendableSequence();
+        }
         autoRunner.start();
     }
 

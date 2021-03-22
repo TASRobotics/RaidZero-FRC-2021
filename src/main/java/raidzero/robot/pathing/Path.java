@@ -3,7 +3,6 @@ package raidzero.robot.pathing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.geometry.Pose2d;

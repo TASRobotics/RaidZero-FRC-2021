@@ -2,7 +2,6 @@ package raidzero.robot.auto.sequences;
 
 import java.util.Arrays;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.util.Units;
@@ -11,7 +10,7 @@ import raidzero.robot.auto.actions.*;
 import raidzero.robot.pathing.Path;
 import raidzero.robot.submodules.*;
 
-public class SearchPathBSequence extends AutoSequence {
+public class SearchPathBSequence extends SearchPathSequence {
 
     private static final Path PATH_RED = Path.fromWaypoints(
         Arrays.asList(
@@ -65,11 +64,20 @@ public class SearchPathBSequence extends AutoSequence {
     );
     private static final Swerve swerve = Swerve.getInstance();
 
-    public SearchPathBSequence() {
+    private PathColor pathColor;
+
+    public SearchPathBSequence(PathColor color) {
+        pathColor = color;
     }
 
     @Override
     public void sequence() {
+        Path targetPath;
+        if (pathColor == PathColor.BLUE) {
+            targetPath = PATH_BLUE;
+        } else {
+            targetPath = PATH_RED;
+        }
         addAction(new SeriesAction(Arrays.asList(
             new LambdaAction(() -> {
                 swerve.zero();
@@ -81,7 +89,7 @@ public class SearchPathBSequence extends AutoSequence {
                     )
                 );
             }),
-            new DrivePath(PATH_BLUE)
+            new DrivePath(targetPath)
         )));
         System.out.println("Added actions.");
     }
@@ -93,6 +101,10 @@ public class SearchPathBSequence extends AutoSequence {
 
     @Override
     public String getName() {
-        return "Search Path B Sequence";
+        if (pathColor == PathColor.RED) {
+            return "Search Path B Sequence Red";
+        } else {
+            return "Search Path B Sequence Blue";
+        }
     }
 }
