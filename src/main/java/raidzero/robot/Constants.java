@@ -157,6 +157,7 @@ public class Constants {
 
         public static final int FULLY_EXTENDED_TICKS = 82;
 
+        public static final double[] LOGISTFIT = new double[]{-2.317,-1.246,78.78};
         // The names refer to the angle of ball release
         //For limelight, the following are areas:
         //Green zone: 4.04
@@ -166,7 +167,7 @@ public class Constants {
         public static enum HoodAngle {
             // +-500 for extra tolerance, limit switches should do its thing
             RETRACTED(70.6), HIGH(46.02), MEDIUM(22.55), LOW(11.02);
-
+            
             public final double ticks;
 
             private HoodAngle(double ticks) {
