@@ -66,6 +66,7 @@ public class Teleop {
         p2Loop(p2);
 
         System.out.println("Current Area: "+limelight.getTa());
+        System.out.println("Hood Position: "+hood.getPosition());
     }
 
     private void p1Loop(XboxController p) {
