@@ -17,7 +17,13 @@ public class Constants {
         public static final int MODULE_ID_TOP_LEFT = 2;
         public static final int MODULE_ID_BOTTOM_LEFT = 4;
         public static final int MODULE_ID_BOTTOM_RIGHT = 6;
-        public static final double[] INIT_MODULES_DEGREES = new double[] {107.7, 196, 283, 181.3};//new double[] {32, 205, 41, 92};
+        public static final double[] INIT_MODULES_DEGREES = new double[] {
+            (327.393 + 90) % 360.0, 
+            (115.137 + 90) % 360.0, 
+            (118.564 + 90) % 360.0, 
+            (214.014 + 90) % 360.0
+        };
+        //new double[] {(57.832 + 0) % 360.0, (205.576 + 0) % 360.0, (212.520 + 0) % 360.0, (308.232 + 0) % 360.0};
 
         // Robot dimensions
         public static final double ROBOT_WIDTH_INCHES = 23.0; // 23.0 inches
@@ -57,7 +63,7 @@ public class Constants {
 
         public static final double ROTOR_MAX_VELOCITY_TICKS_PER_100MS = 3600.0;
         public static final double ROTOR_KF = 1.0 * 1023 / ROTOR_MAX_VELOCITY_TICKS_PER_100MS;
-        public static final double ROTOR_KP = 1.60;
+        public static final double ROTOR_KP = 1.6;
         public static final double ROTOR_KD = 0.1;
         public static final double ROTOR_TARG_VELO = 1.0 * ROTOR_MAX_VELOCITY_TICKS_PER_100MS;
         public static final double ROTOR_TARG_ACCEL = 10 * ROTOR_TARG_VELO;

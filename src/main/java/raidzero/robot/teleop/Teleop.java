@@ -76,7 +76,7 @@ public class Teleop {
         */
         // boolean turning = p.getRawButton(12);
         swerve.drive(
-            JoystickUtils.deadband(-p.getY(Hand.kLeft)) * SwerveConstants.MAX_SPEED_MPS * (p.getRawButton(1) ? -1 : -0.5),
+            JoystickUtils.deadband(-p.getY(Hand.kLeft)) * SwerveConstants.MAX_SPEED_MPS * (p.getRawButton(1) ? 1 : 0.5),
             JoystickUtils.deadband(-p.getX(Hand.kLeft)) * SwerveConstants.MAX_SPEED_MPS * (p.getRawButton(1) ? 1 : 0.5),
             JoystickUtils.deadband(-p.getX(Hand.kRight)) * SwerveConstants.MAX_ANGULAR_SPEED_RPS,
             true
