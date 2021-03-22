@@ -77,7 +77,7 @@ public class TurnToGoal implements Action {
                 }
             } else {
                 double output = TurretConstants.MAX_INPUT_PERCENTAGE;
-                output *= defaultMode == DefaultMode.CLOCKWISE ? 1 : -1;
+                output *= (defaultMode == DefaultMode.CLOCKWISE) ? 1 : -1;
                 turret.rotateManual(output);
             }
             return;
@@ -89,6 +89,7 @@ public class TurnToGoal implements Action {
             -TurretConstants.MAX_INPUT_PERCENTAGE,
             TurretConstants.MAX_INPUT_PERCENTAGE
         );
+        System.out.println(headingError);
         turret.rotateManual(output);
         
         onTarget.update(pidController.atSetpoint());

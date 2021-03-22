@@ -130,7 +130,7 @@ public class Constants {
 
         public static final double TICKS_PER_DEGREE = 10732 / 90;
 
-        public static final double MAX_INPUT_PERCENTAGE = 0.4;
+        public static final double MAX_INPUT_PERCENTAGE = 1;
 
         public static final double KF = 0.0;
         public static final double KP = 0.07;
@@ -159,13 +159,13 @@ public class Constants {
 
         // The names refer to the angle of ball release
         //For limelight, the following are areas:
-        //Green zone: 5.347
-        //Yellow zone: 2.83
-        //Blue zone: 1.65
-        //Red zone: 1.02
+        //Green zone: 4.04
+        //Yellow zone: 2.6
+        //Blue zone: 1.55
+        //Red zone: 0.91
         public static enum HoodAngle {
             // +-500 for extra tolerance, limit switches should do its thing
-            RETRACTED(74), HIGH(57.1197), MEDIUM(30.809271), LOW(17.14283);
+            RETRACTED(70.6), HIGH(46.02), MEDIUM(22.55), LOW(11.02);
 
             public final double ticks;
 
@@ -217,11 +217,11 @@ public class Constants {
         public static final double MOUNTING_HEIGHT = 0.56; // in meters
 
         // TODO: Improve the constants
-        public static final double AIM_KP = 0.0355;
-        public static final double AIM_KI = 0.004;
-        public static final double AIM_KD = 0.001;
-        public static final double MIN_I = -0.08;
-        public static final double MAX_I = 0.08;
+        public static final double AIM_KP = 0.08;
+        public static final double AIM_KI = 0;
+        public static final double AIM_KD = 0.003;
+        public static final double MIN_I = 0;
+        public static final double MAX_I = 0;
         public static final double ANGLE_ADJUST_THRESHOLD = 2.0;
 
         public static final double AIM_ON_TARGET_DURATION = 0.2;

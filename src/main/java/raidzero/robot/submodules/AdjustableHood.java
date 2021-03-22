@@ -138,7 +138,6 @@ public class AdjustableHood extends Submodule {
      */
     public void adjust(double percentOutput) {
         controlState = ControlState.OPEN_LOOP;
-        System.out.println(encoder.getPosition());
         outputOpenLoop = percentOutput;
     }
 
