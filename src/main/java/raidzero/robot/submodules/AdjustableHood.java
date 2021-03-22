@@ -23,6 +23,7 @@ import raidzero.robot.wrappers.LazyTalonSRX;
 import raidzero.robot.Constants.HoodConstants;
 import raidzero.robot.Constants.HoodConstants.HoodAngle;
 import raidzero.robot.dashboard.Tab;
+import org.apache.commons.math3.analysis.function.Logistic;
 
 public class AdjustableHood extends Submodule {
 
@@ -30,6 +31,8 @@ public class AdjustableHood extends Submodule {
         OPEN_LOOP, POSITION
     };
 
+    private static Logistic hoodAreaFit = new Logistic(HoodConstants.LOGISTFIT[2],
+        HoodConstants.LOGISTFIT[0],HoodConstants.LOGISTFIT[1],0,0,1);
     private static AdjustableHood instance = null;
 
     public static AdjustableHood getInstance() {
@@ -149,6 +152,16 @@ public class AdjustableHood extends Submodule {
     public void moveToTick(double position) {
         controlState = ControlState.POSITION;
         outputPosition = position;
+    }
+
+    /**
+     *  Automatically adjusts the hood based on
+     *  the area of the target.
+     * @param targetArea  the area of the target
+     */
+
+    public void autoPosition(double targetArea) {
+        outputPosition = hoodAreaFit.value(targetArea);
     }
 
     /**

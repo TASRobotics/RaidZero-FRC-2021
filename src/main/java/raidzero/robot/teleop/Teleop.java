@@ -65,8 +65,8 @@ public class Teleop {
          */
         p2Loop(p2);
 
-        System.out.println("Current Area: "+limelight.getTa());
-        System.out.println("Hood Angle: "+hood.getPosition());
+        //System.out.println("Current Area: "+limelight.getTa());
+        //System.out.println("Hood Angle: "+hood.getPosition());
     }
 
     private void p1Loop(XboxController p) {
@@ -187,7 +187,8 @@ public class Teleop {
 
         int pPov = p.getPOV();
         if (pPov == 0) {
-            hood.moveToAngle(HoodAngle.RETRACTED);
+            hood.autoPosition(limelight.getTa());
+            //hood.moveToAngle(HoodAngle.RETRACTED);
         } else if (pPov == 90) {
             hood.moveToAngle(HoodAngle.HIGH);
         } else if (pPov == 180) {
