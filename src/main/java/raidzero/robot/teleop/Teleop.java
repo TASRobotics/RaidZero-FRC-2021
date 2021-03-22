@@ -1,5 +1,6 @@
 package raidzero.robot.teleop;
 
+import org.apache.commons.math3.util.FastMath;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 
@@ -7,7 +8,7 @@ import raidzero.robot.submodules.Superstructure;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.Constants.HoodConstants.HoodAngle;
 import raidzero.robot.Constants.IntakeConstants;
-import raidzero.robot.Constants.SpindexerConstants;
+import raidzero.robot.Constants.SwerveConstants;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Intake;
@@ -34,8 +35,8 @@ public class Teleop {
     private static final Limelight limelight = Limelight.getInstance();
 
     private static boolean shift1 = false;
-    private static boolean shift2 = false;
-    private static double intakeOut = 0;
+    private static boolean reachedConvSpeed = false;
+    private int counter = 0;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -63,22 +64,32 @@ public class Teleop {
         /**
          * p2 controls
          */
-        p2Loop(p2);
-
-        //System.out.println("Current Area: "+limelight.getTa());
-        //System.out.println("Hood Angle: "+hood.getPosition());
+        //p2Loop(p2);
     }
 
     private void p1Loop(XboxController p) {
+        shift1 = p.getBumper(Hand.kRight);
+
         /**
          * Drive
         */
-        boolean turning = p.getRawButton(12);
-        swerve.fieldOrientedDrive(
-            JoystickUtils.deadband(p.getX(Hand.kLeft) * (p.getRawButton(1) ? 1 : 0.5)),
-            JoystickUtils.deadband(p.getY(Hand.kLeft) * (p.getRawButton(1) ? -1 : -0.5)),
-            //JoystickUtils.deadband(p.getX(Hand.kRight)));
-            (turning) ? JoystickUtils.deadband(p.getRawAxis(2)) * (p.getRawButton(1) ? 0.5 : 0.25) : 0);
+        swerve.drive(
+            JoystickUtils.deadband(-p.getY(Hand.kLeft)) * SwerveConstants.MAX_SPEED_MPS,
+            JoystickUtils.deadband(-p.getX(Hand.kLeft)) * SwerveConstants.MAX_SPEED_MPS,
+            JoystickUtils.deadband(-p.getX(Hand.kRight)) * SwerveConstants.MAX_ANGULAR_SPEED_RPS,
+            true
+        );
+        if (p.getAButtonPressed()) {
+            ++counter;
+        }
+        // swerve.testModule(counter % 4 + 1, 
+        //     JoystickUtils.deadband(-p.getY(Hand.kLeft)) * SwerveConstants.MOTOR_MAX_VELOCITY_EFFECTIVE_MPS,
+        //     FastMath.toDegrees(FastMath.atan2(
+        //         JoystickUtils.deadband(-p.getY(Hand.kRight)), 
+        //         JoystickUtils.deadband(p.getX(Hand.kRight))
+        //     ))
+        //     // JoystickUtils.deadband(p.getX(Hand.kRight))
+        // );
         /**
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better
@@ -88,35 +99,36 @@ public class Teleop {
             return;
         }
         
-        
         /**
          * Intake
         */
-        shift1 = p.getRawButton(8);
         // intakeOut is used to passively shuffle the spindexer
         intakeOut = ((p.getRawButton(7) || shift1) ? 1 : 0) * ((-p.getRawAxis(3))+1) / 2;
       
         intake.intakeBalls((IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
         intake.setMotorDirection(shift1);
+        /**
+         * Spindexer
+         */
+        // shifting reverses it, and intaking moves it slowly forward to shuffle
+        spindexer.rotate(JoystickUtils.deadband( ((shift1 ? -1 : 1) * p.getTriggerAxis(Hand.kLeft)) +
+            (shift1 ? 0 : intakeOut/5)));
+        // OVERWRITTEN WHEN THE CONVEYOR MOVES
         
     }
 
     private void p2Loop(XboxController p) {
-        shift2 = p.getBumper(Hand.kLeft);
+        if (p.getBumper(Hand.kLeft)) {
+            shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
 
-        /**
-         * if (p.getBumper(Hand.kLeft)) {
-         *     shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
-         * 
-         *     if (p.getAButtonPressed()) {
-         *         // TODO: PID turret 90 degrees
-         *         superstructure.setTurretPIDing(true);
-         *     } else if (p.getAButtonReleased()) {
-         *         superstructure.setTurretPIDing(false);
-         *     }
-         *     return;
-         * }
-         */
+            if (p.getAButtonPressed()) {
+                // TODO: PID turret 90 degrees
+                superstructure.setTurretPIDing(true);
+            } else if (p.getAButtonReleased()) {
+                superstructure.setTurretPIDing(false);
+            }
+            return;
+        }
 
         /**
          * autoAim
@@ -150,17 +162,6 @@ public class Teleop {
         }
 
         /**
-         * Spindexer
-         */
-        spindexer.rotate(JoystickUtils.deadband( ((shift2 ? -1 : 1) * p.getTriggerAxis(Hand.kRight)) +
-        ((intakeOut > 0) ? 0.13 : 0)));
-        if(p.getStartButton()) {
-            spindexer.rampUp();
-        } else {
-            spindexer.rampDown();
-        }
-
-        /**
          * Conveyor
          */
         if (p.getYButton()) {
@@ -183,8 +184,6 @@ public class Teleop {
         /**
          * Adjustable hood
          */
-        hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? 1 : -1));
-
         int pPov = p.getPOV();
         if (pPov == 0) {
             hood.autoPosition(limelight.getTa());

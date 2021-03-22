@@ -14,12 +14,16 @@ public class SendablePigeon extends PigeonIMU implements Sendable {
     
     public double getHeading() {
         getYawPitchRoll(ypr);
-        return -ypr[0];
+        return ypr[0];
+    }
+
+    public double getNegatedHeading() {
+        return -getHeading();
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Gyro");
-        builder.addDoubleProperty("Value", this::getHeading, null);
+        builder.addDoubleProperty("Value", this::getNegatedHeading, null);
     }
 }

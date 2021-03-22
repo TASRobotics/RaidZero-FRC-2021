@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import raidzero.robot.auto.sequences.*;
+import raidzero.robot.auto.sequences.SearchPathSequence.PathColor;
 import raidzero.robot.dashboard.Tab;
 
 /**
@@ -16,7 +17,13 @@ public class AutoRunner {
     private AutoSequence selectedSequence;
 
     private AutoSequence[] availableSequences = {
-        new TestPathingSequence()
+        new SlalomPathSequence(),
+        new BouncePathSequence(),
+        new BarrelRacingPathSequence(),
+        new SearchPathASequence(PathColor.RED),
+        new SearchPathBSequence(PathColor.RED),
+        new SearchPathASequence(PathColor.BLUE),
+        new SearchPathBSequence(PathColor.BLUE)
     };
 
     public AutoRunner() {
@@ -35,6 +42,20 @@ public class AutoRunner {
      */
     public void readSendableSequence() {
         selectSequence(chooser.getSelected());
+    }
+
+    /**
+     * Selects an autonomous sequence to run.
+     * 
+     * @param name the exact name of the autonomous sequence to run
+     */
+    public void selectSequence(String name) {
+        for (AutoSequence sequence : availableSequences) {
+            if (sequence.getName().equalsIgnoreCase(name)) {
+                selectedSequence = sequence;
+                return;
+            }
+        }
     }
 
     /**

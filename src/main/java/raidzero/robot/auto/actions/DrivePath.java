@@ -1,6 +1,8 @@
 package raidzero.robot.auto.actions;
 
-import raidzero.robot.pathing.HolonomicPath;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+
+import raidzero.robot.pathing.Path;
 import raidzero.robot.submodules.Swerve;
 
 /**
@@ -10,15 +12,19 @@ public class DrivePath implements Action {
 
     private static final Swerve swerve = Swerve.getInstance();
 
-    private HolonomicPath path;
+    private Trajectory trajectory;
 
-    public DrivePath(HolonomicPath path) {
-        this.path = path;
+    public DrivePath(Path path) {
+        this(path.getTrajectory());
+    }
+
+    public DrivePath(Trajectory trajectory) {
+        this.trajectory = trajectory;
     }
 
     @Override
     public boolean isFinished() {
-        if (swerve.isFinishedWithPath()) {
+        if (swerve.isFinishedPathing()) {
             System.out.println("[Auto] Path finished!");
             return true;
         }
@@ -28,15 +34,11 @@ public class DrivePath implements Action {
     @Override
     public void start() {
         System.out.println("[Auto] Action '" + getClass().getSimpleName() + "' started!");
-        swerve.pushHolonomicPath(path);
+        swerve.followPath(trajectory);
     }
 
     @Override
     public void update() {
-        if (swerve.isDoneWaitingForFill()) {
-            System.out.println("Enabling profile...");
-            swerve.enableProfile();
-        }
     }
 
     @Override
