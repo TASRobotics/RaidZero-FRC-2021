@@ -1,17 +1,14 @@
 package raidzero.robot.auto.sequences;
 
-import java.util.Arrays;
-
-
+import org.junit.*;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.util.Units;
-
-import raidzero.robot.auto.actions.*;
 import raidzero.robot.pathing.Path;
-import raidzero.robot.submodules.*;
+import static org.junit.Assert.*;
+import java.util.Arrays;
 
-public class BarrelRacingPathSequence extends AutoSequence {
+public class TestSequence {
 
     private static final Path PATH = Path.fromWaypoints(
         Arrays.asList(
@@ -24,11 +21,11 @@ public class BarrelRacingPathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(150), Units.inchesToMeters(-40),
+                Units.inchesToMeters(150), Units.inchesToMeters(-30),
                 Rotation2d.fromDegrees(-90)
             ),
             new Pose2d(
-                Units.inchesToMeters(115), Units.inchesToMeters(-60),
+                Units.inchesToMeters(120), Units.inchesToMeters(-60),
                 Rotation2d.fromDegrees(-180)
             ),
             new Pose2d(
@@ -36,15 +33,15 @@ public class BarrelRacingPathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(-270)
             ),
             new Pose2d(
-                Units.inchesToMeters(180), Units.inchesToMeters(10),
+                Units.inchesToMeters(180), Units.inchesToMeters(0),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(240), Units.inchesToMeters(30),
+                Units.inchesToMeters(250), Units.inchesToMeters(30),
                 Rotation2d.fromDegrees(90)
             ),
             new Pose2d(
-                Units.inchesToMeters(200), Units.inchesToMeters(80),
+                Units.inchesToMeters(210), Units.inchesToMeters(80),
                 Rotation2d.fromDegrees(180)
             ),
             new Pose2d(
@@ -64,42 +61,25 @@ public class BarrelRacingPathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(180)
             ),
             new Pose2d(
-                Units.inchesToMeters(0), Units.inchesToMeters(20),
+                Units.inchesToMeters(0), Units.inchesToMeters(10),
                 Rotation2d.fromDegrees(180)
             )
         ),
-        false, 4.5, 4.5
+        false, 3.0, 3.0
     );
-    private static final Swerve swerve = Swerve.getInstance();
 
-    public BarrelRacingPathSequence() {
-    }
-
-    @Override
-    public void sequence() {
-        addAction(new SeriesAction(Arrays.asList(
-            new LambdaAction(() -> {
-                swerve.zero();
-                swerve.setPose(
-                    new Pose2d(
-                        Units.inchesToMeters(0.0),
-                        Units.inchesToMeters(0.0), 
-                        new Rotation2d()
-                    )
-                );
-            }),
-            new DrivePath(PATH)
-        )));
-        System.out.println("Added actions.");
-    }
-
-    @Override
-    public void onEnded() {
-        System.out.println("BarrelRacingPathSequence ended!");
-    }
-
-    @Override
-    public String getName() {
-        return "Barrel Racing Pathing Sequence";
+    @Test
+    public void isRunningFine() {
+        var traj = PATH.getTrajectory();
+        double time = traj.getTotalTimeSeconds();
+        System.out.println("Total time: " + time);
+        for (double t = 0.0; t < 14.0; t += 0.1) {
+            var p = traj.sample(t);
+            // System.out.println(p.toString());
+            double angle = p.poseMeters.getRotation().getDegrees();
+            while(angle > 180)angle-=360;
+            while(angle < -180)angle+=360;
+            System.out.println(angle);
+        }
     }
 }

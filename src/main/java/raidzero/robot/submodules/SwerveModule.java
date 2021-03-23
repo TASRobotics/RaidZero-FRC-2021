@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -97,6 +98,7 @@ public class SwerveModule extends Submodule implements Sendable {
     public void initMotor(TalonFX motor) {
         motor.configFactoryDefault();
         motor.setInverted(SwerveConstants.MOTOR_INVERSION);
+        motor.setNeutralMode(NeutralMode.Brake);
         motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         // motor.configClosedloopRamp(0.1);
         // motor.configSelectedFeedbackCoefficient(SwerveConstants.MOTOR_TICKS_TO_METERS, SwerveConstants.PID_PRIMARY_SLOT, 20);
@@ -137,7 +139,6 @@ public class SwerveModule extends Submodule implements Sendable {
      */
     public void update(double timestamp) {
         double v = getMotorVelocity();
-        // System.out.println(v);
         motorVelocityEntry.setDouble(v);
     }
 
@@ -146,8 +147,7 @@ public class SwerveModule extends Submodule implements Sendable {
      */
     public void run() {
         switch (controlState) {
-            case VELOCITY:
-                if(quadrant==1)System.out.println(outputRotorAngle * SwerveConstants.CANCODER_TO_DEGREES);
+            case VELOCITY:                
                 motor.set(ControlMode.Velocity, outputMotorVelocity);
                 rotor.set(ControlMode.MotionMagic, outputRotorAngle);
                 break;
@@ -179,14 +179,6 @@ public class SwerveModule extends Submodule implements Sendable {
         controlState = ControlState.VELOCITY;
 
         outputMotorVelocity = velocity / (SwerveConstants.MOTOR_TICKS_TO_METERS * 10.0);
-
-        // double angleError = getRotorAngleError();
-        // if (angleError >= 10.0) {
-        //     System.out.println("Angle error: " + angleError);
-        // }
-        // System.out.println("Q" + quadrant + ": error=" + angleError);
-        // outputMotorVelocity = outputMotorVelocity * FastMath.exp((1 / 5.0) * -angleError);
-        // outputMotorVelocity = outputMotorVelocity * FastMath.pow(1 - Math.abs(angleError / 360.0), 4);
     }
 
     /**
@@ -216,29 +208,12 @@ public class SwerveModule extends Submodule implements Sendable {
         controlState = ControlState.VELOCITY;
 
         double currentAngle = getRotorAngle();
-        currentAngle = currentAngle % 360;
         double delta = angle - currentAngle;
-        // int multiplier = ((int) currentAngle) / 360;
-        // if (currentAngle >= 360.0) {
-        //     System.out.println("Current angle over 360.0: " + currentAngle);
-        //     angle += 360.0 * multiplier;
-        // } else if (currentAngle <= -360.0) {
-        //     System.out.println("Current angle over -360.0: " + currentAngle);
-        //     angle -= 360.0 * multiplier;
-        // }
-
-        // TODO(louis): Modulo required?
-        // System.out.println("Q" + quadrant + ": current=" + getRotorAngle() + " target=" + angle);
-        // outputRotorAngle = MathTools.wrapDegrees(angle) / SwerveConstants.CANCODER_TO_DEGREES;
         delta = delta % 360;
-        double od = delta;
-        if(delta > 180)delta-=360;
-        if(delta < -180)delta+=360;
-        outputRotorAngle = (currentAngle+delta) / SwerveConstants.CANCODER_TO_DEGREES;
-        if (Math.abs(od) >= 180) {
-            //System.out.println("Delta too large: " + delta);
-            //System.out.println("Data: oldAngle=" + angle + " newAngle=" + (outputRotorAngle * SwerveConstants.CANCODER_TO_DEGREES) + " currentAngle=" + currentAngle);
-        }
+        while (delta > 180) delta -= 360;
+        while (delta < -180) delta += 360;
+
+        outputRotorAngle = (currentAngle + delta) / SwerveConstants.CANCODER_TO_DEGREES;
     }
 
     /**

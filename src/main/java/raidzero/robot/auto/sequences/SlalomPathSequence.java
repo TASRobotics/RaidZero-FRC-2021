@@ -53,15 +53,6 @@ public class SlalomPathSequence extends AutoSequence {
             new Pose2d(
                 Units.inchesToMeters(180), Units.inchesToMeters(-15),
                 Rotation2d.fromDegrees(180)
-            )
-        ),
-        false, 2.5, 2.0
-    );
-    private static final Path PATH2 = Path.fromWaypoints(
-        Arrays.asList(
-            new Pose2d(
-                Units.inchesToMeters(180), Units.inchesToMeters(-15),
-                Rotation2d.fromDegrees(180)
             ),
             new Pose2d(
                 Units.inchesToMeters(90), Units.inchesToMeters(-15),
@@ -96,7 +87,7 @@ public class SlalomPathSequence extends AutoSequence {
                     )
                 );
             }),
-            new DrivePath(PATH),
+            new DrivePath(PATH)
             // new LambdaAction(() -> {
             //     swerve.zero();
             //     swerve.setPose(
@@ -105,8 +96,7 @@ public class SlalomPathSequence extends AutoSequence {
             //             Rotation2d.fromDegrees(0)
             //         )
             //     );
-            // }),
-            new DrivePath(PATH2)
+            // })
         )));
         System.out.println("Added actions.");
     }
