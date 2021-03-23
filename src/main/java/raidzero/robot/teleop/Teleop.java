@@ -90,7 +90,7 @@ public class Teleop {
          * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
          * not good to PID off of so a quick setting of the relative encoder is better
          */
-        if (p.getRawButton(2)) {
+        if (p.getXButtonPressed()) {
             swerve.zero();
             return;
         }
@@ -102,7 +102,7 @@ public class Teleop {
         shift1 = p.getRawButton(8);
         // intakeOut is used to passively shuffle the spindexer
         intakeOut = ((p.getRawButton(7) || shift1) ? 1 : 0) * ((-p.getRawAxis(3))+1) / 2;
-      
+        System.out.println("intake: " + intakeOut);
         intake.intakeBalls((IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
         intake.setMotorDirection(shift1);
         

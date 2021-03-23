@@ -12,26 +12,28 @@ public class DetermineGSCPath {
     private static final Limelight limelight = Limelight.getInstance();
 
     public static GSCPath lookForPath() {
-        limelight.setPipeline(0); // path A target
+        limelight.setPipeline(1); // path A target
 
         double tx = limelight.getTx();
         double ta = limelight.getTa();
-        if (Math.abs(tx) < 2.0 && ta > 0.0075) {
+        System.out.println("Search: tx=" + tx + " ta=" + ta);
+        if (Math.abs(tx) < 2.0 && ta > 0.05) {
             return GSCPath.PATH_A_RED;
         }
-        if (Math.abs(tx) < 2.0 && ta > 0.00040 && ta < 0.00050) {
+        if (Math.abs(tx) < 2.0 && ta > 0.020 && ta < 0.04) {
             return GSCPath.PATH_A_BLUE;
         }
 
-        limelight.setPipeline(1); // path B target
+        limelight.setPipeline(2); // path B target
         Timer.delay(0.1);
 
         tx = limelight.getTx();
         double ty = limelight.getTy();
-        if (Math.abs(tx) < 2.0 && ty < 3.5) {
+        System.out.println("Search: tx=" + tx + " ty=" + ty);
+        if (Math.abs(tx) > 3.0 && ty < 1.0) {
             return GSCPath.PATH_B_RED;
         }
-        if (Math.abs(tx) < 2.0 && ty > 4.0) {
+        if (Math.abs(tx) > 3.0 && ty > 1.0) {
             return GSCPath.PATH_B_BLUE;
         }
 

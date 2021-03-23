@@ -63,8 +63,8 @@ public class Constants {
 
         public static final double ROTOR_MAX_VELOCITY_TICKS_PER_100MS = 3600.0;
         public static final double ROTOR_KF = 1.0 * 1023 / ROTOR_MAX_VELOCITY_TICKS_PER_100MS;
-        public static final double ROTOR_KP = 1.6;
-        public static final double ROTOR_KD = 0.1;
+        public static final double ROTOR_KP = 1.35;
+        public static final double ROTOR_KD = 0.2;
         public static final double ROTOR_TARG_VELO = 1.0 * ROTOR_MAX_VELOCITY_TICKS_PER_100MS;
         public static final double ROTOR_TARG_ACCEL = 10 * ROTOR_TARG_VELO;
     }

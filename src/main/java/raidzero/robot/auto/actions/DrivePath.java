@@ -1,5 +1,6 @@
 package raidzero.robot.auto.actions;
 
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 
 import raidzero.robot.pathing.Path;
@@ -13,13 +14,19 @@ public class DrivePath implements Action {
     private static final Swerve swerve = Swerve.getInstance();
 
     private Trajectory trajectory;
+    private Rotation2d targetAngle;
 
     public DrivePath(Path path) {
-        this(path.getTrajectory());
+        this(path, new Rotation2d(0.0));
     }
 
-    public DrivePath(Trajectory trajectory) {
+    public DrivePath(Path path, Rotation2d targetAngle) {
+        this(path.getTrajectory(), targetAngle);
+    }
+
+    public DrivePath(Trajectory trajectory, Rotation2d targetAngle) {
         this.trajectory = trajectory;
+        this.targetAngle = targetAngle;
     }
 
     @Override
@@ -34,7 +41,7 @@ public class DrivePath implements Action {
     @Override
     public void start() {
         System.out.println("[Auto] Action '" + getClass().getSimpleName() + "' started!");
-        swerve.followPath(trajectory);
+        swerve.followPath(trajectory, targetAngle);
     }
 
     @Override

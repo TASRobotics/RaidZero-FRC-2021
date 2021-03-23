@@ -1,7 +1,7 @@
 package raidzero.robot.auto.sequences;
 
 import java.util.Arrays;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.util.Units;
@@ -19,19 +19,19 @@ public class SearchPathASequence extends SearchPathSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(60), Units.inchesToMeters(45),
+                Units.inchesToMeters(60), Units.inchesToMeters(0),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(120), Units.inchesToMeters(-15),
+                Units.inchesToMeters(120), Units.inchesToMeters(-33),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(150), Units.inchesToMeters(90),
+                Units.inchesToMeters(150), Units.inchesToMeters(68),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(300), Units.inchesToMeters(90),
+                Units.inchesToMeters(330), Units.inchesToMeters(68),
                 Rotation2d.fromDegrees(0)
             )
         ),
@@ -63,6 +63,7 @@ public class SearchPathASequence extends SearchPathSequence {
         false, 3.5, 3.5
     );
     private static final Swerve swerve = Swerve.getInstance();
+    private static final Intake intake = Intake.getInstance();
 
     private PathColor pathColor;
 
@@ -89,7 +90,12 @@ public class SearchPathASequence extends SearchPathSequence {
                     )
                 );
             }),
-            new DrivePath(targetPath)
+            new LambdaAction(() -> {
+                intake.intakeBalls(-0.6);
+                // Timer.delay(0.1);
+            }),
+            new DrivePath(targetPath),
+            new LambdaAction(() -> intake.intakeBalls(0.0))
         )));
         System.out.println("Added actions.");
     }

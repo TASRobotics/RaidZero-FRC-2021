@@ -42,12 +42,12 @@ public class Robot extends TimedRobot {
 
     private AutoRunner autoRunner;
 
-    private NetworkTableEntry shouldCheckGSCEntry =
-        Shuffleboard.getTab(Tab.SELECTION).add("Scan Path", 0).withWidget(BuiltInWidgets.kBooleanBox)
-                .withSize(1, 1).withPosition(0, 0).getEntry();
-    private NetworkTableEntry foundPathEntry =
-        Shuffleboard.getTab(Tab.SELECTION).add("Chosen Path", 0).withWidget(BuiltInWidgets.kTextView)
-                .withSize(2, 1).withPosition(0, 1).getEntry();
+    // private NetworkTableEntry shouldCheckGSCEntry =
+    //     Shuffleboard.getTab(Tab.SELECTION).add("Scan Path", 0).withWidget(BuiltInWidgets.kBooleanBox)
+    //             .withSize(1, 1).withPosition(0, 0).getEntry();
+    // private NetworkTableEntry foundPathEntry =
+    //     Shuffleboard.getTab(Tab.SELECTION).add("Chosen Path", 0).withWidget(BuiltInWidgets.kTextView)
+    //             .withSize(2, 1).withPosition(0, 1).getEntry();
 
     /**
      * Runs only once at the start of robot code execution.
@@ -89,9 +89,11 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         submoduleManager.onStart(Timer.getFPGATimestamp());
         
-        if (shouldCheckGSCEntry.getBoolean(false)) {
+        // if (shouldCheckGSCEntry.getBoolean(false)) {
+        if (false) {
             var result = DetermineGSCPath.lookForPath();
-            foundPathEntry.setString(result.name());
+            System.out.println("Found path: " + result.name());
+            // autoRunner.selectSequence(new EmptySequence());
             switch (result) {
             case PATH_A_RED:
                 autoRunner.selectSequence("Search Path A Sequence Red");

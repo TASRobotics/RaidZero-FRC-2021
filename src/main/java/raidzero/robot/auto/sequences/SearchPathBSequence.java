@@ -1,7 +1,7 @@
 package raidzero.robot.auto.sequences;
 
 import java.util.Arrays;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.util.Units;
@@ -19,7 +19,7 @@ public class SearchPathBSequence extends SearchPathSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(60), Units.inchesToMeters(45),
+                Units.inchesToMeters(60), Units.inchesToMeters(30),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
@@ -31,11 +31,11 @@ public class SearchPathBSequence extends SearchPathSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(300), Units.inchesToMeters(40),
+                Units.inchesToMeters(330), Units.inchesToMeters(40),
                 Rotation2d.fromDegrees(0)
             )
         ),
-        false, 3.5, 3.5
+        false, 3.8, 3.8
     );
     private static final Path PATH_BLUE = Path.fromWaypoints(
         Arrays.asList(
@@ -48,7 +48,7 @@ public class SearchPathBSequence extends SearchPathSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(210), Units.inchesToMeters(25),
+                Units.inchesToMeters(210), Units.inchesToMeters(32),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
@@ -56,13 +56,14 @@ public class SearchPathBSequence extends SearchPathSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(300), Units.inchesToMeters(-40),
+                Units.inchesToMeters(330), Units.inchesToMeters(-40),
                 Rotation2d.fromDegrees(0)
             )
         ),
-        false, 3.5, 3.5
+        false, 3.8, 3.8
     );
     private static final Swerve swerve = Swerve.getInstance();
+    private static final Intake intake = Intake.getInstance();
 
     private PathColor pathColor;
 
@@ -89,7 +90,12 @@ public class SearchPathBSequence extends SearchPathSequence {
                     )
                 );
             }),
-            new DrivePath(targetPath)
+            new LambdaAction(() -> {
+                intake.intakeBalls(-0.6);
+                // Timer.delay(0.1);
+            }),
+            new DrivePath(targetPath),
+            new LambdaAction(() -> intake.intakeBalls(0.0))
         )));
         System.out.println("Added actions.");
     }

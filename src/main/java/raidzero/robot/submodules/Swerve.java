@@ -58,6 +58,7 @@ public class Swerve extends Submodule {
 
     private HolonomicDriveController pathController;
     private Trajectory currentTrajectory;
+    private Rotation2d targetAngle;
     private Timer timer = new Timer();
 
     private ControlState controlState = ControlState.OPEN_LOOP;
@@ -216,11 +217,16 @@ public class Swerve extends Submodule {
     }
 
     public void followPath(Trajectory trajectory) {
+        followPath(trajectory, new Rotation2d());
+    }
+
+    public void followPath(Trajectory trajectory, Rotation2d targetAngle) {
         if (controlState == ControlState.PATHING) {
             return;
         }
         controlState = ControlState.PATHING;
         currentTrajectory = trajectory;
+        this.targetAngle = targetAngle;
 
         timer.reset();
         timer.start();
@@ -228,7 +234,7 @@ public class Swerve extends Submodule {
 
     private void updatePathing() {
         var state = currentTrajectory.sample(timer.get());
-        var chassisSpeed = pathController.calculate(currentPose, state, new Rotation2d(0.0));
+        var chassisSpeed = pathController.calculate(currentPose, state, targetAngle);
         var targetState = kinematics.toSwerveModuleStates(chassisSpeed);
         topLeftModule.setTargetState(targetState[0], false, false);
         topRightModule.setTargetState(targetState[1], false, false);

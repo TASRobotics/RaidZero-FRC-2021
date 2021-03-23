@@ -19,45 +19,57 @@ public class BouncePathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(58), Units.inchesToMeters(60),
+                Units.inchesToMeters(20), Units.inchesToMeters(0),
+                Rotation2d.fromDegrees(0)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(50), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(90)
             )
         ),
-        false, 3.0, 3.0
+        false, 2.0, 2.0
     );
     private static final Path PATH2 = Path.fromWaypoints(
         Arrays.asList(
             new Pose2d(
-                Units.inchesToMeters(58), Units.inchesToMeters(60),
+                Units.inchesToMeters(50), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(-90)
             ),
             new Pose2d(
-                Units.inchesToMeters(70), Units.inchesToMeters(0),
-                Rotation2d.fromDegrees(-70)
+                Units.inchesToMeters(50), Units.inchesToMeters(30),
+                Rotation2d.fromDegrees(-90)
             ),
             new Pose2d(
-                Units.inchesToMeters(120), Units.inchesToMeters(-60),
+                Units.inchesToMeters(75), Units.inchesToMeters(0),
+                Rotation2d.fromDegrees(-60)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(110), Units.inchesToMeters(-60),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(130), Units.inchesToMeters(0),
-                Rotation2d.fromDegrees(70)
+                Units.inchesToMeters(145), Units.inchesToMeters(0),
+                Rotation2d.fromDegrees(90)
             ),
             new Pose2d(
-                Units.inchesToMeters(140), Units.inchesToMeters(60),
+                Units.inchesToMeters(145), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(90)
             )
         ),
-        false, 3.0, 3.0
+        false, 2.0, 2.0
     );
     private static final Path PATH3 = Path.fromWaypoints(
         Arrays.asList(
             new Pose2d(
-                Units.inchesToMeters(140), Units.inchesToMeters(60),
+                Units.inchesToMeters(145), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(-90)
             ),
             new Pose2d(
-                Units.inchesToMeters(180), Units.inchesToMeters(-60),
+                Units.inchesToMeters(145), Units.inchesToMeters(0),
+                Rotation2d.fromDegrees(-90)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(170), Units.inchesToMeters(-60),
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
@@ -65,24 +77,32 @@ public class BouncePathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(0)
             ),
             new Pose2d(
-                Units.inchesToMeters(240), Units.inchesToMeters(60),
+                Units.inchesToMeters(237), Units.inchesToMeters(30),
+                Rotation2d.fromDegrees(90)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(237), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(90)
             )
         ),
-        false, 3.0, 3.0
+        false, 2.0, 2.0
     );
     private static final Path PATH4 = Path.fromWaypoints(
         Arrays.asList(
             new Pose2d(
-                Units.inchesToMeters(240), Units.inchesToMeters(60),
-                Rotation2d.fromDegrees(-75)
+                Units.inchesToMeters(237), Units.inchesToMeters(60),
+                Rotation2d.fromDegrees(-90)
             ),
             new Pose2d(
-                Units.inchesToMeters(300), Units.inchesToMeters(20),
+                Units.inchesToMeters(237), Units.inchesToMeters(30),
+                Rotation2d.fromDegrees(-90)
+            ),
+            new Pose2d(
+                Units.inchesToMeters(300), Units.inchesToMeters(15),
                 Rotation2d.fromDegrees(0)
             )
         ),
-        false, 3.0, 3.0
+        false, 2.0, 2.0
     );
     private static final Swerve swerve = Swerve.getInstance();
 
