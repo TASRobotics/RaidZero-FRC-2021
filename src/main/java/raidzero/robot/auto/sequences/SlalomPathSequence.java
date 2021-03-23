@@ -1,8 +1,7 @@
 package raidzero.robot.auto.sequences;
 
 import java.util.Arrays;
-
-
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.util.Units;
@@ -98,15 +97,15 @@ public class SlalomPathSequence extends AutoSequence {
                 );
             }),
             new DrivePath(PATH),
-            new LambdaAction(() -> {
-                swerve.zero();
-                swerve.setPose(
-                    new Pose2d(
-                        Units.inchesToMeters(180), Units.inchesToMeters(-15),
-                        Rotation2d.fromDegrees(0)
-                    )
-                );
-            }),
+            // new LambdaAction(() -> {
+            //     swerve.zero();
+            //     swerve.setPose(
+            //         new Pose2d(
+            //             Units.inchesToMeters(180), Units.inchesToMeters(-15),
+            //             Rotation2d.fromDegrees(0)
+            //         )
+            //     );
+            // }),
             new DrivePath(PATH2)
         )));
         System.out.println("Added actions.");

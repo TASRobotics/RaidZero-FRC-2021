@@ -109,8 +109,8 @@ public class Swerve extends Submodule {
         pathController = new HolonomicDriveController(
             new PIDController(1, 0, 0), 
             new PIDController(1, 0, 0),
-            new ProfiledPIDController(1, 0, 0,
-                new TrapezoidProfile.Constraints(6.28, 3.14)
+            new ProfiledPIDController(1.5, 0, 0,
+                new TrapezoidProfile.Constraints(6.28, 6.28)
             )
         );
 

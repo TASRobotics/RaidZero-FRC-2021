@@ -23,7 +23,8 @@ public class AutoRunner {
         new SearchPathASequence(PathColor.RED),
         new SearchPathBSequence(PathColor.RED),
         new SearchPathASequence(PathColor.BLUE),
-        new SearchPathBSequence(PathColor.BLUE)
+        new SearchPathBSequence(PathColor.BLUE),
+        new TestRotationSequence()
     };
 
     public AutoRunner() {

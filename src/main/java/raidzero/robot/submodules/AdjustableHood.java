@@ -94,7 +94,7 @@ public class AdjustableHood extends Submodule {
     public void update(double timestamp) {
         if (reverseLimitSwitch.get()) {
             zero();
-            System.out.println("zeroed");
+            // System.out.println("zeroed");
         }
         SmartDashboard.putNumber("Hood Angle", encoder.getPosition());
         hoodPositionEntry.setNumber(encoder.getPosition());
