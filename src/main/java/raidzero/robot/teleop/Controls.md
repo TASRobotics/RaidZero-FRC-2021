@@ -15,7 +15,7 @@ flap | | intake speed
 keybind | hand | action
 -- | -- | -- |
 bumper | right | shooter
-a | | autoAim
+a | | autoAim off
 y | | feed balls
 joystick | right | turret
 joystick | left | conveyor
@@ -24,3 +24,4 @@ trigger | left | hood
 trigger | right | spindexer
 bumper | left | reverse hood
 
+## P1 Single Player (Joystick)

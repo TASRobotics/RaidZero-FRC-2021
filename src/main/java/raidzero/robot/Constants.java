@@ -15,8 +15,9 @@ public class Constants {
     public static final class SwerveConstants {
         // Motor IDs in the order of motor, rotor, motor, rotor etc.
         public static final int[] SWERVE_IDS = {0, 1, 2, 3, 4, 5, 6, 7};
-        public static final double[] INIT_MODULES_DEGREES = new double[] {327.393, 115.137, 118.564, 214.014}; //pretty bot - olds are //{32, 205, 41, 92};// new double[] {30, 205, 41, 92};
-
+        public static final double[] INIT_MODULES_DEGREES = new double[] {329.941, 118.037, 121.729, 215.859}; //pretty bot - olds are //{32, 205, 41, 92};// new double[] {30, 205, 41, 92};
+        // old: 327.393, 115.137, 118.564, 214.014
+        // 327.144 116.455 121.553 215.775
         // Robot dimensions
         // public static final double ROBOT_RADIUS = 30.0 / Math.sqrt(2);
         public static final double ROBOT_WIDTH = 23.0; // 23.0 inches

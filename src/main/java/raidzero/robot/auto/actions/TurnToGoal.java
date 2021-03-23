@@ -89,7 +89,6 @@ public class TurnToGoal implements Action {
             -TurretConstants.MAX_INPUT_PERCENTAGE,
             TurretConstants.MAX_INPUT_PERCENTAGE
         );
-        System.out.println(headingError);
         turret.rotateManual(output);
         
         onTarget.update(pidController.atSetpoint());

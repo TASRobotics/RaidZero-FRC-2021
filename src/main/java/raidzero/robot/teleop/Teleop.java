@@ -36,6 +36,7 @@ public class Teleop {
     private static boolean shift1 = false;
     private static boolean shift2 = false;
     private static double intakeOut = 0;
+    private boolean autoDisabled = true;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -46,6 +47,7 @@ public class Teleop {
 
     public void onStart() {
         swerve.zero();
+        if(!autoDisabled) hood.goToZero();
     }
 
     /**
@@ -64,17 +66,22 @@ public class Teleop {
          * p2 controls
          */
         p2Loop(p2);
-
-        //System.out.println("Current Area: "+limelight.getTa());
-        //System.out.println("Hood Angle: "+hood.getPosition());
     }
 
     private void p1Loop(XboxController p) {
         /**
+         * Disable auto
+         */
+
+        if(p.getRawButton(3))autoDisabled = true;
+        if(p.getRawButton(4))autoDisabled = false;
+
+        /**
          * Drive
         */
         boolean turning = p.getRawButton(12);
-        swerve.fieldOrientedDrive(
+        swerve
+        .fieldOrientedDrive(
             JoystickUtils.deadband(p.getX(Hand.kLeft) * (p.getRawButton(1) ? 1 : 0.5)),
             JoystickUtils.deadband(p.getY(Hand.kLeft) * (p.getRawButton(1) ? -1 : -0.5)),
             //JoystickUtils.deadband(p.getX(Hand.kRight)));
@@ -102,42 +109,17 @@ public class Teleop {
     }
 
     private void p2Loop(XboxController p) {
-        shift2 = p.getBumper(Hand.kLeft);
-
-        /**
-         * if (p.getBumper(Hand.kLeft)) {
-         *     shooter.shoot(JoystickUtils.deadband(p.getTriggerAxis(Hand.kRight)), false);
-         * 
-         *     if (p.getAButtonPressed()) {
-         *         // TODO: PID turret 90 degrees
-         *         superstructure.setTurretPIDing(true);
-         *     } else if (p.getAButtonReleased()) {
-         *         superstructure.setTurretPIDing(false);
-         *     }
-         *     return;
-         * }
-         */
-
-        /**
-         * autoAim
-         */
-         if (p.getAButtonPressed()) {
-            superstructure.setAiming(true);
-        } else if (p.getAButtonReleased()) {
-            // In case the override button is released while PIDing
-            if (superstructure.isTurretPIDing()) {
-                superstructure.setTurretPIDing(false);
-            }
-            superstructure.setAiming(false);
-        }
-        
+        shift2 = p.getBumper(Hand.kLeft);     
 
         /**
          * Turret
          */
         // Turn turret using right joystick
-        if (!superstructure.isUsingTurret()) {
+        if (JoystickUtils.deadband(p.getX(Hand.kRight)) != 0 || autoDisabled) {
+            superstructure.setAiming(false);
             turret.rotateManual(JoystickUtils.deadband(p.getX(Hand.kRight)));
+        } else {
+            superstructure.setAiming(true);
         }
 
         /**
@@ -169,32 +151,23 @@ public class Teleop {
         } else {
             conveyor.moveBalls(-JoystickUtils.deadband(p.getY(Hand.kLeft)));
         }
-        
-
-        /**
-         * Hood
-         */
-        if (p.getStickButton(Hand.kRight)) {
-            superstructure.setAimingAndHood(true);
-        } else {
-            superstructure.setAimingAndHood(false);
-        }
 
         /**
          * Adjustable hood
          */
-        hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? 1 : -1));
+        if(p.getBackButtonPressed()) hood.goToZero();
+        if(!autoDisabled)hood.autoPosition(limelight.getTa());
+        else hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? 1 : -1));
 
         int pPov = p.getPOV();
         if (pPov == 0) {
-            hood.autoPosition(limelight.getTa());
-            //hood.moveToAngle(HoodAngle.RETRACTED);
+            hood.moveToTick(HoodAngle.RETRACTED.ticks);
         } else if (pPov == 90) {
-            hood.moveToAngle(HoodAngle.HIGH);
+            hood.moveToTick(HoodAngle.HIGH.ticks);
         } else if (pPov == 180) {
-            hood.moveToAngle(HoodAngle.MEDIUM);
+            hood.moveToTick(HoodAngle.MEDIUM.ticks);
         } else if (pPov == 270) {
-            hood.moveToAngle(HoodAngle.LOW);
+            hood.moveToTick(HoodAngle.LOW.ticks);
         }
     }
 }

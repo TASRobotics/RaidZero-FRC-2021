@@ -31,8 +31,6 @@ public class AdjustableHood extends Submodule {
         OPEN_LOOP, POSITION
     };
 
-    private static Logistic hoodAreaFit = new Logistic(HoodConstants.LOGISTFIT[2],
-        HoodConstants.LOGISTFIT[0],HoodConstants.LOGISTFIT[1],0,0,1);
     private static AdjustableHood instance = null;
 
     public static AdjustableHood getInstance() {
@@ -53,6 +51,7 @@ public class AdjustableHood extends Submodule {
 
     private double outputOpenLoop = 0.0;
     private double outputPosition = 0.0;
+    private boolean zeroing = false;
 
     private ControlState controlState = ControlState.OPEN_LOOP;
 
@@ -80,6 +79,7 @@ public class AdjustableHood extends Submodule {
         pidController.setI(HoodConstants.K_I);
         pidController.setD(HoodConstants.K_D);
         pidController.setFF(HoodConstants.K_F);
+        zeroing = false;
     }
 
     @Override
@@ -92,9 +92,9 @@ public class AdjustableHood extends Submodule {
 
     @Override
     public void update(double timestamp) {
-        if (reverseLimitSwitch.get()) {
+        if (reverseLimitSwitch.get() && zeroing) {
             zero();
-            System.out.println("zeroed");
+            zeroing = false;
         }
         SmartDashboard.putNumber("Hood Angle", encoder.getPosition());
         hoodPositionEntry.setNumber(encoder.getPosition());
@@ -102,6 +102,10 @@ public class AdjustableHood extends Submodule {
 
     @Override
     public void run() {
+        if(zeroing) {
+            pidController.setReference(-0.6, ControlType.kDutyCycle);
+            return;
+        }
         switch (controlState) {
             case OPEN_LOOP:
                 pidController.setReference(outputOpenLoop, ControlType.kDutyCycle);
@@ -134,6 +138,10 @@ public class AdjustableHood extends Submodule {
         return encoder.getPosition();
     }
 
+    public void goToZero() {
+        zeroing = true;
+    }
+
     /**
      * Adjusts the hood using open-loop control.
      * 
@@ -161,16 +169,9 @@ public class AdjustableHood extends Submodule {
      */
 
     public void autoPosition(double targetArea) {
-        outputPosition = hoodAreaFit.value(targetArea);
-    }
-
-    /**
-     * Moves to hood to a specific hood angle.
-     * 
-     * @param angle hood angle to move to
-     */
-    public void moveToAngle(HoodAngle angle) {
-        moveToTick(angle.ticks);
+        //double interposition = 78.78/(1.0+java.lang.Math.exp(-1.246*(targetArea-2.317)));
+        double interposition = (-10.451) + (23.5693 * targetArea) + (-0.8546 * Math.pow(targetArea,2.0));
+        moveToTick(interposition);
     }
 
     /**
