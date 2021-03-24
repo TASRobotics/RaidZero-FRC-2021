@@ -203,7 +203,7 @@ public class Constants {
         public static final double UP_TO_SPEED_DURATION = 0.5; // in seconds
 
         public static final double K_F = 1023.0 / MAX_SPEED;
-        public static final double K_P = 0.6;
+        public static final double K_P = 0.7;
         public static final double K_I = 0; // Shouldn't be touched
         public static final double K_D = 5.0; // Shouldn't be touched
         public static final int K_INTEGRAL_ZONE = 0; // Shouldn't be touched

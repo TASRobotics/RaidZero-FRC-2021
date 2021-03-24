@@ -36,7 +36,7 @@ public class Teleop {
     private static boolean shift1 = false;
     private static boolean shift2 = false;
     private static double intakeOut = 0;
-    private boolean autoDisabled = true;
+    private boolean autoDisabled = false;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -137,9 +137,15 @@ public class Teleop {
         spindexer.rotate(JoystickUtils.deadband( ((shift2 ? -1 : 1) * p.getTriggerAxis(Hand.kRight)) +
         ((intakeOut > 0) ? 0.13 : 0)));
         if(p.getStartButton()) {
+            autoDisabled = true;
             spindexer.rampUp();
         } else {
             spindexer.rampDown();
+            autoDisabled = true;
+        }
+        if(p.getBButton()) {
+            spindexer.shoot();
+        } else {
         }
 
         /**
@@ -147,10 +153,10 @@ public class Teleop {
          */
         if (p.getYButton()) {
             conveyor.moveBalls(1.0);
-            spindexer.shoot();
         } else {
             conveyor.moveBalls(-JoystickUtils.deadband(p.getY(Hand.kLeft)));
         }
+
 
         /**
          * Adjustable hood

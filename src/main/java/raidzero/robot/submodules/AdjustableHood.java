@@ -170,7 +170,7 @@ public class AdjustableHood extends Submodule {
 
     public void autoPosition(double targetArea) {
         //double interposition = 78.78/(1.0+java.lang.Math.exp(-1.246*(targetArea-2.317)));
-        double interposition = (-10.451) + (23.5693 * targetArea) + (-0.8546 * Math.pow(targetArea,2.0));
+        double interposition = (23.5693 * targetArea) + (-0.8546 * Math.pow(targetArea,2.0)) - 8; //-10.451
         moveToTick(interposition);
     }
 
