@@ -70,6 +70,8 @@ public class Swerve extends Submodule {
     private double[][] rotV = new double[4][2];
     private double[] totalV = new double[] {0, 0};
 
+    private double lastAngle = 0.0;
+
     private ControlState controlState = ControlState.OPEN_LOOP;
     private SwerveModule testmodule;
 
@@ -102,8 +104,11 @@ public class Swerve extends Submodule {
             rotV[i] = new double[] {-Math.sin(moduleAngle), Math.cos(moduleAngle)};
         }
 
-        headingPID = new PIDController(SwerveConstants.HEADING_KP, SwerveConstants.HEADING_KI,
-                SwerveConstants.HEADING_KD);
+        headingPID = new PIDController(
+            SwerveConstants.HEADING_KP, 
+            SwerveConstants.HEADING_KI,
+            SwerveConstants.HEADING_KD
+        );
         headingPID.setTolerance(5);
 
         zero();
@@ -167,6 +172,7 @@ public class Swerve extends Submodule {
      * Zeroes the heading of the swerve.
      */
     public void zeroHeading() {
+        lastAngle = 0.0;
         pigey.setYaw(0, 20);
         pigey.setFusedHeading(0, 20);
     }
@@ -212,8 +218,16 @@ public class Swerve extends Submodule {
         // if (omega < -1)
         // omega = -1;
 
-        // for relative control
-        omega = rX;
+        if (Math.abs(rX) > 0) {
+            // for relative control
+            omega = rX;
+            lastAngle = heading;
+        } else {
+            System.out.println("Holding PID");
+            omega = headingPID.calculate(heading, lastAngle);
+        }
+
+        
 
         // send new directions to drive
         drive(newX, newY, omega);
