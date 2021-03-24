@@ -69,7 +69,8 @@ public class Spindexer extends Submodule {
     @Override
     public void stop() {
         controlState = ControlState.OPEN_LOOP;
-        outputOpenLoop = SpindexerConstants.SERVO_DOWN;
+        outputServoPosition = SpindexerConstants.SERVO_DOWN;
+        outputOpenLoop = 0.0;
         outputVelocity = 0.0;
         spindexerMotor.set(ControlMode.PercentOutput, 0.0);
     }

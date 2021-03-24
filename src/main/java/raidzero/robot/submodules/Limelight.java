@@ -59,7 +59,7 @@ public class Limelight extends Submodule {
 
 	@Override
 	public void onStart(double timestamp) {
-		setLedMode(LedMode.On);
+		setLedMode(LedMode.Off);
 	}
 
 	/**

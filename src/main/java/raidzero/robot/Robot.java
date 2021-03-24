@@ -14,11 +14,13 @@ import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.Intake;
 import raidzero.robot.submodules.Led;
+import raidzero.robot.submodules.Limelight;
 import raidzero.robot.submodules.Shooter;
 import raidzero.robot.submodules.Spindexer;
 import raidzero.robot.submodules.SubmoduleManager;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.submodules.Turret;
+import raidzero.robot.submodules.Limelight.LedMode;
 import raidzero.robot.submodules.Superstructure;
 
 /**
@@ -77,6 +79,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
+        Limelight.getInstance().setLedMode(LedMode.Off);
+
         // Stop autonomous
         autoRunner.stop();
         submoduleManager.onStop(Timer.getFPGATimestamp());

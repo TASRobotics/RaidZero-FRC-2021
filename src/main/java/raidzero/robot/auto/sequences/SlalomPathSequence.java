@@ -51,23 +51,23 @@ public class SlalomPathSequence extends AutoSequence {
                 Rotation2d.fromDegrees(235)
             ),
             new Pose2d(
-                Units.inchesToMeters(180), Units.inchesToMeters(-15),
+                Units.inchesToMeters(180), Units.inchesToMeters(-5),
                 Rotation2d.fromDegrees(180)
             ),
             new Pose2d(
-                Units.inchesToMeters(90), Units.inchesToMeters(-15),
+                Units.inchesToMeters(90), Units.inchesToMeters(-5),
                 Rotation2d.fromDegrees(180)
             ),
             new Pose2d(
-                Units.inchesToMeters(60), Units.inchesToMeters(30),
-                Rotation2d.fromDegrees(135)
+                Units.inchesToMeters(60), Units.inchesToMeters(52),
+                Rotation2d.fromDegrees(120)
             ),
             new Pose2d(
                 Units.inchesToMeters(20), Units.inchesToMeters(60),
                 Rotation2d.fromDegrees(180)
             )
         ),
-        false, 2.5, 2.0
+        false, 4.0, 4.2
     );
     private static final Swerve swerve = Swerve.getInstance();
 
@@ -88,15 +88,6 @@ public class SlalomPathSequence extends AutoSequence {
                 );
             }),
             new DrivePath(PATH)
-            // new LambdaAction(() -> {
-            //     swerve.zero();
-            //     swerve.setPose(
-            //         new Pose2d(
-            //             Units.inchesToMeters(180), Units.inchesToMeters(-15),
-            //             Rotation2d.fromDegrees(0)
-            //         )
-            //     );
-            // })
         )));
         System.out.println("Added actions.");
     }
