@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpiutil.math.MathUtil;
 import raidzero.pathgen.HolonomicPathGenerator;
 import raidzero.pathgen.PathGenerator;
 import raidzero.robot.Constants;
@@ -223,11 +224,11 @@ public class Swerve extends Submodule {
             omega = rX;
             lastAngle = heading;
         } else {
-            System.out.println("Holding PID");
-            omega = headingPID.calculate(heading, lastAngle);
+            // System.out.println("Holding PID");
+            double output = -headingPID.calculate(heading, lastAngle);
+            // System.out.println("Heading=" + heading + " last=" + lastAngle);
+            omega = MathUtil.clamp(output, -2.0, 2.0);
         }
-
-        
 
         // send new directions to drive
         drive(newX, newY, omega);

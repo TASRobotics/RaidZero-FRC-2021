@@ -80,9 +80,15 @@ public class Teleop {
          * Drive
         */
         boolean turning = p.getRawButton(12);
-        swerve.fieldOrientedDrive(
-            JoystickUtils.deadband(p.getX(Hand.kLeft) * (p.getRawButton(1) ? 1 : 0.5)),
-            JoystickUtils.deadband(p.getY(Hand.kLeft) * (p.getRawButton(1) ? -1 : -0.5)),
+        double strafex = JoystickUtils.deadband(p.getX(Hand.kLeft) * (p.getRawButton(1) ? 1 : 0.5));
+        double strafey = JoystickUtils.deadband(p.getY(Hand.kLeft) * (p.getRawButton(1) ? -1 : -0.5));
+        // int zerox = 1;
+        // if (Math.abs(strafex)>Math.abs(strafey)){
+        //     strafey=0;
+        // } else{
+        //     strafex = 0;
+        // }
+        swerve.fieldOrientedDrive(strafex, strafey,
             //JoystickUtils.deadband(p.getX(Hand.kRight)));
             (turning) ? JoystickUtils.deadband(p.getRawAxis(2)) * (p.getRawButton(1) ? 0.5 : 0.25) : 0);
         /**
