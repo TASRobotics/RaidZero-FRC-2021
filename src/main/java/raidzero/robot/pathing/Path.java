@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
-
+import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
 import raidzero.robot.submodules.Swerve;
 
 public class Path {
@@ -56,6 +56,11 @@ public class Path {
     
         // Uses quintic hermite splines
         return new Path(TrajectoryGenerator.generateTrajectory(waypoints, config));
+    }
+
+    public static Path fromStates(List<State> states) {
+        // Uses raw trajectory states
+        return new Path(new Trajectory(states));
     }
 
     /**
