@@ -49,6 +49,7 @@ public class Superstructure extends Submodule {
 
     @Override
     public void update(double timestamp) {
+        if(isAiming) aimAction.update();
     }
 
     @Override

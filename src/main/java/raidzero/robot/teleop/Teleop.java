@@ -7,12 +7,14 @@ import raidzero.robot.submodules.Superstructure;
 import raidzero.robot.submodules.Swerve;
 import raidzero.robot.Constants.HoodConstants.HoodAngle;
 import raidzero.robot.Constants.IntakeConstants;
+import raidzero.robot.Constants.SpindexerConstants;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Intake;
 import raidzero.robot.submodules.Shooter;
 import raidzero.robot.submodules.Spindexer;
 import raidzero.robot.submodules.Turret;
+import raidzero.robot.submodules.Limelight;
 import raidzero.robot.utils.JoystickUtils;
 
 public class Teleop {
@@ -29,6 +31,12 @@ public class Teleop {
     private static final AdjustableHood hood = AdjustableHood.getInstance();
     private static final Shooter shooter = Shooter.getInstance();
     private static final Turret turret = Turret.getInstance();
+    private static final Limelight limelight = Limelight.getInstance();
+
+    private static boolean shift1 = false;
+    private static boolean shift2 = false;
+    private static double intakeOut = 0;
+    private boolean autoDisabled = true;
 
     public static Teleop getInstance() {
         if (instance == null) {
@@ -38,20 +46,10 @@ public class Teleop {
     }
 
     public void onStart() {
-
+        swerve.zero();
+        if(!autoDisabled) hood.goToZero();
     }
 
-    /**
-     * Stops the submodule.
-     */
-    public void stop() {
-
-    }
-
-    /**
-     * Resets the sensor(s) to zero.
-     */
-    public void zero() {}
     /**
      * Continuously loops in teleop.
      */
@@ -63,126 +61,112 @@ public class Teleop {
         /**
          * p1 controls
          */
-        p1Loop();
+        p1Loop(p1);
         /**
          * p2 controls
          */
-        p2Loop();
+        p2Loop(p2);
     }
 
-    private void p1Loop() {
-        swerve.Drive(p1.getX(Hand.kLeft), p1.getX(Hand.kLeft), p1.getX(Hand.kRight));
-        
-        int intakeDirection = 1;
-        if (p1.getBumper(Hand.kRight)){
-            intakeDirection = -1;
-        }
-        intake.intakeBalls(JoystickUtils.deadband(
-            IntakeConstants.CONTROL_SCALING_FACTOR * (intakeDirection * p1.getTriggerAxis(Hand.kRight))
-        ));
+    private void p1Loop(XboxController p) {
+        /**
+         * Disable auto
+         */
 
-        int spindexerDirection = 1;
-        if (p1.getBumper(Hand.kLeft)){
-            spindexerDirection = -1;
-        }
-        spindexer.rotate(JoystickUtils.deadband(
-            spindexerDirection * p1.getTriggerAxis(Hand.kLeft)
-        ));
+        if(p.getRawButton(3))autoDisabled = true;
+        if(p.getRawButton(4))autoDisabled = false;
 
-        if (p1.getStartButton()) {
-            spindexer.rampUp();
-        } else if (p1.getBackButton()) {
-            spindexer.rampDown();
-        }
-
-        if (p1.getBButtonPressed()) {
-            conveyor.moveBalls(1.0);
-        } else if (p1.getXButton()) {
-            //conveyor.moveBalls(-1.0);
-            conveyor.moveBalls(0.0);
-        } else {
-            //conveyor.moveBalls(0.0);
-        }
-
-        // if(p1.getBumper(Hand.kLeft)) {
-        //     swerve.test(p1);
-        //     return;
-        // }
-        swerve.FieldOrientedDrive(
-            JoystickUtils.deadband(p1.getX(Hand.kLeft)),
-            JoystickUtils.deadband(-p1.getY(Hand.kLeft)), 
-            JoystickUtils.deadband(p1.getX(Hand.kRight)), 
-            JoystickUtils.deadband(-p1.getY(Hand.kRight))
-        );
-        if(p1.getAButton()) swerve.zero();
-    }
-
-    private void p2Loop() {
-
-        if (p2.getBumper(Hand.kLeft)){
-            shooter.shoot(JoystickUtils.deadband(p2.getTriggerAxis(Hand.kRight)), false);
-
-            if (p2.getAButtonPressed()) {
-                // TODO: PID turret 90 degrees
-                superstructure.setTurretPIDing(true);
-            } else if (p2.getAButtonReleased()) {
-                superstructure.setTurretPIDing(false);
-            }
+        /**
+         * Drive
+        */
+        boolean turning = p.getRawButton(12);
+        swerve.fieldOrientedDrive(
+            JoystickUtils.deadband(p.getX(Hand.kLeft) * (p.getRawButton(1) ? 1 : 0.5)),
+            JoystickUtils.deadband(p.getY(Hand.kLeft) * (p.getRawButton(1) ? -1 : -0.5)),
+            //JoystickUtils.deadband(p.getX(Hand.kRight)));
+            (turning) ? JoystickUtils.deadband(p.getRawAxis(2)) * (p.getRawButton(1) ? 0.5 : 0.25) : 0);
+        /**
+         * DO NOT CONTINUOUSLY CALL THE ZERO FUNCTION its not that bad but the absolute encoders are
+         * not good to PID off of so a quick setting of the relative encoder is better
+         */
+        if (p.getRawButton(2)) {
+            swerve.zero();
             return;
         }
         
-        if (p2.getAButtonPressed()) {
-            superstructure.setAiming(true);
-        } else if (p2.getAButtonReleased()) {
-            // In case the override button is released while PIDing
-            if (superstructure.isTurretPIDing()) {
-                superstructure.setTurretPIDing(false);
-            }
-            superstructure.setAiming(false);
-        }
+        
+        /**
+         * Intake
+        */
+        shift1 = p.getRawButton(8);
+        // intakeOut is used to passively shuffle the spindexer
+        intakeOut = ((p.getRawButton(7) || shift1) ? 1 : 0) * ((-p.getRawAxis(3))+1) / 2;
+      
+        intake.intakeBalls((IntakeConstants.CONTROL_SCALING_FACTOR * intakeOut));
+        intake.setMotorDirection(shift1);
+        
+    }
+
+    private void p2Loop(XboxController p) {
+        shift2 = p.getBumper(Hand.kLeft);     
+
+        /**
+         * Turret
+         */
         // Turn turret using right joystick
-        if (!superstructure.isUsingTurret()) {
-            turret.rotateManual(JoystickUtils.deadband(p2.getX(Hand.kRight)));
+        if (JoystickUtils.deadband(p.getX(Hand.kRight)) != 0 || autoDisabled) {
+            superstructure.setAiming(false);
+            turret.rotateManual(JoystickUtils.deadband(p.getX(Hand.kRight)));
+        } else {
+            superstructure.setAiming(true);
         }
 
         /**
          * Shooter
          */
-        if (p2.getBumperPressed(Hand.kRight)) {
+        if (p.getBumperPressed(Hand.kRight)) {
             shooter.shoot(1.0, false);
-        } else if (p2.getBumperReleased(Hand.kRight)) {
+        } else if (p.getBumperReleased(Hand.kRight)) {
             shooter.shoot(0.0, false);
         }
 
         /**
-         * Hood
+         * Spindexer
          */
-        if (p2.getStickButton(Hand.kRight)) {
-            superstructure.setAimingAndHood(true);
+        spindexer.rotate(JoystickUtils.deadband( ((shift2 ? -1 : 1) * p.getTriggerAxis(Hand.kRight)) +
+        ((intakeOut > 0) ? 0.13 : 0)));
+        if(p.getStartButton()) {
+            spindexer.rampUp();
         } else {
-            superstructure.setAimingAndHood(false);
+            spindexer.rampDown();
+        }
+
+        /**
+         * Conveyor
+         */
+        if (p.getYButton()) {
+            conveyor.moveBalls(1.0);
+            spindexer.shoot();
+        } else {
+            conveyor.moveBalls(-JoystickUtils.deadband(p.getY(Hand.kLeft)));
         }
 
         /**
          * Adjustable hood
          */
-        int p2Pov = p2.getPOV();
-        if (p2Pov == 0) {
-            hood.moveToAngle(HoodAngle.RETRACTED);
-        } else if (p2Pov == 90) {
-            hood.moveToAngle(HoodAngle.HIGH);
-        } else if (p2Pov == 180) {
-            hood.moveToAngle(HoodAngle.MEDIUM);
-        } else if (p2Pov == 270) {
-            hood.moveToAngle(HoodAngle.LOW);
-        } else {
-            if (p2.getXButton()) {
-                hood.adjust(-0.5);
-            } else if (p2.getBButton()) {
-                hood.adjust(0.5);
-            } else {
-                hood.stop();
-            }
+        if(p.getBackButtonPressed()) hood.goToZero();
+        if(!autoDisabled)hood.autoPosition(limelight.getTa());
+        else hood.adjust(p.getTriggerAxis(Hand.kLeft) * (shift2 ? 1 : -1));
+
+        int pPov = p.getPOV();
+        if (pPov == 0) {
+            hood.moveToTick(HoodAngle.RETRACTED.ticks);
+        } else if (pPov == 90) {
+            hood.moveToTick(HoodAngle.HIGH.ticks);
+        } else if (pPov == 180) {
+            hood.moveToTick(HoodAngle.MEDIUM.ticks);
+        } else if (pPov == 270) {
+            hood.moveToTick(HoodAngle.LOW.ticks);
         }
     }
 }

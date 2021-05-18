@@ -1,4 +1,3 @@
-/**
 package raidzero.robot.wrappers;
 
 import com.revrobotics.CANSparkMax;
@@ -23,4 +22,3 @@ public class LazyCANSparkMax extends CANSparkMax {
         }
     }
 }
-**/

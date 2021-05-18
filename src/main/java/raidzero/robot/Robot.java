@@ -8,6 +8,7 @@ import raidzero.robot.teleop.Teleop;
 import raidzero.robot.submodules.AdjustableHood;
 import raidzero.robot.submodules.Conveyor;
 import raidzero.robot.submodules.Intake;
+import raidzero.robot.submodules.Led;
 import raidzero.robot.submodules.Shooter;
 import raidzero.robot.submodules.Spindexer;
 import raidzero.robot.submodules.SubmoduleManager;
@@ -30,6 +31,7 @@ public class Robot extends TimedRobot {
     private static final AdjustableHood hood = AdjustableHood.getInstance();
     private static final Shooter shooter = Shooter.getInstance();
     private static final Turret turret = Turret.getInstance();
+    private static final Led led = Led.getInstance();
 
     private static final Superstructure superstructure = Superstructure.getInstance();
 
@@ -42,6 +44,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         // Register all submodules here
         submoduleManager.setSubmodules(
+            // swerve,
             superstructure,
             swerve,
             intake,
@@ -49,7 +52,8 @@ public class Robot extends TimedRobot {
             spindexer, 
             hood,
             shooter,
-            turret
+            turret,
+            led
         );
         submoduleManager.onInit();
 
@@ -62,7 +66,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         // Stop autonomous
-//        autoRunner.stop();
+        autoRunner.stop();
         submoduleManager.onStop(Timer.getFPGATimestamp());
     }
 
@@ -74,7 +78,7 @@ public class Robot extends TimedRobot {
         submoduleManager.onStart(Timer.getFPGATimestamp());
 
         autoRunner.readSendableSequence();
-//        autoRunner.start();
+        autoRunner.start();
     }
 
     /**
@@ -83,6 +87,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         double timestamp = Timer.getFPGATimestamp();
+        // System.out.println("tx full: " + RobotController.getCANStatus().txFullCount);
         autoRunner.onLoop(timestamp);
         submoduleManager.onLoop(timestamp);
     }
@@ -93,7 +98,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         // Stop the autonomous
-//        autoRunner.stop();
+        autoRunner.stop();
 
         // Start the teleop handler
         teleop.onStart();

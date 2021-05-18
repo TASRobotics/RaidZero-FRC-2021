@@ -31,18 +31,12 @@ public class Shooter extends Submodule {
 
     private double outputPercentSpeed = 0.0;
 
-    private NetworkTableEntry shooterVelocityEntry = Shuffleboard.getTab(Tab.MAIN)
-        .add("Shooter Vel", 0)
-        .withWidget(BuiltInWidgets.kTextView)
-        .withSize(1, 1)
-        .withPosition(0, 2)
-        .getEntry();
+    private NetworkTableEntry shooterVelocityEntry =
+            Shuffleboard.getTab(Tab.MAIN).add("Shooter Vel", 0).withWidget(BuiltInWidgets.kTextView)
+                    .withSize(1, 1).withPosition(0, 2).getEntry();
     private NetworkTableEntry shooterUpToSpeedEntry = Shuffleboard.getTab(Tab.MAIN)
-        .add("Up To Speed", false)
-        .withWidget(BuiltInWidgets.kBooleanBox)
-        .withSize(1, 1)
-        .withPosition(1, 2)
-        .getEntry();
+            .add("Up To Speed", false).withWidget(BuiltInWidgets.kBooleanBox).withSize(1, 1)
+            .withPosition(1, 2).getEntry();
 
     @Override
     public void onInit() {
@@ -99,8 +93,7 @@ public class Shooter extends Submodule {
      * Fires up the shooter.
      * 
      * @param percentSpeed speed of the shooter in [-1.0, 1.0]
-     * @param freeze       whether to disregard the speed and keep the previous
-     *                     speed
+     * @param freeze       whether to disregard the speed and keep the previous speed
      */
     public void shoot(double percentSpeed, boolean freeze) {
         if (freeze) {
@@ -115,7 +108,7 @@ public class Shooter extends Submodule {
      * @return whether the shooter is up to speed
      */
     public boolean isUpToSpeed() {
-        return Math.abs(outputPercentSpeed) > 0.1 &&
-               Math.abs(shooterMotor.getClosedLoopError()) < ShooterConstants.ERROR_TOLERANCE;
+        return Math.abs(outputPercentSpeed) > 0.1
+                && Math.abs(shooterMotor.getClosedLoopError()) < ShooterConstants.ERROR_TOLERANCE;
     }
 }

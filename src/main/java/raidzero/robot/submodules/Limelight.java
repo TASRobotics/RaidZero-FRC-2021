@@ -53,7 +53,7 @@ public class Limelight extends Submodule {
 		HttpCamera cameraStream = new HttpCamera("limelight", "http://10.42.53.11:5800/stream.mjpg");
 		Shuffleboard.getTab(Tab.MAIN)
 				.add("Limelight", cameraStream)
-				.withPosition(5, 0)
+				.withPosition(7, 3)
 				.withSize(3, 3);
 	}
 
